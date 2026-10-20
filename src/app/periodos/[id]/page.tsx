@@ -98,6 +98,13 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
             <a className="btn sec" href={`/periodos/${id}/descargas?tipo=efectivo&pl=B1`}>Pago en efectivo B1</a>
             {b2.length > 0 && <a className="btn sec" href={`/periodos/${id}/descargas?tipo=efectivo&pl=B2`}>Planilla de pago B2</a>}
           </div>
+          <h3>Asientos para Albor</h3>
+          <div className="fila">
+            {b2.length > 0 && <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=B2`}>B2 · carga inicial (día 1)</a>}
+            <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=P1`}>P1 · planilla B1</a>
+            <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P1`}>PrevP1 · cargas y previsiones B1</a>
+            {b2.length > 0 && <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P2`}>PrevP2 · previsiones B2</a>}
+          </div>
         </div>
       )}
 

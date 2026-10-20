@@ -586,7 +586,7 @@
    "factor": 1.0,
    "cotizable": false,
    "afecta_rciva": false,
-   "afecta_aguinaldo": false,
+   "afecta_aguinaldo": true,
    "moneda": "BOB",
    "tipo_contable": "001"
   },

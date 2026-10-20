@@ -74,6 +74,7 @@ export async function accionAplicarAlbor(fd: FormData) {
   for (const [k, v] of fd.entries()) if (k.startsWith('col_')) mapeo[Number(k.slice(4))] = String(v);
   const r = await aplicarImportacion(imp, hoja, mapeo);
   revalidatePath(`/periodos/${id}`);
-  const msg = `Importadas ${r.novedades} novedades de Albor` + (r.noEncontrados.length ? `|Códigos no encontrados en el periodo: ${r.noEncontrados.join(', ')}` : '');
+  const msg = `Importadas ${r.novedades} novedades de Albor` + (r.corregidos.length ? `|Reconocidos por nombre (corregir código en Albor): ${r.corregidos.join(', ')}` : '')
+    + (r.noEncontrados.length ? `|Códigos no encontrados en el periodo: ${r.noEncontrados.join(', ')}` : '');
   redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
 }

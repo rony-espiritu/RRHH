@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { generarAsientos, type GrupoAsiento } from '@/lib/datos/asientos';
 import { archivoBancoUnion, csvOvt, listaEfectivo, planillaBnb } from '@/lib/datos/salidas';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -9,6 +10,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     tipo === 'union' ? await archivoBancoUnion(id, empresa)
     : tipo === 'ovt' ? await csvOvt(id, empresa)
     : tipo === 'bnb' ? await planillaBnb(id)
+    : tipo === 'albor' ? await generarAsientos(id, (q.get('grupo') ?? 'P1') as GrupoAsiento)
     : tipo === 'efectivo' ? await listaEfectivo(id, q.get('pl') === 'B2' ? 'B2' : 'B1')
     : null;
   if (!archivo) return new NextResponse('Tipo de archivo no válido', { status: 400 });

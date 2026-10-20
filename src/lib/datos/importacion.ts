@@ -98,11 +98,16 @@ export async function aplicarImportacion(id: number, hojaNombre: string, mapeo: 
     const [pl, cod] = d.split('|');
     return { col: Number(col), planilla: pl as Planilla, codigo: Number(cod) };
   });
-  const vinculos = await sql<{ codigo: string; vinculo_id: number }[]>`
-    select t.codigo, v.id vinculo_id from vinculo v join trabajador t on t.id = v.trabajador_id
+  const vinculos = await sql<{ codigo: string; vinculo_id: number; nombre: string }[]>`
+    select t.codigo, v.id vinculo_id, concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres) nombre from vinculo v join trabajador t on t.id = v.trabajador_id
     join periodo p on p.id = ${imp.periodo_id}
     where v.fecha_ingreso <= p.fecha_fin and (v.fecha_retiro is null or v.fecha_retiro >= p.fecha_inicio)`;
   const porCodigo = new Map(vinculos.map((v) => [v.codigo.toUpperCase(), v.vinculo_id]));
+  // Respaldo por nombre, para códigos mal escritos en Albor (p.ej. TD1001 en lugar de TD0110)
+  const norm = (x: unknown) => String(x ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/gi, '').toUpperCase();
+  const porNombre = new Map(vinculos.map((v) => [norm(v.nombre), v.vinculo_id]));
+  const colNombre = h.columnas.findIndex((c) => /^(personal|nombre)/i.test(c.trim()));
+  const corregidos: string[] = [];
   const conceptos = await sql<{ id: number; planilla: string; codigo: number }[]>`select id, planilla::text, codigo from concepto`;
   const cid = (pl: string, cod: number) => conceptos.find((c) => c.planilla === pl && c.codigo === cod)?.id;
 
@@ -110,7 +115,11 @@ export async function aplicarImportacion(id: number, hojaNombre: string, mapeo: 
   const filas: { periodo_id: number; vinculo_id: number; concepto_id: number; monto: number; origen: string; importacion_id: number }[] = [];
   for (const f of h.filas) {
     const cod = String(f[h.colCodigo]).trim().toUpperCase();
-    const v = porCodigo.get(cod);
+    let v = porCodigo.get(cod);
+    if (!v && colNombre >= 0) {
+      v = porNombre.get(norm(f[colNombre]));
+      if (v) corregidos.push(`${cod} → ${vinculos.find((x) => x.vinculo_id === v)!.codigo}`);
+    }
     if (!v) { noEncontrados.push(cod); continue; }
     for (const d of destinos) {
       const monto = Math.round(Math.abs(Number(f[d.col] ?? 0)) * 100) / 100;
@@ -123,7 +132,7 @@ export async function aplicarImportacion(id: number, hojaNombre: string, mapeo: 
     if (ids.length) await tx`delete from novedad where periodo_id = ${imp.periodo_id} and origen = 'ALBOR' and concepto_id in ${tx(ids)}`;
     if (filas.length) await tx`insert into novedad ${tx(filas, 'periodo_id', 'vinculo_id', 'concepto_id', 'monto', 'origen', 'importacion_id')}`;
     await tx`update importacion set filas_ok = ${filas.length}, filas_error = ${noEncontrados.length},
-             log = log || ${tx.json({ aplicado: { hoja: hojaNombre, mapeo, noEncontrados } })} where id = ${id}`;
+             log = log || ${tx.json({ aplicado: { hoja: hojaNombre, mapeo, noEncontrados, corregidos } })} where id = ${id}`;
   });
-  return { novedades: filas.length, noEncontrados };
+  return { novedades: filas.length, noEncontrados, corregidos };
 }
