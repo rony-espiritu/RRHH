@@ -196,12 +196,15 @@ create table vinculo (
 );
 create index on vinculo (trabajador_id) where fecha_retiro is null;
 
-create table asignacion_cc (                              -- distribución a centros de costo, versionada
+create table asignacion_cc (                              -- distribución a centros de costo, versionada por campaña
   id            serial primary key,
   vinculo_id    int not null references vinculo(id),
   centro_costo_id int not null references centro_costo(id),
+  planilla      tipo_planilla,                            -- null = aplica a B1 y B2
   porcentaje    numeric(5,2) not null default 100,
-  vigente_desde date not null,
+  albor_cc      varchar(6),                               -- si se indica, reemplaza el CC Albor del centro de costo
+  albor_unidad_negocio varchar(6),                        -- idem unidad de negocio (p.ej. reparto de Pardo en 4 destinos)
+  vigente_desde date not null,                            -- normalmente 1 de julio (inicio de campaña)
   vigente_hasta date
 );
 
@@ -420,3 +423,14 @@ insert into tabla_antiguedad (anios_desde, anios_hasta, porcentaje) values
 insert into tipo_documento values ('CI','Carnet de Identidad'),('CM','Certificado de Matrimonio'),
  ('CN','Certificado de Nacimiento'),('CS','Carnet de Salud CORDES'),('VA','Formulario de Vacación'),
  ('CT','Contrato de trabajo'),('FQ','Finiquito');
+
+-- ---------------------------------------------------------------------
+-- 10. SEGURIDAD (Supabase): RLS activo en todas las tablas.
+-- Sin políticas = nadie accede con la clave pública; la app usa el servidor.
+-- Las políticas por rol (RRHH, Gerencia, trabajador) se agregan con las pantallas.
+-- ---------------------------------------------------------------------
+do $$ declare t record; begin
+  for t in select tablename from pg_tables where schemaname = 'public' loop
+    execute format('alter table public.%I enable row level security', t.tablename);
+  end loop;
+end $$;

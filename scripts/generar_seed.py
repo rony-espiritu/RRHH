@@ -149,9 +149,16 @@ def main():
         forma = FORMA.get(p['Banco'] or 'EFECTIVO', 'EFECTIVO')
         sql.append(f"insert into trabajador_pago (trabajador_id, planilla, forma, nro_cuenta, vigente_desde) values "
                    f"((select id from trabajador where codigo={q(cod)}), 'B1', '{forma}', {q(p['N° cuenta'])}, '{desde}');")
+        dist = [x for x in CAT.get('distribuciones', []) if x['codigo'] == cod]
         if p['Centro de costo']:
-            sql.append(f"insert into asignacion_cc (vinculo_id, centro_costo_id, porcentaje, vigente_desde) values "
-                       f"({v}, (select id from centro_costo where codigo={q(p['Centro de costo'])}), 100, '{desde}');")
+            sql.append(f"insert into asignacion_cc (vinculo_id, centro_costo_id, planilla, porcentaje, vigente_desde) values "
+                       f"({v}, (select id from centro_costo where codigo={q(p['Centro de costo'])}), "
+                       + ("'B1'" if dist else 'null') + f", 100, '{desde}');")
+        for x in dist:  # reparto por campaña (parametrizable)
+            for r in x['reparto']:
+                sql.append(f"insert into asignacion_cc (vinculo_id, centro_costo_id, planilla, porcentaje, albor_cc, albor_unidad_negocio, vigente_desde) values "
+                           f"({v}, (select id from centro_costo where codigo={q(x['centro'])}), '{x['planilla']}', {r['porcentaje']}, "
+                           f"{q(r['albor_cc'])}, {q(r['albor_un'])}, '{x['vigente_desde']}');")
         for clave, valor, motivo in TASAS_PROPIAS.get(cod, []):
             sql.append(f"insert into tasa_trabajador (trabajador_id, parametro_clave, valor, vigente_desde, motivo) values "
                        f"((select id from trabajador where codigo={q(cod)}), {q(clave)}, {valor}, '2026-01-01', {q(motivo)});")

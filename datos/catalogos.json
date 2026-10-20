@@ -1426,5 +1426,35 @@
    "albor_cc": "80",
    "albor_un": "80"
   }
+ ],
+ "distribuciones": [
+  {
+   "codigo": "PA0105",
+   "planilla": "B2",
+   "vigente_desde": "2026-07-01",
+   "centro": "COMECLBJ",
+   "reparto": [
+    {
+     "albor_cc": "02",
+     "albor_un": "02",
+     "porcentaje": 39
+    },
+    {
+     "albor_cc": "01",
+     "albor_un": "02",
+     "porcentaje": 21
+    },
+    {
+     "albor_cc": "02",
+     "albor_un": "11",
+     "porcentaje": 30
+    },
+    {
+     "albor_cc": "80",
+     "albor_un": "50",
+     "porcentaje": 10
+    }
+   ]
+  }
  ]
 }
