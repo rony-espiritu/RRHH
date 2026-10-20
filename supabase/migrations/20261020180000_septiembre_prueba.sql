@@ -22,8 +22,8 @@ from vinculo h join vinculo v on v.trabajador_id = h.trabajador_id and v.fecha_r
 where h.fecha_retiro = '2026-09-30' and h.observacion like 'Vínculo B2 de septiembre%'
   and not exists (select 1 from asignacion_cc x where x.vinculo_id = h.id);
 -- 4) Montos fijos de septiembre: si coinciden con los actuales, el fijo actual rige desde septiembre; si no, se agrega uno solo para septiembre.
-begin;
-create temp table fijo_sep (codigo text, planilla tipo_planilla, conc smallint, cantidad numeric, monto numeric) on commit drop;
+drop table if exists fijo_sep;
+create table fijo_sep (codigo text, planilla tipo_planilla, conc smallint, cantidad numeric, monto numeric);  -- tabla auxiliar, se borra al final
 insert into fijo_sep values
   ('AL1106', 'B1', 2, 30, 3300.0),
   ('AW1610', 'B1', 2, 30, 3300.0),
@@ -421,4 +421,4 @@ join periodo p on p.anio = 2026 and p.mes = 9 and p.tipo = 'MENSUAL';
 insert into rciva_declaracion (periodo_id, trabajador_id, monto_facturas)
 select p.id, t.id, 16553.44 from periodo p, trabajador t where p.anio = 2026 and p.mes = 9 and p.tipo = 'MENSUAL' and t.codigo = 'MS1111'
 and not exists (select 1 from rciva_declaracion r where r.periodo_id = p.id and r.trabajador_id = t.id);
-commit;
+drop table if exists fijo_sep;
