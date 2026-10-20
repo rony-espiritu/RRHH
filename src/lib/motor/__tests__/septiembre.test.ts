@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import datos from './septiembre-2026.json';
+import datosJson from './septiembre-2026.json';
+import type { NovedadesB1, NovedadesB2, Periodo } from '../tipos';
+
+type Num = Record<string, number>;
+interface Fixture {
+  periodo: Periodo;
+  b1: { codigo: string; nombre: string; fechaNacimiento: string; fechaIngreso: string; sueldo: number; bonoNivel: number;
+        tasas: { SOLIDARIO_LAB?: number }; novedades: NovedadesB1; esperado: Num }[];
+  b2: { codigo: string; nombre: string; abonoMensual: number; novedades: NovedadesB2; esperado: Num }[];
+  rciva: { codigo: string; neto: number; facturasF110: number; saldoAnterior: number; esperado: Num }[];
+}
+const datos = datosJson as unknown as Fixture;
 import { calcularB1, calcularB2, calcularRciva } from '../calculo';
 import { PARAMETROS_2026 as P } from '../parametros-2026';
 
@@ -10,7 +21,7 @@ describe('B1 septiembre 2026 contra SIDPLAN', () => {
     it(`${f.codigo} ${f.nombre.trim()}`, () => {
       const r = calcularB1(
         { codigo: f.codigo, fechaNacimiento: f.fechaNacimiento, fechaIngreso: f.fechaIngreso, sueldo: f.sueldo, bonoNivel: f.bonoNivel, tasas: f.tasas },
-        { dias: f.novedades.dias, heHoras: f.novedades.heHoras, descuentos: f.novedades.descuentos, facturasF110: (f.novedades as { facturasF110?: number }).facturasF110, saldoRcivaAnterior: (f.novedades as { saldoRcivaAnterior?: number }).saldoRcivaAnterior },
+        f.novedades,
         P, periodo,
       );
       expect(r.basico).toBeCloseTo(f.esperado.basico, 2);
