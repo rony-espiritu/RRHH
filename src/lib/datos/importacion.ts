@@ -1,5 +1,5 @@
 import 'server-only';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { sql } from '@/lib/db';
 import type { Planilla } from './planilla';
 
@@ -34,16 +34,37 @@ function sugerir(col: string): string {
 
 export interface Hoja { nombre: string; filaCabecera: number; columnas: string[]; colCodigo: number; filas: (string | number | null)[][] }
 
-/** Lee el Excel y detecta, en cada hoja, la fila de cabecera (la que contiene "Codigo"). */
-export function leerExcel(buf: ArrayBuffer): Hoja[] {
-  const wb = XLSX.read(buf, { type: 'array' });
-  return wb.SheetNames.map((nombre) => {
-    const filas = XLSX.utils.sheet_to_json<(string | number | null)[]>(wb.Sheets[nombre], { header: 1, defval: null, raw: true });
+/** Valor plano de una celda de exceljs (fórmulas → resultado, textos enriquecidos → texto). */
+function plano(v: ExcelJS.CellValue): string | number | null {
+  if (v == null) return null;
+  if (typeof v === 'number' || typeof v === 'string') return v;
+  if (typeof v === 'boolean') return v ? 1 : 0;
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  if (typeof v === 'object') {
+    if ('result' in v) return plano((v as ExcelJS.CellFormulaValue).result as ExcelJS.CellValue);
+    if ('richText' in v) return (v as ExcelJS.CellRichTextValue).richText.map((t) => t.text).join('');
+    if ('text' in v) return String((v as ExcelJS.CellHyperlinkValue).text);
+  }
+  return null;
+}
+
+/** Lee el Excel (.xlsx) y detecta, en cada hoja, la fila de cabecera (la que contiene "Codigo"). */
+export async function leerExcel(buf: ArrayBuffer): Promise<Hoja[]> {
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(buf);
+  return wb.worksheets.map((ws) => {
+    const filas: (string | number | null)[][] = [];
+    ws.eachRow({ includeEmpty: true }, (row) => {
+      const vals = row.values as ExcelJS.CellValue[];
+      filas.push(Array.from(vals.slice(1), (v) => plano(v)));
+    });
     let fc = filas.findIndex((f) => f.some((c) => typeof c === 'string' && /c[oó]digo/i.test(c)));
     if (fc < 0) fc = 0;
-    const columnas = (filas[fc] ?? []).map((c, i) => (c == null || c === '' ? `Columna ${i + 1}` : String(c).trim()));
+    const ancho = Math.max(...filas.map((f) => f.length));
+    const columnas = Array.from({ length: ancho }, (_, i) => filas[fc]?.[i] ?? null).map((c, i) => (c == null || c === '' ? `Columna ${i + 1}` : String(c).trim()));
     const colCodigo = Math.max(0, columnas.findIndex((c) => /c[oó]digo/i.test(c)));
-    return { nombre, filaCabecera: fc, columnas, colCodigo, filas: filas.slice(fc + 1).filter((f) => f[colCodigo] != null && String(f[colCodigo]).trim() !== '') };
+    return { nombre: ws.name, filaCabecera: fc, columnas, colCodigo,
+      filas: filas.slice(fc + 1).filter((f) => f[colCodigo] != null && String(f[colCodigo]).trim() !== '') };
   });
 }
 
@@ -62,7 +83,7 @@ export async function obtenerImportacion(id: number) {
 }
 
 export function sugerencias(h: Hoja) {
-  return h.columnas.map((c) => sugerir(c));
+  return h.columnas.map((c) => sugerir(String(c ?? '')));
 }
 
 /**

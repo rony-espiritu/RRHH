@@ -63,7 +63,7 @@ export async function accionSubirAlbor(fd: FormData) {
   const id = Number(fd.get('periodo'));
   const f = fd.get('archivo') as File | null;
   if (!f || !f.size) redirect(`/periodos/${id}/importar?msg=${encodeURIComponent('Seleccione un archivo Excel')}`);
-  const hojas = leerExcel(await f!.arrayBuffer());
+  const hojas = await leerExcel(await f!.arrayBuffer());
   const imp = await registrarImportacion(id, f!.name, hojas);
   redirect(`/periodos/${id}/importar?imp=${imp}`);
 }

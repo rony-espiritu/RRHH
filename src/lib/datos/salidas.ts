@@ -1,5 +1,5 @@
 import 'server-only';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { sql } from '@/lib/db';
 import { nombreMes } from './planilla';
 
@@ -27,6 +27,18 @@ async function filas(periodoId: number, planilla: 'B1' | 'B2', empresa?: string)
     order by t.ap_paterno, t.ap_materno, t.nombres`];
 }
 
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+/** Arma un .xlsx de una hoja: primera fila en negrita, columnas con ancho según el contenido. */
+async function libro(nombreHoja: string, datos: (string | number)[][]) {
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet(nombreHoja);
+  datos.forEach((f) => ws.addRow(f));
+  ws.getRow(1).font = { bold: true };
+  ws.columns.forEach((c, i) => { c.width = Math.min(45, Math.max(10, ...datos.map((f) => String(f[i] ?? '').length + 2))); });
+  return Buffer.from(await wb.xlsx.writeBuffer());
+}
+
 const monto = (f: FilaSalida, ...cods: number[]) => f.lineas.filter((l) => cods.includes(l.codigo)).reduce((s, l) => s + Number(l.monto), 0);
 const cant = (f: FilaSalida, cod: number) => f.lineas.filter((l) => l.codigo === cod).reduce((s, l) => s + Number(l.cantidad ?? 0), 0);
 const n2 = (x: number) => String(Math.round(x * 100) / 100);
@@ -48,10 +60,8 @@ export async function planillaBnb(periodoId: number) {
   const datos = [['Periodo de abono (Año)', 'Periodo de abono (Mes)', 'Monto', 'Número De cuenta', 'Tipo Documento', 'Número Documento', 'Nombre Beneficiario'],
     ...fs.map((f) => [String(p.anio), mes, f.liquido.toFixed(2), f.nro_cuenta ?? '', 'Carnet De Identidad', f.ci, [f.ap_paterno, f.ap_materno, f.nombres].filter(Boolean).join(' ').toUpperCase()])];
   datos.push(['', 'TOTAL', fs.reduce((s, f) => s + f.liquido, 0).toFixed(2), '', '', '', '']);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(datos), 'Hoja');
-  return { nombre: `Planilla banco BNB ${p.anio}-${String(p.mes).padStart(2, '0')}.xlsx`, tipo: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    cuerpo: Buffer.from(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })), filas: fs.length };
+  return { nombre: `Planilla banco BNB ${p.anio}-${String(p.mes).padStart(2, '0')}.xlsx`, tipo: XLSX_MIME,
+    cuerpo: await libro('Hoja', datos), filas: fs.length };
 }
 
 /** Lista de pagos en efectivo (B1 sin cuenta o todo B2), para firma. */
@@ -60,10 +70,7 @@ export async function listaEfectivo(periodoId: number, planilla: 'B1' | 'B2') {
   const datos = [['Empresa', 'Código', 'Nombre', 'CI', planilla === 'B1' ? 'Líquido pagable' : 'Saldo cuenta corriente', 'Firma'],
     ...fs.map((f) => [f.empresa, f.codigo, nombreBanco(f), f.ci, f.liquido, '']),
     ['', '', 'TOTAL', '', fs.reduce((s, f) => s + f.liquido, 0), '']];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(datos), 'Efectivo');
-  return { nombre: `Pago efectivo ${planilla}.xlsx`, tipo: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    cuerpo: Buffer.from(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })), filas: fs.length };
+  return { nombre: `Pago efectivo ${planilla}.xlsx`, tipo: XLSX_MIME, cuerpo: await libro('Efectivo', datos), filas: fs.length };
 }
 
 const OVT_COLUMNAS = ['Nro', 'Tipo de documento de identidad', 'Número de documento de identidad', 'Lugar de expedición', 'Fecha de nacimiento',
