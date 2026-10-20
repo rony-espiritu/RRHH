@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { sql } from '@/lib/db';
 import { bs } from '@/lib/formato';
 
@@ -24,7 +25,7 @@ export default async function Personal({ searchParams }: { searchParams: Promise
     order by e.codigo, nombre`;
   return (
     <>
-      <h2>Personal</h2>
+      <div className="fila" style={{ justifyContent: 'space-between' }}><h2>Personal</h2><Link href="/personal/nuevo" className="btn">+ Alta de trabajador</Link></div>
       <p className="sub">{filas.length} trabajadores activos</p>
       <form className="fila panel">
         <select name="empresa" defaultValue={empresa}>
@@ -41,7 +42,7 @@ export default async function Personal({ searchParams }: { searchParams: Promise
           <tbody>
             {filas.map((f) => (
               <tr key={f.codigo}>
-                <td>{f.codigo}</td><td>{f.nombre}</td><td>{f.ci}</td>
+                <td><Link href={`/personal/${f.codigo}`}>{f.codigo}</Link></td><td><Link href={`/personal/${f.codigo}`}>{f.nombre}</Link></td><td>{f.ci}</td>
                 <td>{f.en_b1 ? f.empresa : <span title="Solo B2">{f.empresa_b2} (B2)</span>}</td>
                 <td>{f.cargo}</td><td>{f.cc}</td><td>{f.fecha_ingreso}</td>
                 <td className="n">{bs(f.sueldo)}</td><td className="n">{bs(f.bono)}</td><td className="n">{bs(f.abono)}</td>

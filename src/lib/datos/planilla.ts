@@ -294,10 +294,10 @@ export async function resumenPorEmpresa(periodoId: number): Promise<ResumenEmpre
     where pt.periodo_id = ${periodoId} group by 1, 2, 3 order by 1, 2`];
 }
 
-export type FilaPlanilla = { id: number; codigo: string; nombre: string; empresa: string; centro_costo: string | null; dias: number; total_ganado: number; total_descuentos: number; liquido: number; forma_pago: string; lineas: { codigo: number; nombre: string; monto: number; cantidad: number | null }[] };
+export type FilaPlanilla = { id: number; vinculo_id: number; codigo: string; nombre: string; empresa: string; centro_costo: string | null; dias: number; total_ganado: number; total_descuentos: number; liquido: number; forma_pago: string; lineas: { codigo: number; nombre: string; monto: number; cantidad: number | null }[] };
 export async function detallePlanilla(periodoId: number, planilla: Planilla): Promise<FilaPlanilla[]> {
-  return [...await sql<{ id: number; codigo: string; nombre: string; empresa: string; centro_costo: string | null; dias: number; total_ganado: number; total_descuentos: number; liquido: number; forma_pago: string; lineas: { codigo: number; nombre: string; monto: number; cantidad: number | null }[] }[]>`
-    select pt.id, t.codigo, trim(concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres)) nombre, e.codigo empresa, cc.codigo centro_costo,
+  return [...await sql<{ id: number; vinculo_id: number; codigo: string; nombre: string; empresa: string; centro_costo: string | null; dias: number; total_ganado: number; total_descuentos: number; liquido: number; forma_pago: string; lineas: { codigo: number; nombre: string; monto: number; cantidad: number | null }[] }[]>`
+    select pt.id, pt.vinculo_id, t.codigo, trim(concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres)) nombre, e.codigo empresa, cc.codigo centro_costo,
            pt.dias_pagados dias, pt.total_ganado, pt.total_descuentos, pt.liquido, pt.forma_pago::text forma_pago,
            coalesce((select json_agg(json_build_object('codigo', l.codigo, 'nombre', c.nombre, 'monto', l.monto, 'cantidad', l.cantidad) order by l.codigo)
                      from planilla_linea l join concepto c on c.id = l.concepto_id where l.planilla_trabajador_id = pt.id), '[]') lineas

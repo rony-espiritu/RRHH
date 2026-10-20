@@ -37,7 +37,7 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
             <th className="n">Total desc.</th><th className="n">{pl === 'B1' ? 'Líquido' : 'Saldo'}</th><th>Pago</th></tr></thead>
           <tbody>
             {filas.map((f) => (
-              <tr key={f.id}><td>{f.codigo}</td><td>{f.nombre}</td><td>{f.empresa}</td><td>{f.centro_costo}</td><td className="n">{f.dias}</td>
+              <tr key={f.id}><td><Link href={`/personal/${f.codigo}`}>{f.codigo}</Link></td><td><Link href={`/periodos/${id}/boleta/${f.vinculo_id}?pl=${pl}`} target="_blank" title="Ver boleta">{f.nombre}</Link></td><td>{f.empresa}</td><td>{f.centro_costo}</td><td className="n">{f.dias}</td>
                 {ingresos.map((c) => <td key={c} className="n">{bs(val(f, c) || null)}</td>)}
                 <td className="n"><b>{bs(f.total_ganado)}</b></td>
                 {descuentos.map((c) => <td key={c} className="n">{bs(val(f, c) || null)}</td>)}
