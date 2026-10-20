@@ -61,3 +61,7 @@ update vinculo v set tipo_contrato = 2 from trabajador t where t.id = v.trabajad
 update vinculo v set fecha_ingreso = '2023-05-21' from trabajador t where t.id = v.trabajador_id and v.fecha_retiro is null and t.codigo in ('FR2906', 'PA0105') and v.fecha_ingreso = '2023-05-22';
 update trabajador set fecha_ingreso_grupo = '2023-05-21' where codigo in ('FR2906', 'PA0105') and fecha_ingreso_grupo = '2023-05-22';
 update asignacion_cc a set vigente_desde = '2023-05-21' from vinculo v join trabajador t on t.id = v.trabajador_id where a.vinculo_id = v.id and t.codigo in ('FR2906', 'PA0105') and a.vigente_desde = '2023-05-22';
+-- 5) NUA según OVT (confirmado por RRHH): el 41382471 es de PA0105; VP2208 queda sin NUA hasta obtener el suyo.
+update trabajador set nua_cua = null where codigo = 'VP2208' and nua_cua = '41382471';
+update trabajador set nua_cua = '41382471' where codigo = 'PA0105';
+update trabajador set nua_cua = '39809237' where codigo = 'SR2401';
