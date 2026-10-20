@@ -1,0 +1,2668 @@
+{
+ "periodo": {
+  "anio": 2026,
+  "mes": 9,
+  "ufvInicio": 3.3377,
+  "ufvFin": 3.3514,
+  "tcUsd": 6.96
+ },
+ "b1": [
+  {
+   "codigo": "OA0607",
+   "nombre": "Ovale, Mano, Angel",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1961-06-06",
+   "fechaIngreso": "2026-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 263.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 170.01
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 374.12,
+    "solidario": 17.82,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RA0902",
+   "nombre": "Rivero, Hurtado, Alexander",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1996-02-09",
+   "fechaIngreso": "2025-02-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 24.0,
+    "descuentos": {
+     "511": 1208.54
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 330.0,
+    "gestora": 443.22,
+    "solidario": 18.15,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "SE1504",
+   "nombre": "Suarez, Pinto, Eduardo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1987-04-15",
+   "fechaIngreso": "2026-01-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 849.55
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "IV0912",
+   "nombre": "Ibañez, Bogado, Victor Hugo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1968-12-09",
+   "fechaIngreso": "2026-07-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 263.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 435.04,
+    "solidario": 17.82,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "PD2303",
+   "nombre": "Parada, Garcia, Darwin",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1991-03-23",
+   "fechaIngreso": "2026-04-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 1133.62
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RO0910",
+   "nombre": "Rivero, Vargas, Orlando",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1990-10-09",
+   "fechaIngreso": "2025-07-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 550.0,
+    "gestora": 480.83,
+    "solidario": 19.69,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "LF0312",
+   "nombre": "Landivar, Roca, Freddy",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1976-12-03",
+   "fechaIngreso": "2025-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MH1002",
+   "nombre": "Manu, Fonseca, Herman",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1995-02-10",
+   "fechaIngreso": "2026-09-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 550.0,
+    "gestora": 480.83,
+    "solidario": 19.69,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RO0602",
+   "nombre": "Roca, Mariategui, Omar Jesus",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1994-02-06",
+   "fechaIngreso": "2025-02-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 443.99
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MR1808",
+   "nombre": "Mansilla, Pinto, Ronaldo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1976-08-18",
+   "fechaIngreso": "2025-08-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "LW2407",
+   "nombre": "Limaica, Vargas, Wilber Pedro",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1979-07-24",
+   "fechaIngreso": "2026-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 550.0,
+    "gestora": 480.83,
+    "solidario": 19.69,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "YR1103",
+   "nombre": "Yumacales, Mole, Ramiro",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1989-03-11",
+   "fechaIngreso": "2024-11-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 1348.02
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "YV0902",
+   "nombre": "Yamalo, Isita, Victor Hugo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1994-05-26",
+   "fechaIngreso": "2025-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MA1805",
+   "nombre": "Mole, Limaica, Armando",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1989-05-10",
+   "fechaIngreso": "2026-07-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RH1103",
+   "nombre": "Rivero, Yuco, Hernan",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1982-03-11",
+   "fechaIngreso": "2024-11-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 20.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 275.0,
+    "gestora": 447.25,
+    "solidario": 18.32,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "AW1610",
+   "nombre": "Arias, Justiniano, Wilner",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1989-10-16",
+   "fechaIngreso": "2025-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MR1902",
+   "nombre": "Mariategui, Rivera, Reinaldo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1969-02-19",
+   "fechaIngreso": "2025-05-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 350.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 445.67,
+    "solidario": 18.25,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MS3004",
+   "nombre": "Montero, Mendez, Salvador Ezequiel",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1980-04-30",
+   "fechaIngreso": "2024-11-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "descuentos": {
+     "511": 1797.51
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 550.0,
+    "gestora": 470.09,
+    "solidario": 19.25,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "IJ1510",
+   "nombre": "Isita, Mascaya, Juan",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1972-10-14",
+   "fechaIngreso": "2025-05-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 175.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 424.3,
+    "solidario": 17.38,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MG2204",
+   "nombre": "Molina, Nogales, Guillermo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1985-04-22",
+   "fechaIngreso": "2026-06-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 18.8,
+    "descuentos": {
+     "511": 1026.27
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 258.5,
+    "gestora": 445.24,
+    "solidario": 18.23,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "ML1405",
+   "nombre": "Mariategui, Mole, Luis Reynaldo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1992-05-14",
+   "fechaIngreso": "2026-08-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 92.87
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "BA1211",
+   "nombre": "Bazan, Yamalo, Aldrin",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1977-11-12",
+   "fechaIngreso": "2026-02-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 1240.78
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RD0907",
+   "nombre": "Roca, Temo, Durval",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1970-07-09",
+   "fechaIngreso": "2025-01-21",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "CR2704",
+   "nombre": "Cortez, Roldan, Rubal",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1990-04-27",
+   "fechaIngreso": "2026-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 24.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 330.0,
+    "gestora": 443.22,
+    "solidario": 18.15,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "BR0501",
+   "nombre": "Becerra, Najaya, Ricardo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1979-01-05",
+   "fechaIngreso": "2024-12-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 24.0,
+    "descuentos": {
+     "511": 1663.16
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 330.0,
+    "gestora": 443.22,
+    "solidario": 18.15,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RF2404",
+   "nombre": "Rivero, Mojica, Fidel",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1972-04-24",
+   "fechaIngreso": "2025-06-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MO1504",
+   "nombre": "Mazueto, Sairuma, Osman",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1978-04-15",
+   "fechaIngreso": "2025-12-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 504.09
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MF1005",
+   "nombre": "Mole, Limaica, Francisco",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1985-05-10",
+   "fechaIngreso": "2025-07-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "NE1107",
+   "nombre": "Negrete, Gualuo, Einar",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1976-07-11",
+   "fechaIngreso": "2025-02-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 32.0,
+    "descuentos": {
+     "511": 62.79
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 440.0,
+    "gestora": 456.65,
+    "solidario": 18.7,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "VP2208",
+   "nombre": "Valenzuela, Soleto, Pablo",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1978-08-22",
+   "fechaIngreso": "2025-06-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 72.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 990.0,
+    "gestora": 534.55,
+    "solidario": 21.89,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "ND1809",
+   "nombre": "Negrete, Isita, Daniel",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1975-09-28",
+   "fechaIngreso": "2026-06-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 263.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 435.04,
+    "solidario": 17.82,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "IJ0609",
+   "nombre": "Isita, Guarena, Juan Antonio",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "2002-09-06",
+   "fechaIngreso": "2026-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 1135.16
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "YI1402",
+   "nombre": "Yumacales, Mano, Iver",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1972-02-14",
+   "fechaIngreso": "2025-04-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 584.07
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "CF1701",
+   "nombre": "Cayoba, Mosqueira, Freddys",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1986-01-17",
+   "fechaIngreso": "2025-07-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 509.18
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 413.67,
+    "solidario": 16.94,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "CK2102",
+   "nombre": "Cortez, Roldan, Kirko",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1999-02-21",
+   "fechaIngreso": "2025-08-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 711.37
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "GJ0405",
+   "nombre": "Gil, Vargas, Joel",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "2000-05-04",
+   "fechaIngreso": "2025-10-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MR1312",
+   "nombre": "Mariategui, Tany, Renard Henrry",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1991-12-13",
+   "fechaIngreso": "2026-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 1053.89
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "ME0507",
+   "nombre": "Mariategui, Ribera, Erick Gaspar",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1991-07-05",
+   "fechaIngreso": "2024-11-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 971.97
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RJ1607",
+   "nombre": "Rivero, Rimba, Jesus",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1966-07-16",
+   "fechaIngreso": "2025-02-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 64.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 880.0,
+    "gestora": 510.38,
+    "solidario": 20.9,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "SR2401",
+   "nombre": "Sedamano, Cayo, Ramiro",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1981-01-24",
+   "fechaIngreso": "2024-11-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 72.0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 990.0,
+    "gestora": 523.81,
+    "solidario": 21.45,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "AL1106",
+   "nombre": "Apuri, Justiniano, Luis Alberto",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1981-06-11",
+   "fechaIngreso": "2024-11-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "TA2407",
+   "nombre": "Taraune, Machado, Alex",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1995-07-24",
+   "fechaIngreso": "2025-08-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 458.39
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "BI1111",
+   "nombre": "Bedregal, Pacheco, Israel",
+   "grupo": "ESTANCIA",
+   "fechaNacimiento": "1990-11-11",
+   "fechaIngreso": "2026-05-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 507.46
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 0,
+    "horasExtra": 0,
+    "gestora": 402.93,
+    "solidario": 16.5,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "MS1111",
+   "nombre": "Meneses, Rueda, Sandra",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1973-11-11",
+   "fechaIngreso": "2003-05-01",
+   "sueldo": 16700.754,
+   "bonoNivel": 0,
+   "tasas": {
+    "SOLIDARIO_LAB": 0.009333
+   },
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {},
+    "facturasF110": 16553.44,
+    "saldoRcivaAnterior": 71339.34
+   },
+   "esperado": {
+    "basico": 16700.75,
+    "antiguedad": 4158.0,
+    "horasExtra": 0,
+    "gestora": 2546.85,
+    "solidario": 194.67,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "BA2905",
+   "nombre": "Bilbao la Vieja, Romero, Alfredo Ronald",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1974-05-29",
+   "fechaIngreso": "2017-06-19",
+   "sueldo": 5691.903,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 200.0
+    }
+   },
+   "esperado": {
+    "basico": 5691.9,
+    "antiguedad": 1782.0,
+    "horasExtra": 0,
+    "gestora": 912.56,
+    "solidario": 37.37,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "RR1512",
+   "nombre": "Roca, Ruiz, Rony",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1989-12-15",
+   "fechaIngreso": "2018-02-22",
+   "sueldo": 4452.63,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 4452.63,
+    "antiguedad": 1782.0,
+    "horasExtra": 0,
+    "gestora": 761.25,
+    "solidario": 31.17,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "CL2104",
+   "nombre": "Camaripano, Ruiz, Luis Levin",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1970-04-21",
+   "fechaIngreso": "2021-03-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 1089.0,
+    "horasExtra": 0,
+    "gestora": 535.9,
+    "solidario": 21.95,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "FE2805",
+   "nombre": "Flores, Usquiano, Evelin",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1982-05-28",
+   "fechaIngreso": "2021-08-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 7.0
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 1089.0,
+    "horasExtra": 0,
+    "gestora": 535.9,
+    "solidario": 21.95,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "BY0912",
+   "nombre": " ,Baldivieso ,Yesica",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1986-12-09",
+   "fechaIngreso": "2023-05-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {
+     "511": 243.7
+    }
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 495.0,
+    "horasExtra": 0,
+    "gestora": 463.37,
+    "solidario": 18.98,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "FR2906",
+   "nombre": "Flores, Flores, Ruth",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1984-06-29",
+   "fechaIngreso": "2023-05-22",
+   "sueldo": 3300.0,
+   "bonoNivel": 260.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 495.0,
+    "horasExtra": 0,
+    "gestora": 495.12,
+    "solidario": 20.27,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "PA0105",
+   "nombre": "Pardo, Novak, Alejandro Jose",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1979-05-01",
+   "fechaIngreso": "2023-05-22",
+   "sueldo": 3300.0,
+   "bonoNivel": 350.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 495.0,
+    "horasExtra": 0,
+    "gestora": 506.1,
+    "solidario": 20.73,
+    "rciva": 0.0
+   }
+  },
+  {
+   "codigo": "TD0110",
+   "nombre": "Trigo, Celis, Daysi Marcela",
+   "grupo": "BASPEL",
+   "fechaNacimiento": "1989-10-01",
+   "fechaIngreso": "2024-02-01",
+   "sueldo": 3300.0,
+   "bonoNivel": 88.0,
+   "tasas": {},
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "descuentos": {}
+   },
+   "esperado": {
+    "basico": 3300.0,
+    "antiguedad": 495.0,
+    "horasExtra": 0,
+    "gestora": 474.11,
+    "solidario": 19.42,
+    "rciva": 0.0
+   }
+  }
+ ],
+ "b2": [
+  {
+   "codigo": "MR1902",
+   "nombre": "Mariategui, Rivera, Reinaldo",
+   "abonoMensual": 13250.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 565.5,
+     "511": 7531.4
+    },
+    "aporteCoopUsd": 200.0
+   },
+   "esperado": {
+    "abono": 13250.0,
+    "horasExtra": 0,
+    "aporteCoop": 1392.0,
+    "saldo": 3761.1
+   }
+  },
+  {
+   "codigo": "IV0912",
+   "nombre": "Ibañez, Bogado, Victor Hugo",
+   "abonoMensual": 6450.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 1308.33,
+     "511": 3231.36
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 6450.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 1910.31
+   }
+  },
+  {
+   "codigo": "MG1902",
+   "nombre": "Mole, Limaica, Gremy",
+   "abonoMensual": 1980.0,
+   "novedades": {
+    "dias": 15.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {},
+    "aporteCoopUsd": 10.0
+   },
+   "esperado": {
+    "abono": 990.0,
+    "horasExtra": 0,
+    "aporteCoop": 69.6,
+    "saldo": 920.4
+   }
+  },
+  {
+   "codigo": "RJ1706",
+   "nombre": "Roca, Guasinave, Jorge",
+   "abonoMensual": 9570.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 1320.4,
+     "511": 2436.87
+    },
+    "aporteCoopUsd": 72.0
+   },
+   "esperado": {
+    "abono": 9570.0,
+    "horasExtra": 0,
+    "aporteCoop": 501.12,
+    "saldo": 5311.61
+   }
+  },
+  {
+   "codigo": "SR2401",
+   "nombre": "Sedamano, Cayo, Ramiro",
+   "abonoMensual": 1830.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 72.0,
+    "bonos": {
+     "12": 82.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "511": 1653.0
+    },
+    "aporteCoopUsd": 25.0
+   },
+   "esperado": {
+    "abono": 1830.0,
+    "horasExtra": 549.0,
+    "aporteCoop": 174.0,
+    "saldo": 1309.0
+   }
+  },
+  {
+   "codigo": "OA0607",
+   "nombre": "Ovale, Mano, Angel",
+   "abonoMensual": 6450.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 1320.4,
+     "511": 4990.4
+    },
+    "aporteCoopUsd": 20.0
+   },
+   "esperado": {
+    "abono": 6450.0,
+    "horasExtra": 0,
+    "aporteCoop": 139.2,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "IS1495",
+   "nombre": "Ibañez, Tomicha, Samuel Jesus",
+   "abonoMensual": 1200.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 24.0,
+    "bonos": {},
+    "descuentos": {
+     "511": 1236.39
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1200.0,
+    "horasExtra": 120.0,
+    "aporteCoop": 0,
+    "saldo": 83.61
+   }
+  },
+  {
+   "codigo": "YI1402",
+   "nombre": "Yumacales, Mano, Iver",
+   "abonoMensual": 4320.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 3519.6
+    },
+    "aporteCoopUsd": 115.0
+   },
+   "esperado": {
+    "abono": 4320.0,
+    "horasExtra": 0,
+    "aporteCoop": 800.4,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "RO0910",
+   "nombre": "Rivero, Vargas, Orlando",
+   "abonoMensual": 3340.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 1952.83
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 3340.0,
+    "horasExtra": 556.67,
+    "aporteCoop": 0,
+    "saldo": 1650.97
+   }
+  },
+  {
+   "codigo": "IJ1510",
+   "nombre": "Isita, Mascaya, Juan",
+   "abonoMensual": 4450.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 3592.23
+    },
+    "aporteCoopUsd": 30.0
+   },
+   "esperado": {
+    "abono": 4450.0,
+    "horasExtra": 0,
+    "aporteCoop": 208.8,
+    "saldo": 356.1
+   }
+  },
+  {
+   "codigo": "FE2805",
+   "nombre": "Flores, Usquiano, Evelin",
+   "abonoMensual": 1010.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 44.0,
+     "14": 1080.0
+    },
+    "descuentos": {
+     "511": 2134.0
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1010.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "ND1809",
+   "nombre": "Negrete, Isita, Daniel",
+   "abonoMensual": 5970.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 4821.79
+    },
+    "aporteCoopUsd": 10.0
+   },
+   "esperado": {
+    "abono": 5970.0,
+    "horasExtra": 0,
+    "aporteCoop": 69.6,
+    "saldo": 1078.61
+   }
+  },
+  {
+   "codigo": "RF2404",
+   "nombre": "Rivero, Mojica, Fidel",
+   "abonoMensual": 4320.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 3374.74
+    },
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 4320.0,
+    "horasExtra": 0,
+    "aporteCoop": 348.0,
+    "saldo": 304.39
+   }
+  },
+  {
+   "codigo": "BR0501",
+   "nombre": "Becerra, Najaya, Ricardo",
+   "abonoMensual": 1050.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 24.0,
+    "bonos": {
+     "11": 140.0
+    },
+    "descuentos": {
+     "511": 1295.0
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1050.0,
+    "horasExtra": 105.0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "MA1805",
+   "nombre": "Mole, Limaica, Armando",
+   "abonoMensual": 3340.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 2568.44
+    },
+    "aporteCoopUsd": 20.0
+   },
+   "esperado": {
+    "abono": 3340.0,
+    "horasExtra": 0,
+    "aporteCoop": 139.2,
+    "saldo": 632.36
+   }
+  },
+  {
+   "codigo": "VP2208",
+   "nombre": "Valenzuela, Soleto, Pablo",
+   "abonoMensual": 4330.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 72.0,
+    "bonos": {
+     "12": 190.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 292.87,
+     "511": 2191.0
+    },
+    "aporteCoopUsd": 30.0
+   },
+   "esperado": {
+    "abono": 4330.0,
+    "horasExtra": 1299.0,
+    "aporteCoop": 208.8,
+    "saldo": 3801.33
+   }
+  },
+  {
+   "codigo": "BI1111",
+   "nombre": "Bedregal, Pacheco, Israel",
+   "abonoMensual": 1090.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 50.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 322.46,
+     "511": 1492.54
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1090.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "ML1405",
+   "nombre": "Mariategui, Mole, Luis Reynaldo",
+   "abonoMensual": 975.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 50.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 292.87,
+     "511": 1407.13
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 975.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "CK2102",
+   "nombre": "Cortez, Roldan, Kirko",
+   "abonoMensual": 2000.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 1498.33
+    },
+    "aporteCoopUsd": 30.0
+   },
+   "esperado": {
+    "abono": 2000.0,
+    "horasExtra": 0,
+    "aporteCoop": 208.8,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "MS1111",
+   "nombre": "Meneses, Rueda, Sandra",
+   "abonoMensual": 6310.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 65.0,
+     "14": 1080.0,
+     "25": 2500.0
+    },
+    "descuentos": {
+     "506": 833.33,
+     "507": 2.5002,
+     "511": 1293.11
+    },
+    "aporteCoopUsd": 57.85
+   },
+   "esperado": {
+    "abono": 6310.0,
+    "horasExtra": 0,
+    "aporteCoop": 402.64,
+    "saldo": 7423.42
+   }
+  },
+  {
+   "codigo": "LF0312",
+   "nombre": "Landivar, Roca, Freddy",
+   "abonoMensual": 4320.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 3713.92
+    },
+    "aporteCoopUsd": 20.0
+   },
+   "esperado": {
+    "abono": 4320.0,
+    "horasExtra": 0,
+    "aporteCoop": 139.2,
+    "saldo": 466.88
+   }
+  },
+  {
+   "codigo": "AE2304",
+   "nombre": "Aguilera, Plata, Erick Armando",
+   "abonoMensual": 1200.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 1334.23
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1200.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": -134.23
+   }
+  },
+  {
+   "codigo": "TE2202",
+   "nombre": "Tany, Roca, Eliza",
+   "abonoMensual": 4760.0,
+   "novedades": {
+    "dias": 15.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {},
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 2380.0,
+    "horasExtra": 0,
+    "aporteCoop": 348.0,
+    "saldo": 2032.0
+   }
+  },
+  {
+   "codigo": "RA0902",
+   "nombre": "Rivero, Hurtado, Alexander",
+   "abonoMensual": 400.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 24.0,
+    "bonos": {
+     "12": 20.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 322.46,
+     "511": 812.54
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 400.0,
+    "horasExtra": 40.0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "LW2407",
+   "nombre": "Limaica, Vargas, Wilber Pedro",
+   "abonoMensual": 4320.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "bonos": {},
+    "descuentos": {
+     "511": 4758.0
+    },
+    "aporteCoopUsd": 10.0
+   },
+   "esperado": {
+    "abono": 4320.0,
+    "horasExtra": 720.0,
+    "aporteCoop": 69.6,
+    "saldo": 212.4
+   }
+  },
+  {
+   "codigo": "RH1103",
+   "nombre": "Rivero, Yuco, Hernan",
+   "abonoMensual": 4330.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 20.0,
+    "bonos": {
+     "12": 190.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 615.33,
+     "511": 3130.0
+    },
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 4330.0,
+    "horasExtra": 360.83,
+    "aporteCoop": 348.0,
+    "saldo": 1462.5
+   }
+  },
+  {
+   "codigo": "TA2407",
+   "nombre": "Taraune, Machado, Alex",
+   "abonoMensual": 1900.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 1607.13
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1900.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "BA1211",
+   "nombre": "Bazan, Yamalo, Aldrin",
+   "abonoMensual": 2300.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 1952.0
+    },
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 2300.0,
+    "horasExtra": 0,
+    "aporteCoop": 348.0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "MF1005",
+   "nombre": "Mole, Limaica, Francisco",
+   "abonoMensual": 4320.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 2566.68
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 4320.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 1460.45
+   }
+  },
+  {
+   "codigo": "IJ0609",
+   "nombre": "Isita, Guarena, Juan Antonio",
+   "abonoMensual": 700.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "11": 140.0
+    },
+    "descuentos": {
+     "511": 840.0
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 700.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "TJ0212",
+   "nombre": "Tomicha, Najaya, Francisco Javier",
+   "abonoMensual": 1200.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 550.08
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1200.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 649.92
+   }
+  },
+  {
+   "codigo": "RJ1607",
+   "nombre": "Rivero, Rimba, Jesus",
+   "abonoMensual": 3460.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 64.0,
+    "bonos": {
+     "12": 153.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "511": 1500.0
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 3460.0,
+    "horasExtra": 922.67,
+    "aporteCoop": 0,
+    "saldo": 3710.67
+   }
+  },
+  {
+   "codigo": "DH2112",
+   "nombre": "Diez, Alvarez, Hugo",
+   "abonoMensual": 7140.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 2132.62
+    },
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 7140.0,
+    "horasExtra": 0,
+    "aporteCoop": 348.0,
+    "saldo": 4659.38
+   }
+  },
+  {
+   "codigo": "MO1504",
+   "nombre": "Mazueto, Sairuma, Osman",
+   "abonoMensual": 3770.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 3630.8
+    },
+    "aporteCoopUsd": 20.0
+   },
+   "esperado": {
+    "abono": 3770.0,
+    "horasExtra": 0,
+    "aporteCoop": 139.2,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "CF1701",
+   "nombre": "Cayoba, Mosqueira, Freddys",
+   "abonoMensual": 3360.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 390.49,
+     "511": 2830.31
+    },
+    "aporteCoopUsd": 20.0
+   },
+   "esperado": {
+    "abono": 3360.0,
+    "horasExtra": 0,
+    "aporteCoop": 139.2,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "MJ1606",
+   "nombre": "Montero, Baldivieso, Jesus Salvador",
+   "abonoMensual": 1200.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 1317.74
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1200.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": -117.74
+   }
+  },
+  {
+   "codigo": "FR2906",
+   "nombre": "Flores, Flores, Ruth",
+   "abonoMensual": 5030.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 217.0,
+     "14": 1080.0
+    },
+    "descuentos": {
+     "506": 833.33,
+     "507": 16.6668,
+     "511": 41.0
+    },
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 5030.0,
+    "horasExtra": 0,
+    "aporteCoop": 348.0,
+    "saldo": 5088.0
+   }
+  },
+  {
+   "codigo": "TD0110",
+   "nombre": "Trigo, Celis, Daysi Marcela",
+   "abonoMensual": 2570.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 110.0,
+     "14": 1080.0
+    },
+    "descuentos": {
+     "506": 1056.0,
+     "507": 58.08,
+     "511": 1341.0
+    },
+    "aporteCoopUsd": 145.0
+   },
+   "esperado": {
+    "abono": 2570.0,
+    "horasExtra": 0,
+    "aporteCoop": 1009.2,
+    "saldo": 295.72
+   }
+  },
+  {
+   "codigo": "RD0907",
+   "nombre": "Roca, Temo, Durval",
+   "abonoMensual": 2450.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "11": 140.0
+    },
+    "descuentos": {
+     "508": 729.17,
+     "511": 610.1
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 2450.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 1250.73
+   }
+  },
+  {
+   "codigo": "YR1103",
+   "nombre": "Yumacales, Mole, Ramiro",
+   "abonoMensual": 2710.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 2347.53
+    },
+    "aporteCoopUsd": 10.0
+   },
+   "esperado": {
+    "abono": 2710.0,
+    "horasExtra": 0,
+    "aporteCoop": 69.6,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "AW1610",
+   "nombre": "Arias, Justiniano, Wilner",
+   "abonoMensual": 2970.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 131.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 292.87,
+     "511": 191.0
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 2970.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 3292.13
+   }
+  },
+  {
+   "codigo": "BM3010",
+   "nombre": "Baldivieso, Muñoz, Martha Yaqueline",
+   "abonoMensual": 4660.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 2574.2
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 4660.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 2085.8
+   }
+  },
+  {
+   "codigo": "PA0105",
+   "nombre": "Pardo, Novak, Alejandro Jose",
+   "abonoMensual": 15560.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 585.0,
+     "14": 1080.0
+    },
+    "descuentos": {
+     "506": 833.32,
+     "507": 29.17,
+     "511": 1839.5
+    },
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 15560.0,
+    "horasExtra": 0,
+    "aporteCoop": 348.0,
+    "saldo": 14175.01
+   }
+  },
+  {
+   "codigo": "MS0204",
+   "nombre": "Muchairo, Jare, Sajir",
+   "abonoMensual": 3300.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 269.56
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 3300.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 3030.44
+   }
+  },
+  {
+   "codigo": "PD2303",
+   "nombre": "Parada, Garcia, Darwin",
+   "abonoMensual": 600.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "11": 140.0
+    },
+    "descuentos": {
+     "511": 740.0
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 600.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "BY0912",
+   "nombre": " ,Baldivieso, Yesica",
+   "abonoMensual": 2770.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 120.0,
+     "14": 1080.0
+    },
+    "descuentos": {
+     "506": 708.33,
+     "507": 4.2502,
+     "511": 2756.3
+    },
+    "aporteCoopUsd": 72.0
+   },
+   "esperado": {
+    "abono": 2770.0,
+    "horasExtra": 0,
+    "aporteCoop": 501.12,
+    "saldo": -0.0
+   }
+  },
+  {
+   "codigo": "MG2204",
+   "nombre": "Molina, Nogales, Guillermo",
+   "abonoMensual": 3330.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 18.8,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 3297.98
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 3330.0,
+    "horasExtra": 260.85,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "TF0212",
+   "nombre": "Tomicha, Villamor, Francisco",
+   "abonoMensual": 3499.99,
+   "novedades": {
+    "dias": 20.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 2333.33
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 2333.33,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "RR1512",
+   "nombre": "Roca, Ruiz, Rony",
+   "abonoMensual": 3050.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 95.0,
+     "14": 1080.0,
+     "25": 600.0
+    },
+    "descuentos": {
+     "511": 235.0
+    },
+    "aporteCoopUsd": 100.0
+   },
+   "esperado": {
+    "abono": 3050.0,
+    "horasExtra": 0,
+    "aporteCoop": 696.0,
+    "saldo": 3894.0
+   }
+  },
+  {
+   "codigo": "RO0602",
+   "nombre": "Roca, Mariategui, Omar Jesus",
+   "abonoMensual": 2360.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "11": 140.0
+    },
+    "descuentos": {
+     "508": 292.87,
+     "511": 1998.33
+    },
+    "aporteCoopUsd": 30.0
+   },
+   "esperado": {
+    "abono": 2360.0,
+    "horasExtra": 0,
+    "aporteCoop": 208.8,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "YV0902",
+   "nombre": "Yamalo, Isita, Victor Hugo",
+   "abonoMensual": 2360.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 1923.25
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 2360.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 143.88
+   }
+  },
+  {
+   "codigo": "ML1205",
+   "nombre": "Medina, Aguilera, Lely",
+   "abonoMensual": 30.0,
+   "novedades": {
+    "dias": 3980.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "511": 1617.3
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 3980.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 2362.7
+   }
+  },
+  {
+   "codigo": "MH1002",
+   "nombre": "Manu, Fonseca, Herman",
+   "abonoMensual": 3000.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "bonos": {},
+    "descuentos": {
+     "508": 390.49,
+     "511": 2139.83
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 3000.0,
+    "horasExtra": 500.0,
+    "aporteCoop": 0,
+    "saldo": 969.68
+   }
+  },
+  {
+   "codigo": "AL1106",
+   "nombre": "Apuri, Justiniano, Luis Alberto",
+   "abonoMensual": 1780.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 80.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 292.87,
+     "511": 1543.0
+    },
+    "aporteCoopUsd": 50.0
+   },
+   "esperado": {
+    "abono": 1780.0,
+    "horasExtra": 0,
+    "aporteCoop": 348.0,
+    "saldo": 351.13
+   }
+  },
+  {
+   "codigo": "ME0507",
+   "nombre": "Mariategui, Ribera, Erick Gaspar",
+   "abonoMensual": 2100.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 1807.13
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 2100.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "CL2104",
+   "nombre": "Camaripano, Ruiz, Luis Levin",
+   "abonoMensual": 12220.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 248.0,
+     "14": 1080.0
+    },
+    "descuentos": {},
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 12220.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 13548.0
+   }
+  },
+  {
+   "codigo": "SE1504",
+   "nombre": "Suarez, Pinto, Eduardo",
+   "abonoMensual": 1980.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 390.49,
+     "511": 1589.51
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1980.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "CR2704",
+   "nombre": "Cortez, Roldan, Rubal",
+   "abonoMensual": 1510.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 24.0,
+    "bonos": {
+     "11": 140.0
+    },
+    "descuentos": {
+     "511": 1180.64
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1510.0,
+    "horasExtra": 151.0,
+    "aporteCoop": 0,
+    "saldo": 620.36
+   }
+  },
+  {
+   "codigo": "GJ0405",
+   "nombre": "Gil, Vargas, Joel",
+   "abonoMensual": 2815.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 130.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 1407.81,
+     "511": 2043.0
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 2815.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 169.19
+   }
+  },
+  {
+   "codigo": "BA2905",
+   "nombre": "Bilbao la VIeja, Romero, Alfredo Ronald",
+   "abonoMensual": 1730.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 35.0,
+     "14": 1080.0
+    },
+    "descuentos": {
+     "511": 0.03
+    },
+    "aporteCoopUsd": 408.76
+   },
+   "esperado": {
+    "abono": 1730.0,
+    "horasExtra": 0,
+    "aporteCoop": 2844.97,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "MS3004",
+   "nombre": "Montero, Mendez, Salvador Ezequiel",
+   "abonoMensual": 800.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 40.0,
+    "bonos": {},
+    "descuentos": {
+     "511": 933.33
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 800.0,
+    "horasExtra": 133.33,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "MR1312",
+   "nombre": "Mariategui, Tany, Renard Henrry",
+   "abonoMensual": 2300.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {},
+    "descuentos": {
+     "508": 292.87,
+     "511": 2007.13
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 2300.0,
+    "horasExtra": 0,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "NE1107",
+   "nombre": "Negrete, Gualuo, Einar",
+   "abonoMensual": 1250.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 32.0,
+    "bonos": {
+     "12": 44.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "508": 322.46,
+     "511": 1813.21
+    },
+    "aporteCoopUsd": 0
+   },
+   "esperado": {
+    "abono": 1250.0,
+    "horasExtra": 166.67,
+    "aporteCoop": 0,
+    "saldo": 0.0
+   }
+  },
+  {
+   "codigo": "MR1808",
+   "nombre": "Mansilla, Pinto, Ronaldo",
+   "abonoMensual": 2160.0,
+   "novedades": {
+    "dias": 30.0,
+    "heHoras": 0,
+    "bonos": {
+     "12": 96.0,
+     "13": 675.0
+    },
+    "descuentos": {
+     "511": 1045.0
+    },
+    "aporteCoopUsd": 30.0
+   },
+   "esperado": {
+    "abono": 2160.0,
+    "horasExtra": 0,
+    "aporteCoop": 208.8,
+    "saldo": 1677.2
+   }
+  }
+ ],
+ "rciva": [
+  {
+   "codigo": "MS1111",
+   "neto": 18117.23,
+   "facturasF110": 16553.44,
+   "saldoAnterior": 71339.34,
+   "esperado": {
+    "impuesto": 1497.24,
+    "computoMinimos": 429,
+    "impuestoNeto": 1068.24,
+    "creditoF110": 2151.95,
+    "mantenimiento": 292.82,
+    "retenido": 0,
+    "saldoSiguiente": 72715.87
+   }
+  }
+ ]
+}
