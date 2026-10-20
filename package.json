@@ -17,7 +17,8 @@
     "postgres": "^3.4.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -28,7 +29,6 @@
     "eslint-config-next": "15.5.4",
     "tsx": "^4.19.1",
     "typescript": "^5",
-    "vitest": "^2.1.9",
-    "xlsx": "^0.18.5"
+    "vitest": "^2.1.9"
   }
 }

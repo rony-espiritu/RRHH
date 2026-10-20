@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { aplicarImportacion, leerExcel, registrarImportacion } from '@/lib/datos/importacion';
 import { abrirPeriodo, calcularPlanilla, cambiarEstado, guardarNovedad, type Planilla } from '@/lib/datos/planilla';
 
 const num = (v: FormDataEntryValue | null) => {
@@ -52,4 +53,27 @@ export async function accionNovedades(fd: FormData) {
   }
   revalidatePath(`/periodos/${id}`);
   redirect(`/periodos/${id}/novedades?pl=${pl}&msg=${encodeURIComponent('Novedades guardadas')}`);
+}
+
+// ---------------------------------------------------------------------------
+// Importación del Excel de Albor
+// ---------------------------------------------------------------------------
+
+export async function accionSubirAlbor(fd: FormData) {
+  const id = Number(fd.get('periodo'));
+  const f = fd.get('archivo') as File | null;
+  if (!f || !f.size) redirect(`/periodos/${id}/importar?msg=${encodeURIComponent('Seleccione un archivo Excel')}`);
+  const hojas = leerExcel(await f!.arrayBuffer());
+  const imp = await registrarImportacion(id, f!.name, hojas);
+  redirect(`/periodos/${id}/importar?imp=${imp}`);
+}
+
+export async function accionAplicarAlbor(fd: FormData) {
+  const id = Number(fd.get('periodo')), imp = Number(fd.get('imp')), hoja = String(fd.get('hoja'));
+  const mapeo: Record<number, string> = {};
+  for (const [k, v] of fd.entries()) if (k.startsWith('col_')) mapeo[Number(k.slice(4))] = String(v);
+  const r = await aplicarImportacion(imp, hoja, mapeo);
+  revalidatePath(`/periodos/${id}`);
+  const msg = `Importadas ${r.novedades} novedades de Albor` + (r.noEncontrados.length ? `|Códigos no encontrados en el periodo: ${r.noEncontrados.join(', ')}` : '');
+  redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
 }

@@ -27,6 +27,7 @@ function Acciones({ id, pl, estado }: { id: number; pl: Planilla; estado: string
       {estado === 'APROBADO' && boton('CERRAR', 'Cerrar periodo')}
       <Link className="btn sec" href={`/periodos/${id}/novedades?pl=${pl}`}>Novedades {pl}</Link>
       <Link className="btn sec" href={`/periodos/${id}/planilla?pl=${pl}`}>Ver planilla {pl}</Link>
+      {pl === 'B2' && ['ABIERTO', 'NOVEDADES', 'CALCULADO'].includes(estado) && <Link className="btn sec" href={`/periodos/${id}/importar`}>Importar Albor</Link>}
     </div>
   );
 }
@@ -78,6 +79,27 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
           </div>
         );
       })}
+
+      {b1.length > 0 && (
+        <div className="panel">
+          <h3 style={{ marginTop: 0 }}>Archivos de salida</h3>
+          <table>
+            <thead><tr><th>Empresa</th><th>Banco Unión (TXT)</th><th>Ministerio de Trabajo (OVT)</th></tr></thead>
+            <tbody>
+              {b1.map((r) => (
+                <tr key={r.empresa}><td>{r.empresa}</td>
+                  <td>{r.empresa === 'BASP' ? '—' : <a href={`/periodos/${id}/descargas?tipo=union&empresa=${r.empresa}`}>bco-{r.empresa}.txt</a>}</td>
+                  <td><a href={`/periodos/${id}/descargas?tipo=ovt&empresa=${r.empresa}`}>OVT {r.empresa}.csv</a></td></tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="fila" style={{ marginTop: 12 }}>
+            <a className="btn sec" href={`/periodos/${id}/descargas?tipo=bnb`}>Referencia BNB (Baspel)</a>
+            <a className="btn sec" href={`/periodos/${id}/descargas?tipo=efectivo&pl=B1`}>Pago en efectivo B1</a>
+            {b2.length > 0 && <a className="btn sec" href={`/periodos/${id}/descargas?tipo=efectivo&pl=B2`}>Planilla de pago B2</a>}
+          </div>
+        </div>
+      )}
 
       {b1.length > 0 && b2.length > 0 && (
         <div className="panel">
