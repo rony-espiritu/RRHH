@@ -105,6 +105,9 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
             <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P1`}>PrevP1 · cargas y previsiones B1</a>
             {b2.length > 0 && <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P2`}>PrevP2 · previsiones B2</a>}
           </div>
+          <p className="sub" style={{ marginTop: 8 }}>Sin Baspel (contabilidad propia):{' '}
+            <a href={`/periodos/${id}/descargas?tipo=albor&grupo=P1&empresa=BASP`}>P1 Baspel</a> ·{' '}
+            <a href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P1&empresa=BASP`}>PrevP1 Baspel</a></p>
         </div>
       )}
 

@@ -37,7 +37,7 @@ const PASIVO: Record<string, { cuenta: string; detalle: string }> = {
 /** Sufijo de la cuenta de gasto según el tipo de concepto. */
 function tipoContable(planilla: string, codigo: number): string {
   if ((planilla === 'B1' && codigo === 4) || (planilla === 'B2' && codigo === 7)) return '002';
-  if (planilla === 'B2' && codigo === 11) return '006';
+  if (planilla === 'B2' && [11, 14, 25].includes(codigo)) return '006'; // puestero, carne SCZ, rendimiento → Premios y bonos
   return '001';
 }
 
@@ -76,7 +76,8 @@ function distribuir(monto: number, partes: { factor: number }[]) {
   });
 }
 
-export async function generarAsientos(periodoId: number, grupo: GrupoAsiento) {
+/** Por defecto excluye a Baspel (tiene su propia contabilidad); con soloEmpresa = 'BASP' genera solo Baspel. */
+export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, soloEmpresa?: string) {
   const [p] = await sql<{ anio: number; mes: number; fecha_inicio: string; fecha_fin: string; campana_albor: string }[]>`
     select anio, mes, fecha_inicio::text, fecha_fin::text, campana_albor from periodo where id = ${periodoId}`;
   const planilla = grupo === 'B2' || grupo === 'PREV_P2' ? 'B2' : 'B1';
@@ -87,7 +88,10 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento) {
            coalesce((select json_agg(json_build_object('codigo', l.codigo, 'nombre', c.nombre, 'monto', l.monto, 'aguinaldo', c.afecta_aguinaldo))
                      from planilla_linea l join concepto c on c.id = l.concepto_id where l.planilla_trabajador_id = pt.id), '[]') lineas
     from planilla_trabajador pt join vinculo v on v.id = pt.vinculo_id join trabajador t on t.id = v.trabajador_id
-    where pt.periodo_id = ${periodoId} and pt.planilla = ${planilla}::tipo_planilla order by t.codigo`;
+    join empresa e on e.id = pt.empresa_id
+    where pt.periodo_id = ${periodoId} and pt.planilla = ${planilla}::tipo_planilla
+      and ${soloEmpresa ? sql`e.codigo = ${soloEmpresa}` : sql`e.codigo <> 'BASP'`}
+    order by t.codigo`;
 
   const out: Linea[] = [];
   const debeGasto = (detalle: string, tipo: string, monto: number, vinculo: number) => {
@@ -157,7 +161,7 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento) {
   ws.getColumn(8).width = 32;
   const nombre = { B2: 'B2', P1: 'P1', PREV_P1: 'PrevP1', PREV_P2: 'PrevP2' }[grupo];
   return {
-    nombre: `Albor ${nombre} ${p.anio}-${String(p.mes).padStart(2, '0')}.xlsx`,
+    nombre: `Albor ${nombre}${soloEmpresa ? ' ' + soloEmpresa : ''} ${p.anio}-${String(p.mes).padStart(2, '0')}.xlsx`,
     tipo: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     cuerpo: Buffer.from(await wb.xlsx.writeBuffer()), filas: lineas.length, debe, haber,
   };
