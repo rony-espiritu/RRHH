@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { nombreMes, obtenerPeriodo, resumenPorEmpresa, type Planilla } from '@/lib/datos/planilla';
 import { bs } from '@/lib/formato';
+import { sql } from '@/lib/db';
 import { accionCalcular, accionEstado } from '../acciones';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,27 @@ function Acciones({ id, pl, estado }: { id: number; pl: Planilla; estado: string
   );
 }
 
+/** Pasos del mes para la cuenta corriente B2 (se carga a Albor al inicio y se cierra con los anticipos de Albor). */
+function PasosB2({ id, estado, calculada, anticipos, aplicados }: { id: number; estado: string; calculada: boolean; anticipos: number; aplicados: number }) {
+  const abierto = ['ABIERTO', 'NOVEDADES', 'CALCULADO'].includes(estado);
+  const paso = (n: number, hecho: boolean, titulo: string, detalle: React.ReactNode) => (
+    <li className={hecho ? 'hecho' : ''}><b>{n}. {titulo}</b> <span className="sub">{detalle}</span></li>
+  );
+  return (
+    <ol className="pasos">
+      {paso(1, calculada, 'Inicio de mes: novedades B2', <>Horas extra, faltas y cuotas de préstamos. <Link href={`/periodos/${id}/novedades?pl=B2`}>Cargar novedades</Link></>)}
+      {paso(2, calculada, 'Calcular B2', 'Con los montos fijos de cada trabajador (Configuración y fichas).')}
+      {paso(3, false, 'Subir a Albor la carga inicial', calculada
+        ? <a href={`/periodos/${id}/descargas?tipo=albor&grupo=B2`}>Descargar carga inicial B2 (día 1)</a>
+        : 'Disponible después de calcular.')}
+      {paso(4, anticipos > 0, 'Fin de mes: detalle de anticipos de Albor', abierto
+        ? <><Link href={`/periodos/${id}/importar`}>Importar el Excel de Albor</Link>{anticipos > 0 ? ` · ${anticipos} anticipos cargados` : ''}</> : '')}
+      {paso(5, aplicados > 0 && aplicados === anticipos, 'Recalcular B2', anticipos > 0 && aplicados !== anticipos
+        ? 'Hay anticipos importados que todavía no están en el cálculo: presioná Recalcular B2.' : 'Descuenta los anticipos y deja el saldo a pagar de cada trabajador.')}
+    </ol>
+  );
+}
+
 export default async function PeriodoDetalle({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ msg?: string }> }) {
   const id = Number((await params).id);
   const { msg } = await searchParams;
@@ -42,6 +64,11 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
   const tot = (xs: typeof res, k: keyof (typeof res)[number]) => xs.reduce((s, x) => s + Number(x[k]), 0);
   const empresas = [...new Set(res.map((r) => r.empresa))].sort();
   const [titulo, ...avisos] = (msg ?? '').split('|');
+  const [{ n: anticipos }] = await sql<{ n: number }[]>`
+    select count(*)::int n from novedad n join concepto c on c.id = n.concepto_id where n.periodo_id = ${id} and c.planilla = 'B2' and c.codigo = 511`;
+  const [{ n: aplicados }] = await sql<{ n: number }[]>`
+    select count(*)::int n from planilla_linea l join planilla_trabajador pt on pt.id = l.planilla_trabajador_id join concepto c on c.id = l.concepto_id
+    where pt.periodo_id = ${id} and pt.planilla = 'B2' and c.codigo = 511`;
 
   return (
     <>
@@ -59,6 +86,7 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
               <h3 style={{ margin: 0 }}>{pl === 'B1' ? 'B1 — Planilla oficial' : 'B2 — Cuenta corriente'} <span className={`chip ${estado}`}>{estado}</span></h3>
               <Acciones id={id} pl={pl} estado={estado} />
             </div>
+            {pl === 'B2' && <PasosB2 id={id} estado={estado} calculada={filas.length > 0} anticipos={anticipos} aplicados={aplicados} />}
             {filas.length > 0 && (
               <table style={{ marginTop: 12 }}>
                 <thead><tr><th>Empresa</th><th className="n">Trab.</th><th className="n">{pl === 'B1' ? 'Total ganado' : 'Ingresos'}</th>
@@ -100,7 +128,6 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
           </div>
           <h3>Asientos para Albor</h3>
           <div className="fila">
-            {b2.length > 0 && <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=B2`}>B2 · carga inicial (día 1)</a>}
             <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=P1`}>P1 · planilla B1</a>
             <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P1`}>PrevP1 · cargas y previsiones B1</a>
             {b2.length > 0 && <a className="btn sec" href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P2`}>PrevP2 · previsiones B2</a>}

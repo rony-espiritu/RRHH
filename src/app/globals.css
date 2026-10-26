@@ -60,3 +60,7 @@ input:disabled { background: #f2f1ec; color: var(--muted); }
 .boleta .firmas { display: flex; justify-content: space-around; margin-top: 64px; text-align: center; }
 .boleta .firmas div { border-top: 1px solid var(--ink); padding-top: 4px; min-width: 200px; }
 @media print { .nav, .no-print { display: none !important; } .app { display: block !important; } main { padding: 0 !important; } .boleta { border: 0; } }
+.pasos { margin: 12px 0 0; padding-left: 0; list-style: none; display: grid; gap: 6px; }
+.pasos li { padding: 8px 12px; border-left: 3px solid var(--line); background: #faf9f5; border-radius: 4px; }
+.pasos li.hecho { border-left-color: var(--ok); }
+.pasos li.hecho b::after { content: ' ✓'; color: var(--ok); }
