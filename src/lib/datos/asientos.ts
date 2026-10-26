@@ -15,39 +15,20 @@ export type GrupoAsiento = 'B2' | 'P1' | 'PREV_P1' | 'PREV_P2';
 
 interface Linea { detalle: string; cuenta: string; cc: string; un: string; personal: string; debe: number; haber: number }
 
-// Cuentas de pasivo (contrapartidas en CC 150 / UN PAT)
-const PASIVO: Record<string, { cuenta: string; detalle: string }> = {
-  LIQUIDO: { cuenta: '210106001', detalle: 'Liquido Pagable' },
-  CTA_CTE: { cuenta: '210106000', detalle: 'Cuenta corriente personal' },
-  '511': { cuenta: '210106000', detalle: 'Anticipos' },
-  '517': { cuenta: '210107004', detalle: 'Gestora Publica' },
-  '513': { cuenta: '210107004', detalle: 'Gestora Publica' },
-  '525': { cuenta: '210107004', detalle: 'Fondo Solidario' },
-  '508': { cuenta: '110305005', detalle: 'Amortización Préstamo Interno' },
-  '521': { cuenta: '21010200401', detalle: 'Aporte Cooperativa' },
-  '506': { cuenta: '21010200402', detalle: 'Amortización Préstamo Coop.' },
-  '507': { cuenta: '21010200403', detalle: 'Interés Préstamo Coop.' },
-  '910': { cuenta: '210107001', detalle: 'Caja Nal.Salud, CORDES Ap.Pat' },
-  '911': { cuenta: '210107002', detalle: 'Pro Vivienda, Aporte Patronal' },
-  '912': { cuenta: '210107003', detalle: 'S.I.P. Aporte Patronal' },
-  '913': { cuenta: '210106002', detalle: 'Prev.Aguinaldo' },
-  '914': { cuenta: '220101001', detalle: 'Prev.Indeminizacion' },
-};
-
-/** Sufijo de la cuenta de gasto según el tipo de concepto. */
-function tipoContable(planilla: string, codigo: number): string {
-  if ((planilla === 'B1' && codigo === 4) || (planilla === 'B2' && codigo === 7)) return '002';
-  if (planilla === 'B2' && [11, 14, 25].includes(codigo)) return '006'; // puestero, carne SCZ, rendimiento → Premios y bonos
-  return '001';
-}
-
-/** Cuenta de gasto: prefijo según unidad de negocio (o comercialización) + sufijo según tipo. */
-export function cuentaGasto(un: string, cc: string, tipo: string): string {
-  if (un === '50') return '520407000';
-  if (cc.startsWith('COMEC')) return '520101' + tipo;
-  if (un === '02' || un === '11') return '510101' + tipo;
-  if (un === '81') return '530101' + tipo;
-  return '530201' + tipo;
+/** Cuentas Albor configurables (tabla cuenta_albor, pantalla Configuración). */
+export async function cuentasAlbor() {
+  const filas = await sql<{ clave: string; grupo: string; cuenta: string; detalle: string }[]>`select clave, grupo, cuenta, detalle from cuenta_albor`;
+  const m = new Map(filas.map((f) => [f.clave, f]));
+  /** Cuenta de gasto: prefijo según unidad de negocio (o comercialización) + sufijo según tipo contable del concepto. */
+  const gasto = (un: string, cc: string, tipo: string) => {
+    // Una unidad de negocio con cuenta completa (p. ej. UN 50) manda; luego comercialización (COMEC…); luego el prefijo de la UN.
+    const porUn = m.get(`GASTO_UN_${un}`);
+    const g = (porUn && porUn.cuenta.length > 6 ? porUn : undefined) ?? (cc.startsWith('COMEC') ? m.get('GASTO_COMEC') : undefined) ?? porUn ?? m.get('GASTO_OTRA');
+    if (!g) return 'DEFINIR';
+    return g.cuenta.length > 6 ? g.cuenta : g.cuenta + tipo;
+  };
+  const pasivo = (clave: string) => m.get(clave) ?? { cuenta: 'DEFINIR', detalle: `Concepto ${clave}` };
+  return { gasto, pasivo };
 }
 
 /** Reparto de un vínculo en destinos Albor (CC + UN + %) vigentes en el periodo para la planilla. */
@@ -83,9 +64,10 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, so
   const planilla = grupo === 'B2' || grupo === 'PREV_P2' ? 'B2' : 'B1';
   const prm = await cargarParametros(p.fecha_fin);
   const reparto = await repartos(periodoId);
-  const trab = await sql<{ id: number; vinculo_id: number; codigo: string; liquido: number; fecha_ingreso: string; lineas: { codigo: number; nombre: string; monto: number; aguinaldo: boolean }[] }[]>`
+  const cta = await cuentasAlbor();
+  const trab = await sql<{ id: number; vinculo_id: number; codigo: string; liquido: number; fecha_ingreso: string; lineas: { codigo: number; nombre: string; monto: number; aguinaldo: boolean; indemn: boolean; tipo: string | null }[] }[]>`
     select pt.id, pt.vinculo_id, t.codigo, pt.liquido, v.fecha_ingreso::text,
-           coalesce((select json_agg(json_build_object('codigo', l.codigo, 'nombre', c.nombre, 'monto', l.monto, 'aguinaldo', c.afecta_aguinaldo))
+           coalesce((select json_agg(json_build_object('codigo', l.codigo, 'nombre', c.nombre, 'monto', l.monto, 'aguinaldo', c.afecta_aguinaldo, 'indemn', c.afecta_indemn, 'tipo', c.tipo_contable))
                      from planilla_linea l join concepto c on c.id = l.concepto_id where l.planilla_trabajador_id = pt.id), '[]') lineas
     from planilla_trabajador pt join vinculo v on v.id = pt.vinculo_id join trabajador t on t.id = v.trabajador_id
     join empresa e on e.id = pt.empresa_id
@@ -97,18 +79,18 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, so
   const debeGasto = (detalle: string, tipo: string, monto: number, vinculo: number) => {
     const partes = reparto(vinculo, planilla);
     distribuir(monto, partes).forEach((m, i) => {
-      if (m) out.push({ detalle, cuenta: cuentaGasto(partes[i].un, partes[i].cc, tipo), cc: partes[i].albor_cc, un: partes[i].un, personal: '00', debe: m, haber: 0 });
+      if (m) out.push({ detalle, cuenta: cta.gasto(partes[i].un, partes[i].cc, tipo), cc: partes[i].albor_cc, un: partes[i].un, personal: '00', debe: m, haber: 0 });
     });
   };
   const pasivo = (clave: string, monto: number, personal: string, lado: 'debe' | 'haber' = 'haber', detalle?: string) => {
-    const c = PASIVO[clave] ?? { cuenta: 'DEFINIR', detalle: `Concepto ${clave}` };
+    const c = cta.pasivo(clave);
     if (monto) out.push({ detalle: detalle ?? c.detalle, cuenta: c.cuenta, cc: '150', un: 'PAT', personal, debe: lado === 'debe' ? monto : 0, haber: lado === 'haber' ? monto : 0 });
   };
 
   for (const t of trab) {
     const ingresos = t.lineas.filter((l) => l.codigo < 500);
     if (grupo === 'P1') {
-      for (const l of ingresos) debeGasto(l.nombre, tipoContable('B1', l.codigo), Number(l.monto), t.vinculo_id);
+      for (const l of ingresos) debeGasto(l.nombre, l.tipo ?? '001', Number(l.monto), t.vinculo_id);
       for (const l of t.lineas.filter((x) => x.codigo >= 500 && x.codigo < 900)) pasivo(String(l.codigo), Number(l.monto), t.codigo);
       pasivo('LIQUIDO', Number(t.liquido), t.codigo);
     } else if (grupo === 'PREV_P1') {
@@ -122,7 +104,7 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, so
       if (t.fecha_ingreso > p.fecha_inicio) continue;
       for (const l of ingresos) {
         const monto = Number(l.monto);
-        debeGasto(l.nombre, tipoContable('B2', l.codigo), monto, t.vinculo_id);
+        debeGasto(l.nombre, l.tipo ?? '001', monto, t.vinculo_id);
         pasivo('CTA_CTE', monto, t.codigo, 'haber', l.nombre);
       }
       for (const l of t.lineas.filter((x) => x.codigo >= 500 && x.codigo < 900 && x.codigo !== 511)) {
@@ -131,7 +113,8 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, so
       }
     } else {
       const base = ingresos.filter((l) => l.aguinaldo).reduce((s, l) => s + Number(l.monto), 0);
-      const ag = r2(base * prm.PREV_AGUINALDO), ind = r2(base * prm.PREV_INDEMN);
+      const baseInd = ingresos.filter((l) => l.indemn).reduce((s, l) => s + Number(l.monto), 0);
+      const ag = r2(base * prm.PREV_AGUINALDO), ind = r2(baseInd * prm.PREV_INDEMN);
       debeGasto('Aguinaldos', '001', ag, t.vinculo_id);
       debeGasto('Finiquitos', '004', ind, t.vinculo_id);
       pasivo('913', ag, '00');
