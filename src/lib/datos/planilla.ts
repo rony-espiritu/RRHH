@@ -40,7 +40,7 @@ export async function cargarParametros(fecha: string): Promise<Parametros & { TC
   return {
     SMN: v.SMN, GESTORA_LAB: v.GESTORA_LAB, GESTORA_LAB_65: v.GESTORA_LAB_65 ?? v.GESTORA_LAB,
     EDAD_GESTORA_REDUCIDA: v.EDAD_GESTORA_REDUCIDA ?? 200, SOLIDARIO_LAB: v.SOLIDARIO_LAB, CAJA_PAT: v.CAJA_PAT,
-    RIESGO_PAT: v.RIESGO_PAT, PROVIV_PAT: v.PROVIV_PAT, SOLIDARIO_PAT: v.SOLIDARIO_PAT, PREV_AGUINALDO: v.PREV_AGUINALDO,
+    RIESGO_PAT: v.RIESGO_PAT, RIESGO_PAT_65: v.RIESGO_PAT_65 ?? 0, PROVIV_PAT: v.PROVIV_PAT, SOLIDARIO_PAT: v.SOLIDARIO_PAT, PREV_AGUINALDO: v.PREV_AGUINALDO,
     PREV_INDEMN: v.PREV_INDEMN, RCIVA_TASA: v.RCIVA_TASA, RCIVA_MIN_SMN: v.RCIVA_MIN_SMN, RCIVA_COMPUTO_SMN: v.RCIVA_COMPUTO_SMN ?? 2,
     HE_FACTOR_B1: v.HE_FACTOR_B1 ?? 1, HE_FACTOR_B2: v.HE_FACTOR_B2 ?? 1, TC_USD: v.TC_USD ?? 6.96,
     CAMPANA_MES_INICIO: v.CAMPANA_MES_INICIO ?? 7,
@@ -166,7 +166,8 @@ const BONOS_FIJOS_B2 = [11, 12, 13, 14, 25];
 function diasPagados(v: VinculoPeriodo, p: PeriodoFila, faltas: number) {
   const ini = iso(p.fecha_inicio)!, fin = iso(p.fecha_fin)!;
   let dias = 30;
-  if (v.fecha_ingreso > ini) dias -= Number(v.fecha_ingreso.slice(8, 10)) - 1;
+  // Ingreso a mitad de mes: se cuentan los días que faltan hasta el 30 (ingreso el 10 → 20 días), como SIDPLAN.
+  if (v.fecha_ingreso > ini) dias -= Number(v.fecha_ingreso.slice(8, 10));
   if (v.fecha_retiro && v.fecha_retiro < fin) dias -= 30 - Math.min(30, Number(v.fecha_retiro.slice(8, 10)));
   return Math.max(0, dias - faltas);
 }
@@ -232,7 +233,7 @@ export async function calcularPlanilla(periodoId: number, planilla: Planilla) {
       const lineas: Linea[] = [...r.lineas.filter((l) => l.concepto !== 'Otros bonos'), ...extra,
         { concepto: 'Caja CORDES patronal', codigo: 910, tipo: 'APORTE_PATRONAL', base: r.totalGanado, tasa: prm.CAJA_PAT, monto: r.patronal.caja },
         { concepto: 'Pro Vivienda patronal', codigo: 911, tipo: 'APORTE_PATRONAL', base: r.totalGanado, tasa: prm.PROVIV_PAT, monto: r.patronal.proVivienda },
-        { concepto: 'SIP patronal (riesgo + solidario)', codigo: 912, tipo: 'APORTE_PATRONAL', base: r.totalGanado, tasa: prm.RIESGO_PAT + prm.SOLIDARIO_PAT, monto: r2(r.patronal.riesgo + r.patronal.solidario) },
+        { concepto: 'SIP patronal (riesgo + solidario)', codigo: 912, tipo: 'APORTE_PATRONAL', base: r.totalGanado, tasa: r.patronal.riesgo ? prm.RIESGO_PAT + prm.SOLIDARIO_PAT : prm.SOLIDARIO_PAT, monto: r2(r.patronal.riesgo + r.patronal.solidario) },
         { concepto: 'Previsión aguinaldo', codigo: 913, tipo: 'PROVISION', base: r.totalGanado, tasa: prm.PREV_AGUINALDO, monto: r.provisiones.aguinaldo },
         { concepto: 'Previsión indemnización', codigo: 914, tipo: 'PROVISION', base: r.totalGanado, tasa: prm.PREV_INDEMN, monto: r.provisiones.indemnizacion }];
       resultados.push({ v, dias, tg: r.totalGanado, cot: r.totalGanado, desc: r.totalDescuentos, liq: r.liquido, lineas, rciva: r.rciva });

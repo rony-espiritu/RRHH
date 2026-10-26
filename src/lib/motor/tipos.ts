@@ -13,6 +13,7 @@ export interface Parametros {
   SOLIDARIO_LAB: number;
   CAJA_PAT: number;
   RIESGO_PAT: number;
+  RIESGO_PAT_65: number;     // riesgo profesional para mayores de 65 (0: ya no aplica)
   PROVIV_PAT: number;
   SOLIDARIO_PAT: number;
   PREV_AGUINALDO: number;

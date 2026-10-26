@@ -9,6 +9,7 @@ export const PARAMETROS_2026: Parametros = {
   SOLIDARIO_LAB: 0.005,
   CAJA_PAT: 0.1,
   RIESGO_PAT: 0.0171,
+  RIESGO_PAT_65: 0,
   PROVIV_PAT: 0.02,
   SOLIDARIO_PAT: 0.035,
   PREV_AGUINALDO: 0.0833, // como en Previsiones y Provisiones de SIDPLAN

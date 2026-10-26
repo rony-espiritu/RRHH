@@ -105,9 +105,10 @@ export function calcularB1(t: TrabajadorB1, n: NovedadesB1, prm: Parametros, p: 
 
   // Aportes laborales
   let gestora = 0, solidario = 0;
+  const edad = t.fechaNacimiento ? aniosCumplidos(t.fechaNacimiento, p) : 0;
+  const mayor65 = edad >= prm.EDAD_GESTORA_REDUCIDA;
   if (t.aportaGestora !== false) {
-    const edad = t.fechaNacimiento ? aniosCumplidos(t.fechaNacimiento, p) : 0;
-    const tasaG = t.tasas?.GESTORA_LAB ?? (edad >= prm.EDAD_GESTORA_REDUCIDA ? prm.GESTORA_LAB_65 : prm.GESTORA_LAB);
+    const tasaG = t.tasas?.GESTORA_LAB ?? (mayor65 ? prm.GESTORA_LAB_65 : prm.GESTORA_LAB);
     gestora = r2(tasa(totalGanado, tasaG));
     lineas.push({ concepto: 'Gestora', codigo: 517, tipo: 'DESCUENTO', base: totalGanado, tasa: tasaG, monto: gestora });
 
@@ -134,7 +135,7 @@ export function calcularB1(t: TrabajadorB1, n: NovedadesB1, prm: Parametros, p: 
 
   const patronal = {
     caja: r2(tasa(totalGanado, prm.CAJA_PAT)),
-    riesgo: r2(tasa(totalGanado, prm.RIESGO_PAT)),
+    riesgo: r2(tasa(totalGanado, mayor65 ? prm.RIESGO_PAT_65 : prm.RIESGO_PAT)),  // mayores de 65: solo SIP 3,5%
     proVivienda: r2(tasa(totalGanado, prm.PROVIV_PAT)),
     solidario: r2(tasa(totalGanado, prm.SOLIDARIO_PAT)),
     total: 0,

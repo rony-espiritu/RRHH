@@ -83,8 +83,8 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, so
   const planilla = grupo === 'B2' || grupo === 'PREV_P2' ? 'B2' : 'B1';
   const prm = await cargarParametros(p.fecha_fin);
   const reparto = await repartos(periodoId);
-  const trab = await sql<{ id: number; vinculo_id: number; codigo: string; liquido: number; lineas: { codigo: number; nombre: string; monto: number; aguinaldo: boolean }[] }[]>`
-    select pt.id, pt.vinculo_id, t.codigo, pt.liquido,
+  const trab = await sql<{ id: number; vinculo_id: number; codigo: string; liquido: number; fecha_ingreso: string; lineas: { codigo: number; nombre: string; monto: number; aguinaldo: boolean }[] }[]>`
+    select pt.id, pt.vinculo_id, t.codigo, pt.liquido, v.fecha_ingreso::text,
            coalesce((select json_agg(json_build_object('codigo', l.codigo, 'nombre', c.nombre, 'monto', l.monto, 'aguinaldo', c.afecta_aguinaldo))
                      from planilla_linea l join concepto c on c.id = l.concepto_id where l.planilla_trabajador_id = pt.id), '[]') lineas
     from planilla_trabajador pt join vinculo v on v.id = pt.vinculo_id join trabajador t on t.id = v.trabajador_id
@@ -118,10 +118,12 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, so
       for (const l of t.lineas.filter((x) => x.codigo === 914)) debeGasto('Finiquitos', '004', Number(l.monto), t.vinculo_id);
       for (const l of t.lineas.filter((x) => x.codigo >= 910)) pasivo(String(l.codigo), Number(l.monto), '00');
     } else if (grupo === 'B2') {
-      // Carga inicial: ingresos y descuentos conocidos al inicio (sin cuenta corriente/anticipos, que salen de Albor a fin de mes)
+      // Carga inicial (día 1): solo quienes ya trabajaban el 1° (los que entran después se ajustan a fin de mes).
+      if (t.fecha_ingreso > p.fecha_inicio) continue;
       for (const l of ingresos) {
-        debeGasto(l.nombre, tipoContable('B2', l.codigo), Number(l.monto), t.vinculo_id);
-        pasivo('CTA_CTE', Number(l.monto), t.codigo, 'haber', l.nombre);
+        const monto = Number(l.monto);
+        debeGasto(l.nombre, tipoContable('B2', l.codigo), monto, t.vinculo_id);
+        pasivo('CTA_CTE', monto, t.codigo, 'haber', l.nombre);
       }
       for (const l of t.lineas.filter((x) => x.codigo >= 500 && x.codigo < 900 && x.codigo !== 511)) {
         pasivo('CTA_CTE', Number(l.monto), t.codigo, 'debe', l.nombre);
