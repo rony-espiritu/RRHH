@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { aplicarImportacion, aplicarSaldos, leerExcel, obtenerImportacion, registrarImportacion } from '@/lib/datos/importacion';
+import { generarCooperativaPeriodo } from '@/lib/datos/cooperativa';
 import { abrirPeriodo, calcularPlanilla, cambiarEstado, guardarNovedad, type Planilla } from '@/lib/datos/planilla';
 
 const num = (v: FormDataEntryValue | null) => {
@@ -11,7 +12,13 @@ const num = (v: FormDataEntryValue | null) => {
 
 export async function accionAbrir(fd: FormData) {
   const id = await abrirPeriodo(Number(fd.get('anio')), Number(fd.get('mes')), num(fd.get('ufv_inicio')) ?? undefined, num(fd.get('ufv_fin')) ?? undefined);
-  redirect(`/periodos/${id}`);
+  // Al abrir el periodo se cargan solos las cuotas e intereses de préstamos y los aportes de ahorro
+  let msg = 'Periodo abierto';
+  try {
+    const r = await generarCooperativaPeriodo(id);
+    msg += `|Préstamos: ${r.cuotas} cuotas · Ahorros: ${r.aportes} aportes` + (r.avisos.length ? '|' + r.avisos.join('|') : '');
+  } catch (e) { msg += '|No se generaron préstamos y ahorros: ' + (e as Error).message; }
+  redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
 }
 
 export async function accionCalcular(fd: FormData) {
@@ -95,6 +102,18 @@ export async function accionAplicarSaldos(fd: FormData) {
     }
     msg = `Saldos de Albor aplicados: ${r.anticipos} anticipos B2 y ${r.descuentosB1} descuentos en B1|` + avisos.join('|')
       + (r.sobrantes.length ? `|Con saldo en Albor pero sin B2 en este periodo: ${r.sobrantes.map((x) => `${x.codigo} ${x.saldo}`).join(', ')}` : '');
+  } catch (e) { msg = 'ERROR|' + (e as Error).message; }
+  revalidatePath(`/periodos/${id}`);
+  redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
+}
+
+export async function accionCooperativa(fd: FormData) {
+  const id = Number(fd.get('periodo'));
+  let msg: string;
+  try {
+    const r = await generarCooperativaPeriodo(id);
+    msg = `Préstamos y ahorros generados: ${r.cuotas} cuotas de préstamos, ${r.aportes} aportes de ahorro` + (r.terminados ? ` · ${r.terminados} préstamos terminan este mes` : '')
+      + '|Recalcule la B2 para que se descuenten.' + (r.avisos.length ? '|' + r.avisos.join('|') : '');
   } catch (e) { msg = 'ERROR|' + (e as Error).message; }
   revalidatePath(`/periodos/${id}`);
   redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);

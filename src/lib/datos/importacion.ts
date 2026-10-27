@@ -25,9 +25,7 @@ export const DESTINOS: { valor: string; texto: string }[] = [
 function sugerir(col: string): string {
   const c = col.toLowerCase();
   if (c.includes('antic b2')) return 'B2|511';
-  if (c.includes('amortización préstamo interno') || c.includes('amortizacion prestamo interno')) return 'B2|508';
-  if (c.includes('amortización préstamo coop') || c.includes('amortizacion prestamo coop')) return 'B2|506';
-  if (c.includes('interés préstamo coop') || c.includes('interes prestamo coop')) return 'B2|507';
+  // Las cuotas de préstamos ya no se importan: las genera el módulo de Cooperativa al abrir el periodo.
   if (c.includes('antic b1') || c === 'anticipos') return 'B1|511';
   return '';
 }

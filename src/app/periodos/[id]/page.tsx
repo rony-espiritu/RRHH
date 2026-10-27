@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { nombreMes, obtenerPeriodo, resumenPorEmpresa, type Planilla } from '@/lib/datos/planilla';
 import { bs } from '@/lib/formato';
 import { sql } from '@/lib/db';
-import { accionCalcular, accionEstado } from '../acciones';
+import { accionCalcular, accionCooperativa, accionEstado } from '../acciones';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +41,9 @@ function PasosB2({ id, estado, calculada, anticipos, aplicados }: { id: number; 
   );
   return (
     <ol className="pasos">
-      {paso(1, calculada, 'Inicio de mes: novedades B2', <>Horas extra, faltas y cuotas de préstamos. <Link href={`/periodos/${id}/novedades?pl=B2`}>Cargar novedades</Link></>)}
+      {paso(1, calculada, 'Inicio de mes: novedades B2', <>Horas extra y faltas: <Link href={`/periodos/${id}/novedades?pl=B2`}>cargar novedades</Link>.
+        Préstamos, intereses y ahorros salen solos de <Link href="/cooperativa">Cooperativa</Link>
+        {abierto && <form action={accionCooperativa} style={{ display: 'inline', marginLeft: 8 }}><input type="hidden" name="periodo" value={id} /><button className="sec" style={{ padding: '2px 8px' }}>Volver a generar</button></form>}</>)}
       {paso(2, calculada, 'Calcular B2', 'Con los montos fijos de cada trabajador (Configuración y fichas).')}
       {paso(3, false, 'Subir a Albor la carga inicial', calculada
         ? <a href={`/periodos/${id}/descargas?tipo=albor&grupo=B2`}>Descargar carga inicial B2 (día 1)</a>
