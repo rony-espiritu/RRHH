@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import Procesando from './procesando';
 import './globals.css';
 
 export const metadata: Metadata = { title: 'RRHH Estancias Espíritu', description: 'Planillas y RRHH multiempresa' };
@@ -20,6 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </ul>
           </nav>
           <main>{children}</main>
+          <Suspense fallback={null}><Procesando /></Suspense>
         </div>
       </body>
     </html>
