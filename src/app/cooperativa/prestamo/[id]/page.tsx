@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { obtenerPrestamo, proyeccion } from '@/lib/datos/cooperativa';
+import { obtenerPrestamo, proyeccion, restoMinimo } from '@/lib/datos/cooperativa';
 import { bs } from '@/lib/formato';
 import { accionEditarPrestamo, accionPagoExterno } from '../../acciones';
 
@@ -15,7 +15,7 @@ export default async function VerPrestamo({ params, searchParams }: { params: Pr
   const ultimo = p.pagos.at(-1)?.fecha ?? p.fecha;
   const [y, m] = ultimo.split('-').map(Number);
   const sigue = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
-  const plan = p.estado === 'ACTIVO' ? proyeccion(p, sigue) : [];
+  const plan = p.estado === 'ACTIVO' ? proyeccion(p, sigue, 120, await restoMinimo()) : [];
   let saldo = Number(p.capital);
   return (
     <>

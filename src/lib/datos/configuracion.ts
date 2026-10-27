@@ -19,6 +19,7 @@ export const META: Record<string, { grupo: string; nombre: string; tipo: 'pct' |
   SOLIDARIO_PAT: { grupo: 'Aportes patronales', nombre: 'Aporte solidario patronal (SIP)', tipo: 'pct' },
   PREV_AGUINALDO: { grupo: 'Previsiones', nombre: 'Previsión aguinaldo (1/12 = 8,3333 %)', tipo: 'pct' },
   PREV_INDEMN: { grupo: 'Previsiones', nombre: 'Previsión indemnización (1/12 = 8,3333 %)', tipo: 'pct' },
+  PRESTAMO_RESTO_MINIMO: { grupo: 'Préstamos', nombre: 'Resto de préstamo que se cobra junto con la última cuota (menor a)', tipo: 'num' },
   RCIVA_TASA: { grupo: 'RC-IVA', nombre: 'Tasa RC-IVA', tipo: 'pct' },
   RCIVA_MIN_SMN: { grupo: 'RC-IVA', nombre: 'Mínimo no imponible (en salarios mínimos)', tipo: 'num' },
   RCIVA_COMPUTO_SMN: { grupo: 'RC-IVA', nombre: 'Cómputo 13% sobre (salarios mínimos)', tipo: 'num' },

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { cuentasAhorro, cuotaDelPeriodo, listarPrestamos, movimientosAhorro, tiposPrestamo } from '@/lib/datos/cooperativa';
+import { cuentasAhorro, cuotaDelPeriodo, listarPrestamos, movimientosAhorro, restoMinimo, tiposPrestamo } from '@/lib/datos/cooperativa';
 import { bs } from '@/lib/formato';
 import { sql } from '@/lib/db';
 import { accionAporte, accionMovAhorro, accionNuevoPrestamo, accionSaldosAhorro } from './acciones';
@@ -15,6 +15,7 @@ async function Prestamos({ estado }: { estado: 'ACTIVO' | 'OTROS' }) {
   const ps = estado === 'ACTIVO' ? await listarPrestamos('ACTIVO') : [...await listarPrestamos('PAGADO'), ...await listarPrestamos('ANULADO')];
   const [{ tc }] = await sql<{ tc: number }[]>`select coalesce((select valor from parametro where clave = 'TC_USD' order by vigente_desde desc limit 1), 6.96) tc`;
   const tipos = [...new Set(ps.map((p) => p.tipo_nombre))];
+  const resto = await restoMinimo();
   const bsDe = (p: (typeof ps)[number], x: number) => (p.moneda === 'USD' ? x * Number(tc) : x);
   return (
     <>
@@ -31,13 +32,13 @@ async function Prestamos({ estado }: { estado: 'ACTIVO' | 'OTROS' }) {
                 <th>Estado</th></tr></thead>
               <tbody>
                 {xs.map((p) => {
-                  const c = cuotaDelPeriodo(p, Number(p.saldo));
+                  const c = cuotaDelPeriodo(p, Number(p.saldo), resto);
                   return (
                     <tr key={p.id}><td><Link href={`/cooperativa/prestamo/${p.id}`}>{p.codigo} · {p.nombre}</Link></td><td>{p.fecha}</td><td>{p.moneda === 'USD' ? '$us' : 'Bs'}</td>
                       <td className="n">{bs(p.capital)}</td><td className="n">{bs(p.pagado)}</td><td className="n"><b>{bs(p.saldo)}</b></td><td className="n">{bs(p.cuota)}</td>
                       <td className="n">{Number(p.tasa_mensual) ? `${Number(p.tasa_mensual)} %` : '—'}</td>
                       {estado === 'ACTIVO' && <><td className="n">{c.interes ? bs(c.interes) : ''}</td><td className="n">{bs(bsDe(p, c.capital) + bsDe(p, c.interes))}</td>
-                        <td className="n">{Math.ceil(Number(p.saldo) / Number(p.cuota) - 0.0001)}</td></>}
+                        <td className="n">{Math.max(1, Math.ceil((Number(p.saldo) - resto) / Number(p.cuota) - 0.0001))}</td></>}
                       <td><span className={`chip ${p.estado === 'ACTIVO' ? '' : 'CERRADO'}`}>{p.estado}</span></td></tr>
                   );
                 })}

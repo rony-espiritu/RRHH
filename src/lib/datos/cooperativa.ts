@@ -82,20 +82,28 @@ export async function eliminarPago(pagoId: number) {
 }
 
 /** Cuota e interés que corresponden a un periodo, según el saldo antes de ese periodo. */
-export function cuotaDelPeriodo(p: Pick<Prestamo, 'capital' | 'cuota' | 'tasa_mensual' | 'tipo_interes'>, saldoAntes: number) {
-  const capital = r2(Math.min(Number(p.cuota), saldoAntes));
+export function cuotaDelPeriodo(p: Pick<Prestamo, 'capital' | 'cuota' | 'tasa_mensual' | 'tipo_interes'>, saldoAntes: number, restoMinimo = 1) {
+  let capital = r2(Math.min(Number(p.cuota), saldoAntes));
+  // si después de esta cuota queda un resto menor al mínimo (parámetro PRESTAMO_RESTO_MINIMO), se cobra junto con ella
+  if (saldoAntes - capital > 0 && saldoAntes - capital < restoMinimo) capital = r2(saldoAntes);
   const base = p.tipo_interes === 'P' ? Number(p.capital) : saldoAntes;
   const interes = (base * Number(p.tasa_mensual)) / 100; // sin redondear: se redondea al convertir a Bs (como SIDPLAN)
   return { capital, interes };
 }
 
+/** Parámetro PRESTAMO_RESTO_MINIMO (por defecto 1 Bs/$us). */
+export async function restoMinimo(fecha = new Date().toISOString().slice(0, 10)) {
+  const [r] = await sql<{ valor: number }[]>`select valor from parametro where clave = 'PRESTAMO_RESTO_MINIMO' and vigente_desde <= ${fecha} order by vigente_desde desc limit 1`;
+  return r ? Number(r.valor) : 1;
+}
+
 /** Tabla de pagos proyectada desde el saldo actual (para la pantalla del préstamo). */
-export function proyeccion(p: Prestamo, desde: string, maxCuotas = 120) {
+export function proyeccion(p: Prestamo, desde: string, maxCuotas = 120, restoMinimo = 1) {
   const out: { fecha: string; capital: number; interes: number; saldo: number }[] = [];
   let saldo = Number(p.saldo);
   let [y, m] = desde.split('-').map(Number);
   while (saldo > 0.009 && out.length < maxCuotas) {
-    const c = cuotaDelPeriodo(p, saldo);
+    const c = cuotaDelPeriodo(p, saldo, restoMinimo);
     saldo = r2(saldo - c.capital);
     out.push({ fecha: `${y}-${String(m).padStart(2, '0')}-01`, capital: c.capital, interes: r2(c.interes), saldo });
     m++; if (m > 12) { m = 1; y++; }
@@ -113,6 +121,7 @@ export async function generarCooperativaPeriodo(periodoId: number) {
   const iso = (d: unknown) => (d instanceof Date ? d.toISOString() : String(d)).slice(0, 10);
   const ini = iso(per.fecha_inicio), fin = iso(per.fecha_fin);
   const tc = Number(per.tc_usd ?? 6.96);
+  const restoMin = await restoMinimo(fin);
   const personal = await personalDelPeriodo(per);
   const avisos: string[] = [];
 
@@ -132,7 +141,7 @@ export async function generarCooperativaPeriodo(periodoId: number) {
     if (p.estado === 'PAGADO') reactivados.push(p.id);
     const v = personal.find((x) => x.trabajador_id === p.trabajador_id && (p.planilla === 'B1' ? x.en_b1 : x.en_b2));
     if (!v) { avisos.push(`${p.codigo} ${p.nombre}: tiene préstamo ${p.tipo_nombre} pero no está en ${p.planilla} este mes`); continue; }
-    const c = cuotaDelPeriodo(p, saldoAntes);
+    const c = cuotaDelPeriodo(p, saldoAntes, restoMin);
     const f = p.moneda === 'USD' ? tc : 1;
     const nota = `Préstamo #${p.id} ${p.tipo_nombre}`;
     novedades.push({ periodo_id: periodoId, vinculo_id: v.vinculo_id, concepto_id: cid(p.planilla, p.concepto_amort)!, monto: r2(c.capital * f), origen: 'SISTEMA', nota });
