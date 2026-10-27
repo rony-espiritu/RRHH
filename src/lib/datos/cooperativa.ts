@@ -209,17 +209,29 @@ export async function eliminarMovAhorro(id: number) {
   await auditar('ahorro_mov', String(id), 'DELETE', m);
 }
 
-/** Saldos iniciales desde el cubo de Albor (cuenta de ahorros 21010200401): el saldo acreedor (negativo en Albor) es el ahorro. */
+/**
+ * Saldos de ahorro desde Albor (cuenta 21010200401, por personal) a una fecha: el saldo acreedor (negativo en Albor) es el ahorro.
+ * Como el sistema ya tiene movimientos hasta esa fecha (aportes de planilla, depósitos), el saldo inicial es la diferencia,
+ * fechado el día anterior al primer movimiento: así el saldo del sistema a esa fecha queda igual al de Albor.
+ */
 export async function cargarSaldosIniciales(saldos: { codigo: string; nombre: string; saldo: number }[], fecha: string) {
   const trab = await sql<{ id: number; codigo: string; nombre: string }[]>`select id, codigo, concat_ws(' ', ap_paterno, ap_materno, nombres) nombre from trabajador`;
-  const norm = (x: string) => x.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/gi, '').toUpperCase();
+  const norm = (x: string) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/gi, '').toUpperCase();
   const ok: string[] = [], faltan: string[] = [];
   await sql.begin(async (tx) => {
     for (const s of saldos) {
-      const t = trab.find((x) => x.codigo.toUpperCase() === s.codigo) ?? trab.find((x) => norm(x.nombre) === norm(s.nombre));
-      if (!t) { if (s.saldo) faltan.push(`${s.codigo} ${s.nombre}`); continue; }
+      // por código; si no hay, por nombre; y por nombre en otro orden (p. ej. "Wilber Pedro" / "Pedro Wilber")
+      const palabras = (x: string) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().split(/[^A-Z]+/).filter(Boolean).sort().join(' ');
+      const t = (s.codigo && trab.find((x) => x.codigo.toUpperCase() === s.codigo)) || trab.find((x) => norm(x.nombre) === norm(s.nombre))
+        || trab.find((x) => palabras(x.nombre) === palabras(s.nombre));
+      if (!t) { if (s.saldo) faltan.push(`${s.codigo} ${s.nombre}`.trim()); continue; }
       await tx`delete from ahorro_mov where trabajador_id = ${t.id} and tipo = 'SALDO_INICIAL'`;
-      if (s.saldo) await tx`insert into ahorro_mov (trabajador_id, fecha, tipo, monto, nota) values (${t.id}, ${fecha}, 'SALDO_INICIAL', ${r2(-s.saldo)}, 'Saldo según Albor')`;
+      const [m] = await tx<{ suma: number; primera: string | null }[]>`
+        select coalesce(sum(monto), 0) suma, (min(fecha) - 1)::text primera from ahorro_mov where trabajador_id = ${t.id} and fecha <= ${fecha}`;
+      const inicial = r2(-s.saldo - Number(m.suma));
+      const f = m.primera && m.primera < fecha ? m.primera : fecha;
+      if (inicial) await tx`insert into ahorro_mov (trabajador_id, fecha, tipo, monto, nota)
+                            values (${t.id}, ${f}, 'SALDO_INICIAL', ${inicial}, ${`Saldo inicial para cuadrar con Albor al ${fecha} (${r2(-s.saldo)})`})`;
       ok.push(t.codigo);
     }
   });

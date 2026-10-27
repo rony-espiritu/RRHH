@@ -38,18 +38,19 @@ export interface Hoja { nombre: string; filaCabecera: number; columnas: string[]
  * una fila de títulos con "Codigo Personal" y "Saldo …", seguida de una fila por trabajador.
  */
 function leerCubo(filas: (string | number | null)[][]): SaldoAlbor[] | undefined {
-  const fc = filas.findIndex((f) => f.some((c) => typeof c === 'string' && /^c[oó]digo personal$/i.test(c.trim())) && f.some((c) => typeof c === 'string' && /saldo/i.test(c)));
+  const esCod = (c: string) => /^c[oó]digo personal$/i.test(c);
+  const esNom = (c: string) => /^personal\b/i.test(c);
+  const fc = filas.findIndex((f) => f.some((c) => typeof c === 'string' && (esCod(c.trim()) || esNom(c.trim()))) && f.some((c) => typeof c === 'string' && /saldo/i.test(c)));
   if (fc < 0) return undefined;
   const t = filas[fc].map((c) => String(c ?? '').trim());
-  const cCod = t.findIndex((c) => /^c[oó]digo personal$/i.test(c));
-  const cNom = t.findIndex((c) => /^personal$/i.test(c));
-  const cSal = t.findIndex((c) => /saldo/i.test(c));
+  const cCod = t.findIndex(esCod), cNom = t.findIndex(esNom), cSal = t.findIndex((c) => /saldo/i.test(c));
   const out: SaldoAlbor[] = [];
   for (const f of filas.slice(fc + 1)) {
-    if (typeof f[0] === 'string' && /total$/i.test(f[0].trim())) break;
-    const cod = String(f[cCod] ?? '').trim();
-    if (!cod || typeof f[cSal] !== 'number') continue;
-    out.push({ codigo: cod.toUpperCase(), nombre: String(f[cNom] ?? '').trim(), saldo: Math.round(Number(f[cSal]) * 100) / 100 });
+    if (f.some((c) => typeof c === 'string' && /^total\b|total$/i.test(c.trim()))) break;
+    const cod = cCod >= 0 ? String(f[cCod] ?? '').trim() : '';
+    const nom = cNom >= 0 ? String(f[cNom] ?? '').trim() : '';
+    if ((!cod && !nom) || typeof f[cSal] !== 'number') continue;
+    out.push({ codigo: cod.toUpperCase(), nombre: nom, saldo: Math.round(Number(f[cSal]) * 100) / 100 });
   }
   return out.length ? out : undefined;
 }

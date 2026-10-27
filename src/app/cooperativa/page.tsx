@@ -105,8 +105,8 @@ async function Ahorros({ sel }: { sel?: string }) {
       </form>
       <form action={accionSaldosAhorro} className="panel fila">
         <b>Saldos iniciales desde Albor</b>
-        <span className="sub">Cubo de Albor de la cuenta 21010200401 (Cooperativa Espíritu AHORROS) con “Codigo Personal” y “Saldo”, al</span>
-        <input type="date" name="fecha" defaultValue="2026-08-31" required />
+        <span className="sub">Saldos de Albor de la cuenta 21010200401 (Cooperativa Espíritu AHORROS) por personal (código o nombre y saldo), al</span>
+        <input type="date" name="fecha" defaultValue="2026-09-30" required />
         <input type="file" name="archivo" accept=".xlsx" /><button>Cargar saldos</button>
       </form>
     </>

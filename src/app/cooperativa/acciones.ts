@@ -56,7 +56,7 @@ export async function accionSaldosAhorro(fd: FormData) {
   try {
     if (!f || !f.size) throw new Error('Seleccione el Excel de Albor');
     const cubo = (await leerExcel(await f.arrayBuffer())).find((h) => h.cubo)?.cubo;
-    if (!cubo) throw new Error('No se reconoció el archivo: debe ser el cubo de Albor con "Codigo Personal" y "Saldo"');
+    if (!cubo) throw new Error('No se reconoció el archivo: debe tener una columna de personal (código o nombre) y otra de saldo');
     const r = await cargarSaldosIniciales(cubo, String(fd.get('fecha')));
     msg = `Saldos iniciales cargados: ${r.cargados}` + (r.faltan.length ? ` · sin trabajador en el sistema: ${r.faltan.join(', ')}` : '');
   } catch (e) { err = (e as Error).message; }
