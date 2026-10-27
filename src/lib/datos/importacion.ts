@@ -32,7 +32,29 @@ function sugerir(col: string): string {
   return '';
 }
 
-export interface Hoja { nombre: string; filaCabecera: number; columnas: string[]; colCodigo: number; filas: (string | number | null)[][] }
+export type SaldoAlbor = { codigo: string; nombre: string; saldo: number };
+export interface Hoja { nombre: string; filaCabecera: number; columnas: string[]; colCodigo: number; filas: (string | number | null)[][]; cubo?: SaldoAlbor[] }
+
+/**
+ * Reconoce el "cubo" de Albor con los saldos de Cuenta Corriente Personal al cierre del mes:
+ * una fila de títulos con "Codigo Personal" y "Saldo …", seguida de una fila por trabajador.
+ */
+function leerCubo(filas: (string | number | null)[][]): SaldoAlbor[] | undefined {
+  const fc = filas.findIndex((f) => f.some((c) => typeof c === 'string' && /^c[oó]digo personal$/i.test(c.trim())) && f.some((c) => typeof c === 'string' && /saldo/i.test(c)));
+  if (fc < 0) return undefined;
+  const t = filas[fc].map((c) => String(c ?? '').trim());
+  const cCod = t.findIndex((c) => /^c[oó]digo personal$/i.test(c));
+  const cNom = t.findIndex((c) => /^personal$/i.test(c));
+  const cSal = t.findIndex((c) => /saldo/i.test(c));
+  const out: SaldoAlbor[] = [];
+  for (const f of filas.slice(fc + 1)) {
+    if (typeof f[0] === 'string' && /total$/i.test(f[0].trim())) break;
+    const cod = String(f[cCod] ?? '').trim();
+    if (!cod || typeof f[cSal] !== 'number') continue;
+    out.push({ codigo: cod.toUpperCase(), nombre: String(f[cNom] ?? '').trim(), saldo: Math.round(Number(f[cSal]) * 100) / 100 });
+  }
+  return out.length ? out : undefined;
+}
 
 /** Valor plano de una celda de exceljs (fórmulas → resultado, textos enriquecidos → texto). */
 function plano(v: ExcelJS.CellValue): string | number | null {
@@ -63,7 +85,7 @@ export async function leerExcel(buf: ArrayBuffer): Promise<Hoja[]> {
     const ancho = Math.max(...filas.map((f) => f.length));
     const columnas = Array.from({ length: ancho }, (_, i) => filas[fc]?.[i] ?? null).map((c, i) => (c == null || c === '' ? `Columna ${i + 1}` : String(c).trim()));
     const colCodigo = Math.max(0, columnas.findIndex((c) => /c[oó]digo/i.test(c)));
-    return { nombre: ws.name, filaCabecera: fc, columnas, colCodigo,
+    return { nombre: ws.name, filaCabecera: fc, columnas, colCodigo, cubo: leerCubo(filas),
       filas: filas.slice(fc + 1).filter((f) => f[colCodigo] != null && String(f[colCodigo]).trim() !== '') };
   });
 }
@@ -135,4 +157,72 @@ export async function aplicarImportacion(id: number, hojaNombre: string, mapeo: 
              log = log || ${tx.json({ aplicado: { hoja: hojaNombre, mapeo, noEncontrados, corregidos } })} where id = ${id}`;
   });
   return { novedades: filas.length, noEncontrados, corregidos };
+}
+
+// ---------------------------------------------------------------------------
+// Saldos de cuenta corriente (cubo de Albor) → anticipos B2 y descuento en B1
+// ---------------------------------------------------------------------------
+const NOTA_CTA = 'Saldo cuenta corriente Albor';
+const norm = (x: unknown) => String(x ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/gi, '').toUpperCase();
+const r2 = (x: number) => Math.round(x * 100) / 100;
+
+export type FilaSaldo = {
+  codigo: string; nombre: string; vinculo_id: number; vinculo_b1: number | null; saldo: number | null; neto: number;
+  anticipo: number; pagar: number; descuentoB1: number; nota?: string; corregido?: string;
+};
+
+/**
+ * Regla (confirmada por RRHH):
+ *  - Saldo negativo en Albor = lo que le queda en su cuenta corriente → se le paga en la B2; anticipos del mes = neto B2 − ese saldo.
+ *  - Saldo positivo = gastó más de lo que tenía → anticipos B2 = todo su neto (saldo B2 = 0) y el exceso se descuenta en la B1.
+ * "Neto B2" = ingresos menos préstamos y cooperativa del mes, calculado por el sistema antes de anticipos.
+ */
+export async function previsualizarSaldos(periodoId: number, saldos: SaldoAlbor[]) {
+  const trab = await sql<{ codigo: string; nombre: string; vinculo_id: number; trabajador_id: number; neto: number }[]>`
+    select t.codigo, concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres) nombre, pt.vinculo_id, t.id trabajador_id,
+           pt.liquido + coalesce((select sum(l.monto) from planilla_linea l join concepto c on c.id = l.concepto_id
+                                  where l.planilla_trabajador_id = pt.id and c.codigo = 511), 0) neto
+    from planilla_trabajador pt join vinculo v on v.id = pt.vinculo_id join trabajador t on t.id = v.trabajador_id
+    where pt.periodo_id = ${periodoId} and pt.planilla = 'B2' order by nombre`;
+  if (!trab.length) throw new Error('Primero calcule la B2 del periodo (paso 2).');
+  const b1 = await sql<{ trabajador_id: number; vinculo_id: number }[]>`
+    select v.trabajador_id, v.id vinculo_id from vinculo v join periodo p on p.id = ${periodoId}
+    where v.en_b1 and v.fecha_ingreso <= p.fecha_fin and (v.fecha_retiro is null or v.fecha_retiro >= p.fecha_inicio)`;
+  const porCod = new Map(saldos.map((x) => [x.codigo, x]));
+  const porNom = new Map(saldos.map((x) => [norm(x.nombre), x]));
+  const usados = new Set<string>();
+  const filas: FilaSaldo[] = trab.map((t) => {
+    let s = porCod.get(t.codigo.toUpperCase());
+    let corregido: string | undefined;
+    if (!s) { s = porNom.get(norm(t.nombre)); if (s) corregido = `${s.codigo} → ${t.codigo}`; }
+    if (s) usados.add(s.codigo);
+    const neto = Number(t.neto);
+    const vb1 = b1.find((x) => x.trabajador_id === t.trabajador_id)?.vinculo_id ?? null;
+    if (!s) return { codigo: t.codigo, nombre: t.nombre, vinculo_id: t.vinculo_id, vinculo_b1: vb1, saldo: null, neto, anticipo: 0, pagar: neto, descuentoB1: 0,
+      nota: 'No figura en el archivo de Albor: se le paga todo su neto B2' };
+    const pagarAlbor = Math.max(0, -s.saldo), descuentoB1 = Math.max(0, s.saldo);
+    let anticipo = r2(neto - pagarAlbor), nota: string | undefined;
+    if (anticipo < 0) { nota = `El saldo de Albor (${pagarAlbor}) es mayor a su neto del mes: arrastra saldo de meses anteriores`; anticipo = 0; }
+    if (descuentoB1 && !vb1) nota = 'Gastó más que su cuenta corriente pero no está en B1: el descuento queda pendiente';
+    return { codigo: t.codigo, nombre: t.nombre, vinculo_id: t.vinculo_id, vinculo_b1: vb1, saldo: s.saldo, neto, anticipo, pagar: r2(neto - anticipo), descuentoB1, nota, corregido };
+  });
+  const sobrantes = saldos.filter((x) => !usados.has(x.codigo) && x.saldo !== 0);
+  return { filas, sobrantes };
+}
+
+export async function aplicarSaldos(periodoId: number, importacionId: number, saldos: SaldoAlbor[]) {
+  const { filas, sobrantes } = await previsualizarSaldos(periodoId, saldos);
+  const [c511b2] = await sql<{ id: number }[]>`select id from concepto where planilla = 'B2' and codigo = 511`;
+  const [c511b1] = await sql<{ id: number }[]>`select id from concepto where planilla = 'B1' and codigo = 511`;
+  const nuevas = [
+    ...filas.filter((f) => f.anticipo > 0).map((f) => ({ periodo_id: periodoId, vinculo_id: f.vinculo_id, concepto_id: c511b2.id, monto: f.anticipo, origen: 'ALBOR', importacion_id: importacionId, nota: NOTA_CTA })),
+    ...filas.filter((f) => f.descuentoB1 > 0 && f.vinculo_b1).map((f) => ({ periodo_id: periodoId, vinculo_id: f.vinculo_b1!, concepto_id: c511b1.id, monto: f.descuentoB1, origen: 'ALBOR', importacion_id: importacionId, nota: NOTA_CTA })),
+  ];
+  await sql.begin(async (tx) => {
+    await tx`delete from novedad where periodo_id = ${periodoId} and concepto_id in ${tx([c511b2.id, c511b1.id])} and (nota = ${NOTA_CTA} or (origen = 'ALBOR' and concepto_id = ${c511b2.id}))`;
+    if (nuevas.length) await tx`insert into novedad ${tx(nuevas, 'periodo_id', 'vinculo_id', 'concepto_id', 'monto', 'origen', 'importacion_id', 'nota')}`;
+    await tx`update importacion set filas_ok = ${nuevas.length}, filas_error = ${sobrantes.length},
+             log = log || ${tx.json(JSON.parse(JSON.stringify({ aplicado: { tipo: 'SALDOS_CTA_CTE', sobrantes } })))} where id = ${importacionId}`;
+  });
+  return { anticipos: filas.filter((f) => f.anticipo > 0).length, descuentosB1: filas.filter((f) => f.descuentoB1 > 0 && f.vinculo_b1).length, filas, sobrantes };
 }

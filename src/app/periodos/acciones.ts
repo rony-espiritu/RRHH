@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { aplicarImportacion, leerExcel, registrarImportacion } from '@/lib/datos/importacion';
+import { aplicarImportacion, aplicarSaldos, leerExcel, obtenerImportacion, registrarImportacion } from '@/lib/datos/importacion';
 import { abrirPeriodo, calcularPlanilla, cambiarEstado, guardarNovedad, type Planilla } from '@/lib/datos/planilla';
 
 const num = (v: FormDataEntryValue | null) => {
@@ -76,5 +76,26 @@ export async function accionAplicarAlbor(fd: FormData) {
   revalidatePath(`/periodos/${id}`);
   const msg = `Importadas ${r.novedades} novedades de Albor` + (r.corregidos.length ? `|Reconocidos por nombre (corregir código en Albor): ${r.corregidos.join(', ')}` : '')
     + (r.noEncontrados.length ? `|Códigos no encontrados en el periodo: ${r.noEncontrados.join(', ')}` : '');
+  redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
+}
+
+/** Saldos de cuenta corriente de Albor → anticipos B2 + descuento en B1, y recalcula ambas planillas. */
+export async function accionAplicarSaldos(fd: FormData) {
+  const id = Number(fd.get('periodo')), impId = Number(fd.get('imp')), hoja = String(fd.get('hoja'));
+  let msg: string;
+  try {
+    const imp = await obtenerImportacion(impId);
+    const saldos = imp?.log.hojas.find((h) => h.nombre === hoja)?.cubo;
+    if (!saldos) throw new Error('El archivo no tiene saldos de cuenta corriente');
+    const r = await aplicarSaldos(id, impId, saldos);
+    const avisos: string[] = [];
+    for (const pl of ['B2', 'B1'] as const) {
+      try { const c = await calcularPlanilla(id, pl); avisos.push(`${pl} recalculada (${c.calculados})`); }
+      catch (e) { avisos.push(`${pl} no se recalculó: ${(e as Error).message}`); }
+    }
+    msg = `Saldos de Albor aplicados: ${r.anticipos} anticipos B2 y ${r.descuentosB1} descuentos en B1|` + avisos.join('|')
+      + (r.sobrantes.length ? `|Con saldo en Albor pero sin B2 en este periodo: ${r.sobrantes.map((x) => `${x.codigo} ${x.saldo}`).join(', ')}` : '');
+  } catch (e) { msg = 'ERROR|' + (e as Error).message; }
+  revalidatePath(`/periodos/${id}`);
   redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
 }
