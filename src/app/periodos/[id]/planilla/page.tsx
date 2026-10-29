@@ -32,7 +32,7 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
   const val = (f: (typeof filas)[number], c: number) => f.lineas.filter((l) => l.codigo === c).reduce((s, l) => s + Number(l.monto), 0);
   type F = (typeof filas)[number];
   const Totales = ({ xs, titulo, clase }: { xs: F[]; titulo: string; clase: string }) => (
-    <tr className={clase}><td colSpan={5}>{titulo} <span className="sub">({xs.length})</span></td>
+    <tr className={clase}><td colSpan={5} className="fsub">{titulo} <span className="sub">({xs.length})</span></td>
       {ingresos.map((c) => <td key={c} className="n">{bs(xs.reduce((s, f) => s + val(f, c), 0) || null)}</td>)}
       <td className="n">{bs(xs.reduce((s, f) => s + Number(f.total_ganado), 0))}</td>
       {descuentos.map((c) => <td key={c} className="n">{bs(xs.reduce((s, f) => s + val(f, c), 0) || null)}</td>)}
@@ -56,9 +56,9 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
           <Link className={`btn ${agrupar === 'empresa' ? '' : 'sec'}`} href={url({ agrupar: 'empresa' })}>Propietario</Link>
           <Link className={`btn ${agrupar === 'cc' ? '' : 'sec'}`} href={url({ agrupar: 'cc' })}>Centro de costo</Link></div>
       </div>
-      <div className="tabla">
+      <div className="tabla planilla-fija">
         <table>
-          <thead><tr><th>Código</th><th>Nombre</th><th>Emp.</th><th>CC</th><th className="n">Días</th>
+          <thead><tr><th className="f1">Código</th><th className="f2">Nombre</th><th className="f3">Emp.</th><th className="f4">CC</th><th className="n f5">Días</th>
             {ingresos.map((c) => <th key={c} className="n">{cols.get(c)}</th>)}
             <th className="n">Total ganado</th>
             {descuentos.map((c) => <th key={c} className="n">{cols.get(c)}</th>)}
@@ -66,7 +66,7 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
           <tbody>
             {grupos.map((g) => { const xs = filas.filter((f) => clave(f) === g); return [
             ...xs.map((f) => (
-              <tr key={f.id}><td><Link href={`/personal/${f.codigo}`}>{f.codigo}</Link></td><td><Link href={`/periodos/${id}/boleta/${f.vinculo_id}?pl=${pl}`} target="_blank" title="Ver boleta">{f.nombre}</Link></td><td>{f.empresa}</td><td>{f.centro_costo}</td><td className="n">{f.dias}</td>
+              <tr key={f.id}><td className="f1"><Link href={`/personal/${f.codigo}`}>{f.codigo}</Link></td><td className="f2"><Link href={`/periodos/${id}/boleta/${f.vinculo_id}?pl=${pl}`} target="_blank" title={`${f.nombre} — ver boleta`}>{f.nombre}</Link></td><td className="f3">{f.empresa}</td><td className="f4">{f.centro_costo}</td><td className="n f5">{f.dias}</td>
                 {ingresos.map((c) => <td key={c} className="n">{bs(val(f, c) || null)}</td>)}
                 <td className="n"><b>{bs(f.total_ganado)}</b></td>
                 {descuentos.map((c) => <td key={c} className="n">{bs(val(f, c) || null)}</td>)}

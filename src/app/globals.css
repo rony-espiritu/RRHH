@@ -79,3 +79,15 @@ body.procesando main { cursor: progress; }
 .filtros { display: grid; gap: 8px; }
 .filtros .etq { min-width: 120px; font-size: 12px; color: var(--muted); }
 tr.subtotal td { background: #f1efe7; font-weight: 600; border-bottom: 2px solid var(--line); }
+/* Planilla: columnas de identificación fijas al desplazar a la derecha */
+.planilla-fija td, .planilla-fija th { box-sizing: border-box; }
+.planilla-fija .f1, .planilla-fija .f2, .planilla-fija .f3, .planilla-fija .f4, .planilla-fija .f5, .planilla-fija .fsub { position: sticky; z-index: 1; background: var(--panel); }
+.planilla-fija th.f1, .planilla-fija th.f2, .planilla-fija th.f3, .planilla-fija th.f4, .planilla-fija th.f5 { z-index: 3; background: #faf9f6; }
+.planilla-fija .f1 { left: 0; min-width: 72px; max-width: 72px; }
+.planilla-fija .f2 { left: 72px; min-width: 250px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; }
+.planilla-fija .f3 { left: 322px; min-width: 56px; max-width: 56px; }
+.planilla-fija .f4 { left: 378px; min-width: 106px; max-width: 106px; overflow: hidden; text-overflow: ellipsis; }
+.planilla-fija .f5 { left: 484px; min-width: 52px; max-width: 52px; box-shadow: 2px 0 0 var(--line); }
+.planilla-fija .fsub { left: 0; box-shadow: 2px 0 0 var(--line); }
+.planilla-fija tr.subtotal td.fsub { background: #f1efe7; }
+.planilla-fija tr:hover td.f1, .planilla-fija tr:hover td.f2, .planilla-fija tr:hover td.f3, .planilla-fija tr:hover td.f4, .planilla-fija tr:hover td.f5 { background: #f6f4ee; }
