@@ -162,8 +162,11 @@ export async function generarCooperativaPeriodo(periodoId: number) {
   const ids = [...new Set(prestamos.flatMap((p) => [cid(p.planilla, p.concepto_amort), cid(p.planilla, p.concepto_int)]).concat(
     [506, 507, 508, 509].flatMap((c) => [cid('B1', c), cid('B2', c)])).filter((x): x is number => !!x))];
   await sql.begin(async (tx) => {
-    // reemplaza lo generado antes (incluye las cuotas traídas de SIDPLAN), no lo cargado a mano ni lo importado de Albor
-    await tx`delete from novedad where periodo_id = ${periodoId} and origen = 'SISTEMA' and concepto_id in ${tx(ids)}`;
+    // un solo proceso a la vez por periodo (evita duplicados si se presiona dos veces)
+    await tx`select pg_advisory_xact_lock(4242, ${periodoId})`;
+    // reemplaza lo generado antes y lo que haya venido de SIDPLAN o de un Excel de Albor: los préstamos salen solo de este módulo
+    // (se respeta lo cargado a mano en Novedades)
+    await tx`delete from novedad where periodo_id = ${periodoId} and origen in ('SISTEMA', 'ALBOR') and concepto_id in ${tx(ids)}`;
     await tx`delete from prestamo_pago where periodo_id = ${periodoId} and tipo = 'PLANILLA'`;
     await tx`delete from ahorro_mov where periodo_id = ${periodoId} and tipo = 'APORTE_PLANILLA'`;
     if (novedades.length) await tx`insert into novedad ${tx(novedades, 'periodo_id', 'vinculo_id', 'concepto_id', 'monto', 'origen', 'nota')}`;

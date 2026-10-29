@@ -18,6 +18,8 @@ export default function Procesando() {
   useEffect(() => {
     const alEnviar = (e: SubmitEvent) => {
       const form = e.target as HTMLFormElement;
+      // ya hay un proceso en curso: no se envía de nuevo (evita doble clic)
+      if (document.body.classList.contains('procesando')) { e.preventDefault(); e.stopImmediatePropagation(); return; }
       const boton = (e.submitter as HTMLButtonElement | null) ?? form.querySelector('button');
       const nombre = boton?.textContent?.trim() || 'Procesando';
       setTexto(nombre);
