@@ -75,6 +75,10 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
   return (
     <>
       <h2>Planilla de {nombreMes(p.mes)} {p.anio}</h2>
+      <div className="fila" style={{ margin: '6px 0' }}>
+        <Link className="btn" href={`/periodos/${id}/imprimir?pl=B1`}>Impresiones B1 (PDF)</Link>
+        <Link className="btn" href={`/periodos/${id}/imprimir?pl=B2`}>Impresiones B2 (PDF)</Link>
+      </div>
       <p className="sub">Campaña Albor {p.campana_albor} · UFV {p.ufv_inicio ?? '—'} → {p.ufv_fin ?? '—'} · TC {p.tc_usd}</p>
       {msg && <div className={titulo.startsWith('ERROR') ? 'error' : 'panel'}><b>{titulo === 'ERROR' ? 'No se pudo calcular' : titulo}</b>
         {avisos.map((a, i) => <div key={i} className={titulo === 'ERROR' ? '' : 'aviso'}>{a}</div>)}</div>}
