@@ -91,10 +91,10 @@ export function cuotaDelPeriodo(p: Pick<Prestamo, 'capital' | 'cuota' | 'tasa_me
   return { capital, interes };
 }
 
-/** Parámetro PRESTAMO_RESTO_MINIMO (por defecto 1 Bs/$us). */
+/** Parámetro PRESTAMO_RESTO_MINIMO vigente a la fecha (sin parámetro vigente = 0: no se junta el resto). */
 export async function restoMinimo(fecha = new Date().toISOString().slice(0, 10)) {
   const [r] = await sql<{ valor: number }[]>`select valor from parametro where clave = 'PRESTAMO_RESTO_MINIMO' and vigente_desde <= ${fecha} order by vigente_desde desc limit 1`;
-  return r ? Number(r.valor) : 1;
+  return r ? Number(r.valor) : 0;
 }
 
 /** Tabla de pagos proyectada desde el saldo actual (para la pantalla del préstamo). */

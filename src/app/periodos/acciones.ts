@@ -1,9 +1,9 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { aplicarImportacion, aplicarSaldos, leerExcel, obtenerImportacion, registrarImportacion } from '@/lib/datos/importacion';
+import { aplicarImportacion, aplicarSaldos, leerExcel, obtenerImportacion, recalcularB2, registrarImportacion } from '@/lib/datos/importacion';
 import { generarCooperativaPeriodo } from '@/lib/datos/cooperativa';
-import { abrirPeriodo, calcularPlanilla, cambiarEstado, guardarNovedad, type Planilla } from '@/lib/datos/planilla';
+import { obtenerPeriodo, abrirPeriodo, calcularPlanilla, cambiarEstado, guardarNovedad, type Planilla } from '@/lib/datos/planilla';
 
 const num = (v: FormDataEntryValue | null) => {
   const s = String(v ?? '').replace(',', '.').trim();
@@ -25,8 +25,10 @@ export async function accionCalcular(fd: FormData) {
   const id = Number(fd.get('periodo')), pl = String(fd.get('planilla')) as Planilla;
   let msg = '';
   try {
-    const r = await calcularPlanilla(id, pl);
-    msg = `${pl}: ${r.calculados} calculados` + (r.avisos.length ? ` · ${r.avisos.length} avisos` : '');
+    const r: { calculados: number; avisos: string[]; saldos?: boolean; b1?: string } =
+      pl === 'B2' ? await recalcularB2(id, (x) => calcularPlanilla(id, x)) : await calcularPlanilla(id, pl);
+    msg = `${pl}: ${r.calculados} calculados` + (r.saldos ? ' · anticipos ajustados a los saldos de Albor importados' + (r.b1 ? ` · ${r.b1}` : '') : '')
+      + (r.avisos.length ? ` · ${r.avisos.length} avisos` : '');
     if (r.avisos.length) msg += '|' + r.avisos.join('|');
   } catch (e) { msg = 'ERROR|' + (e as Error).message; }
   revalidatePath(`/periodos/${id}`);
@@ -112,8 +114,15 @@ export async function accionCooperativa(fd: FormData) {
   let msg: string;
   try {
     const r = await generarCooperativaPeriodo(id);
-    msg = `Préstamos y ahorros generados: ${r.cuotas} cuotas de préstamos, ${r.aportes} aportes de ahorro` + (r.terminados ? ` · ${r.terminados} préstamos terminan este mes` : '')
-      + '|Recalcule la B2 para que se descuenten.' + (r.avisos.length ? '|' + r.avisos.join('|') : '');
+    msg = `Préstamos y ahorros generados: ${r.cuotas} cuotas de préstamos, ${r.aportes} aportes de ahorro` + (r.terminados ? ` · ${r.terminados} préstamos terminan este mes` : '');
+    try {
+      const per = await obtenerPeriodo(id);
+      if (per?.estado_b2 === 'CALCULADO') {
+        await recalcularB2(id, (x) => calcularPlanilla(id, x));
+        msg += ' · B2 recalculada';
+      } else msg += '|Calcule la B2 para que se descuenten.';
+    } catch (e) { msg += '|No se recalculó la B2: ' + (e as Error).message; }
+    if (r.avisos.length) msg += '|' + r.avisos.join('|');
   } catch (e) { msg = 'ERROR|' + (e as Error).message; }
   revalidatePath(`/periodos/${id}`);
   redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);

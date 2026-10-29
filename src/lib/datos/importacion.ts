@@ -225,3 +225,20 @@ export async function aplicarSaldos(periodoId: number, importacionId: number, sa
   });
   return { anticipos: filas.filter((f) => f.anticipo > 0).length, descuentosB1: filas.filter((f) => f.descuentoB1 > 0 && f.vinculo_b1).length, filas, sobrantes };
 }
+
+/**
+ * Recalcula la B2 manteniendo los saldos de cuenta corriente de Albor ya importados en el periodo:
+ * si cambió algo (préstamos, bonos, faltas), los anticipos se vuelven a sacar para que el saldo a pagar siga igual al de Albor.
+ */
+export async function recalcularB2(periodoId: number, calcular: (pl: Planilla) => Promise<{ calculados: number; avisos: string[] }>): Promise<{ calculados: number; avisos: string[]; saldos: boolean; b1?: string }> {
+  const r = await calcular('B2');
+  const [imp] = await sql<{ id: number; log: { hojas: Hoja[]; aplicado?: { tipo?: string } } }[]>`
+    select id, log from importacion where periodo_id = ${periodoId} and log -> 'aplicado' ->> 'tipo' = 'SALDOS_CTA_CTE' order by id desc limit 1`;
+  const saldos = imp?.log.hojas.find((h) => h.cubo)?.cubo;
+  if (!imp || !saldos) return { ...r, saldos: false };
+  await aplicarSaldos(periodoId, imp.id, saldos);
+  const r2b = await calcular('B2');
+  let b1 = '';
+  try { const x = await calcular('B1'); b1 = `B1 recalculada (${x.calculados})`; } catch (e) { b1 = `B1 no se recalculó: ${(e as Error).message}`; }
+  return { ...r2b, saldos: true, b1 };
+}
