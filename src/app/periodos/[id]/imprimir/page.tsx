@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { cantidad, datosImpresion, MESES, monto, type EmpresaImp, type FilaImp } from '@/lib/datos/impresiones';
 import type { Planilla } from '@/lib/datos/planilla';
 import Imprimir from '../boleta/[vinculo]/imprimir';
+import { FiltroEmpresas, elegirEmpresas } from '../../../filtro-empresas';
 
 export const dynamic = 'force-dynamic';
 
@@ -299,14 +300,9 @@ export default async function Imprimir_({ params, searchParams }: { params: Prom
   try { d = await datosImpresion(id, pl); } catch { notFound(); }
   const ctx: Ctx = { p: d.p, prm: d.prm, fin: d.fin, mes: `${MESES[d.p.mes - 1]} de ${d.p.anio}`, pl };
   const emp = new Map(d.empresas.map((e) => [e.id, e]));
-  // Empresas elegidas (varias, separadas por coma). Sin elegir: todas menos Baspel, que presenta su planilla aparte.
   const todasEmp = [...new Set(d.filas.map((f) => f.empresa))].sort();
-  const SOLA = 'BASP';
-  const grupo = todasEmp.filter((e) => e !== SOLA);
-  const elegidas = sp.empresa ? sp.empresa.split(',').filter((e) => todasEmp.includes(e)) : grupo;
+  const { elegidas } = elegirEmpresas(todasEmp, sp.empresa);
   const filas = d.filas.filter((f) => elegidas.includes(f.empresa));
-  const alternar = (e: string) => { const x = elegidas.includes(e) ? elegidas.filter((y) => y !== e) : [...elegidas, e]; return x.length ? x.sort().join(',') : undefined; };
-  const mismo = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
   const empresas = [...new Set(filas.map((f) => f.empresa_id))].map((x) => emp.get(x)!).sort((a, b) => a.codigo.localeCompare(b.codigo));
   const porEmpresa = (C: typeof Sueldos) => empresas.map((e) => <C key={e.id} e={e} xs={filas.filter((f) => f.empresa_id === e.id)} ctx={ctx} />);
   const ver = (k: string) => doc === k || doc === 'paquete';
@@ -327,14 +323,7 @@ export default async function Imprimir_({ params, searchParams }: { params: Prom
           <span className="sub">|</span>
           {docs.map(([k, t]) => <Link key={k} className={`btn ${doc === k ? '' : 'sec'}`} href={url({ doc: k })}>{t}</Link>)}
         </div>
-        <div className="fila" style={{ marginTop: 6 }}>
-          <span className="sub">Empresa:</span>
-          <Link className={`btn ${mismo(elegidas, grupo) ? '' : 'sec'}`} href={url({ empresa: undefined })}>{todasEmp.includes(SOLA) ? 'Todas sin Baspel' : 'Todas'}</Link>
-          {todasEmp.includes(SOLA) && <Link className={`btn ${mismo(elegidas, [SOLA]) ? '' : 'sec'}`} href={url({ empresa: SOLA })}>Solo Baspel</Link>}
-          <span className="sub">o elegí varias:</span>
-          {todasEmp.map((e) => <Link key={e} className={`btn ${elegidas.includes(e) ? '' : 'sec'}`} href={url({ empresa: alternar(e) })}
-            title={elegidas.includes(e) ? 'Quitar' : 'Agregar'}>{elegidas.includes(e) ? '✓ ' : ''}{e}</Link>)}
-        </div>
+        <div style={{ marginTop: 6 }}><FiltroEmpresas todas={todasEmp} param={sp.empresa} href={(e) => url({ empresa: e })} etiqueta="Empresa" /></div>
         <div className="fila" style={{ marginTop: 10 }}>
           <Imprimir />
           <span className="sub">En el cuadro de impresión elegí <b>Destino: Guardar como PDF</b>, márgenes <b>Predeterminados</b> y activá <b>Gráficos de fondo</b>.

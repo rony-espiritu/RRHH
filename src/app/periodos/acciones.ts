@@ -65,7 +65,8 @@ export async function accionNovedades(fd: FormData) {
     await guardarNovedad(id, Number(vinculo), planilla as Planilla, Number(codigo), campo === 'cantidad' ? { cantidad: valor } : { monto: valor });
   }
   revalidatePath(`/periodos/${id}`);
-  redirect(`/periodos/${id}/novedades?pl=${pl}&msg=${encodeURIComponent('Novedades guardadas')}`);
+  const volver = String(fd.get('volver') ?? '') || `pl=${pl}`;
+  redirect(`/periodos/${id}/novedades?${volver}&msg=${encodeURIComponent('Novedades guardadas')}`);
 }
 
 // ---------------------------------------------------------------------------

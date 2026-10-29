@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { detallePlanilla, nombreMes, obtenerPeriodo, type Planilla } from '@/lib/datos/planilla';
 import { bs } from '@/lib/formato';
+import { FiltroEmpresas, elegirEmpresas } from '../../../filtro-empresas';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,9 +11,10 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
   const pl = (sp.pl === 'B2' ? 'B2' : 'B1') as Planilla;
   const p = (await obtenerPeriodo(id))!;
   let filas = await detallePlanilla(id, pl);
-  const empresas = [...new Set(filas.map((f) => f.empresa))];
+  const empresas = [...new Set(filas.map((f) => f.empresa))].sort();
+  const { elegidas } = elegirEmpresas(empresas, sp.empresa);
   const centros = [...new Set(filas.map((f) => f.centro_costo ?? 'Sin CC'))].sort();
-  if (sp.empresa) filas = filas.filter((f) => f.empresa === sp.empresa);
+  filas = filas.filter((f) => elegidas.includes(f.empresa));
   if (sp.cc) filas = filas.filter((f) => (f.centro_costo ?? 'Sin CC') === sp.cc);
   const agrupar = sp.agrupar === 'cc' || sp.agrupar === 'empresa' ? sp.agrupar : '';
   const clave = (f: (typeof filas)[number]) => (agrupar === 'cc' ? f.centro_costo ?? 'Sin CC' : agrupar === 'empresa' ? f.empresa : '');
@@ -45,9 +47,7 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
       <h2>Planilla {pl} · {nombreMes(p.mes)} {p.anio}</h2>
       <p className="sub">{filas.length} trabajadores</p>
       <div className="panel filtros">
-        <div className="fila"><span className="etq">Propietario</span>
-          <Link className={`btn ${sp.empresa ? 'sec' : ''}`} href={url({ empresa: undefined })}>Todas</Link>
-          {empresas.map((e) => <Link key={e} className={`btn ${sp.empresa === e ? '' : 'sec'}`} href={url({ empresa: e })}>{e}</Link>)}</div>
+        <FiltroEmpresas todas={empresas} param={sp.empresa} href={(e) => url({ empresa: e })} />
         <div className="fila"><span className="etq">Centro de costo</span>
           <Link className={`btn ${sp.cc ? 'sec' : ''}`} href={url({ cc: undefined })}>Todos</Link>
           {centros.map((c) => <Link key={c} className={`btn ${sp.cc === c ? '' : 'sec'}`} href={url({ cc: c })}>{c}</Link>)}</div>
