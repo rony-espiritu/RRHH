@@ -40,11 +40,15 @@ const SIGUIENTE: Record<string, [string, string]> = {
   APROBAR: ['APROBADO', 'Aprobado'],
   OBSERVAR: ['NOVEDADES', 'Observado: vuelve a novedades'],
   CERRAR: ['CERRADO', 'Cerrado'],
+  REABRIR: ['CALCULADO', 'Reabierto para corregir: modifique lo necesario, recalcule y vuelva a enviar a Gerencia'],
 };
 
 export async function accionEstado(fd: FormData) {
   const id = Number(fd.get('periodo')), pl = String(fd.get('planilla')) as Planilla, accion = String(fd.get('accion'));
   const [estado, texto] = SIGUIENTE[accion];
+  if (accion === 'REABRIR' && !String(fd.get('comentario') ?? '').trim()) {
+    redirect(`/periodos/${id}?msg=${encodeURIComponent('ERROR|Para reabrir indique el motivo')}`);
+  }
   await cambiarEstado(id, pl, estado, accion, String(fd.get('comentario') ?? '') || undefined);
   revalidatePath(`/periodos/${id}`);
   redirect(`/periodos/${id}?msg=${encodeURIComponent(`${pl}: ${texto}`)}`);

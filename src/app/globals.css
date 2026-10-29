@@ -149,3 +149,7 @@ tr.subtotal td { background: #f1efe7; font-weight: 600; border-bottom: 2px solid
   body { background: #fff !important; }
   main { max-width: none !important; }
 }
+details.reabrir { display: inline-block; }
+details.reabrir > summary { list-style: none; cursor: pointer; }
+details.reabrir > summary::-webkit-details-marker { display: none; }
+details.reabrir[open] .reabrir-form { position: absolute; z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; margin-top: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.12); max-width: 560px; right: 40px; }

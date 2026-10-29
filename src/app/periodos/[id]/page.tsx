@@ -26,6 +26,17 @@ function Acciones({ id, pl, estado }: { id: number; pl: Planilla; estado: string
       {estado === 'CALCULADO' && boton('ENVIAR_REVISION', 'Enviar a Gerencia')}
       {estado === 'EN_REVISION' && <>{boton('APROBAR', 'Aprobar')}{boton('OBSERVAR', 'Observar', true)}</>}
       {estado === 'APROBADO' && boton('CERRAR', 'Cerrar periodo')}
+      {['EN_REVISION', 'APROBADO', 'CERRADO'].includes(estado) && (
+        <details className="reabrir">
+          <summary className="btn sec">Reabrir {pl}</summary>
+          <form action={accionEstado} className="fila reabrir-form">
+            <input type="hidden" name="periodo" value={id} /><input type="hidden" name="planilla" value={pl} /><input type="hidden" name="accion" value="REABRIR" />
+            <input name="comentario" placeholder="Motivo (obligatorio): qué hay que corregir" required style={{ width: 300 }} />
+            <button>Confirmar reapertura</button>
+            <span className="sub">Queda en Calculado: se pueden editar novedades, fichas y préstamos y recalcular. Después hay que volver a enviar a Gerencia, aprobar y cerrar.</span>
+          </form>
+        </details>
+      )}
       <Link className="btn sec" href={`/periodos/${id}/novedades?pl=${pl}`}>Novedades {pl}</Link>
       <Link className="btn sec" href={`/periodos/${id}/planilla?pl=${pl}`}>Ver planilla {pl}</Link>
       {pl === 'B2' && ['ABIERTO', 'NOVEDADES', 'CALCULADO'].includes(estado) && <Link className="btn sec" href={`/periodos/${id}/importar`}>Importar Albor</Link>}
@@ -66,6 +77,9 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
   const tot = (xs: typeof res, k: keyof (typeof res)[number]) => xs.reduce((s, x) => s + Number(x[k]), 0);
   const empresas = [...new Set(res.map((r) => r.empresa))].sort();
   const [titulo, ...avisos] = (msg ?? '').split('|');
+  const historial = [...await sql<{ planilla: string; accion: string; comentario: string | null; fecha: string }[]>`
+    select planilla::text, accion, comentario, to_char(fecha at time zone 'America/La_Paz', 'DD/MM/YYYY HH24:MI') fecha
+    from aprobacion where periodo_id = ${id} order by aprobacion.fecha desc limit 30`];
   const [{ n: anticipos }] = await sql<{ n: number }[]>`
     select count(*)::int n from novedad n join concepto c on c.id = n.concepto_id where n.periodo_id = ${id} and c.planilla = 'B2' and c.codigo = 511`;
   const [{ n: aplicados }] = await sql<{ n: number }[]>`
@@ -142,6 +156,15 @@ export default async function PeriodoDetalle({ params, searchParams }: { params:
             <a href={`/periodos/${id}/descargas?tipo=albor&grupo=P1&empresa=BASP`}>P1 Baspel</a> ·{' '}
             <a href={`/periodos/${id}/descargas?tipo=albor&grupo=PREV_P1&empresa=BASP`}>PrevP1 Baspel</a></p>
         </div>
+      )}
+
+      {historial.length > 0 && (
+        <details className="panel">
+          <summary><b>Historial de estados</b> <span className="sub">({historial.length})</span></summary>
+          <table style={{ marginTop: 8 }}><thead><tr><th>Fecha</th><th>Planilla</th><th>Acción</th><th>Comentario</th></tr></thead><tbody>
+            {historial.map((h, i) => <tr key={i}><td>{h.fecha}</td><td>{h.planilla}</td><td>{h.accion.replace('_', ' ').toLowerCase()}</td><td>{h.comentario}</td></tr>)}
+          </tbody></table>
+        </details>
       )}
 
       {b1.length > 0 && b2.length > 0 && (
