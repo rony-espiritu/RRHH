@@ -122,7 +122,9 @@ tr.subtotal td { background: #f1efe7; font-weight: 600; border-bottom: 2px solid
 .impresion .imp-firmas3 { display: flex; justify-content: space-around; margin-top: 60px; font-size: 9px; text-align: center; }
 .impresion .imp-firmas3 div { border-top: 0.5px solid #000; padding-top: 3px; min-width: 150px; }
 /* Boletas: dos por hoja (original y copia) */
-.impresion .bol-hoja { display: flex; flex-direction: column; justify-content: space-between; min-height: 270mm; }
+.impresion .hoja.bol-hoja { padding: 0; box-shadow: none; font-family: inherit; background: none; }
+.impresion .bol-hoja .boleta { max-width: none; color: var(--ink); font-family: inherit; }
+.impresion .boleta th { position: static; }
 .impresion .bol { border: 0.8px solid #000; padding: 10px 12px; font-size: 9px; }
 .impresion .bol-cab { display: flex; justify-content: space-between; font-size: 10px; }
 .impresion .bol-tit { text-align: center; font-weight: 700; font-size: 11px; margin: 6px 0; }
@@ -143,7 +145,7 @@ tr.subtotal td { background: #f1efe7; font-weight: 600; border-bottom: 2px solid
   .impresion .hoja:last-child { break-after: auto; }
   .impresion table.imp thead { display: table-header-group; }
   .impresion table.imp tr { break-inside: avoid; }
-  .impresion .bol-hoja { min-height: 0; height: 276mm; }
+  .impresion .bol-hoja .boleta { border: 1px solid var(--line); }
   body { background: #fff !important; }
   main { max-width: none !important; }
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { cantidad, datosImpresion, enLetras, MESES, monto, type EmpresaImp, type FilaImp } from '@/lib/datos/impresiones';
+import { cantidad, datosImpresion, MESES, monto, type EmpresaImp, type FilaImp } from '@/lib/datos/impresiones';
 import type { Planilla } from '@/lib/datos/planilla';
 import Imprimir from '../boleta/[vinculo]/imprimir';
 
@@ -139,50 +139,46 @@ function Previsiones({ e, xs, ctx }: { e: EmpresaImp; xs: FilaImp[]; ctx: Ctx })
 }
 
 // ---------------------------------------------------------------------------------------- Boletas
+/** Mismo modelo que la boleta individual (/periodos/[id]/boleta/[vinculo]); una boleta por hoja. */
 function UnaBoleta({ f, e, ctx }: { f: FilaImp; e: EmpresaImp; ctx: Ctx }) {
   const ing = f.lineas.filter((l) => l.naturaleza === 'INGRESO' && l.monto);
   const des = f.lineas.filter((l) => l.naturaleza === 'DESCUENTO' && l.monto);
-  const filas = Math.max(ing.length, des.length, 3);
+  const filas = Math.max(ing.length, des.length);
   const b2 = ctx.pl === 'B2';
-  const cant = (l: (typeof ing)[number]) => (l.tasa ? `${(Number(l.tasa) * 100).toFixed(2)}%`
-    : l.cantidad == null ? '' : l.codigo === 8 && !b2 ? `${Number(l.cantidad)}%` : `${n2(l.cantidad)}${l.codigo === 2 ? ' Días' : l.codigo === 4 || l.codigo === 7 ? ' Hrs' : l.codigo === 521 ? ' $us' : ''}`);
+  const bs = (x: number) => Number(x).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return (
-    <div className="bol">
-      <div className="bol-cab"><b>{e.razon_social}</b><span>NIT {e.nit}</span></div>
-      <div className="bol-tit">{b2 ? 'Liquidación de Cuenta Corriente' : 'Boleta de Pago'} por el mes de {ctx.mes}</div>
-      <table className="bol-datos"><tbody>
-        <tr><th>Nombre</th><td>{f.nombre_coma} ({f.codigo})</td><th>{b2 ? 'Centro de costo' : 'N° Asegurado'}</th><td>{b2 ? `${f.cc ?? ''}` : f.nro_asegurado}</td></tr>
-        <tr><th>C.I.</th><td>{f.ci} {f.ci_expedido}</td><th>{b2 ? 'Días' : 'Cotiza a'}</th><td>{b2 ? Number(f.dias) : f.nua_cua ? 'Gestora Pública' : '—'}</td></tr>
-        <tr><th>Cargo</th><td>{f.ocupacion}</td><th>Fecha de Ingreso</th><td>{fecha(f.fecha_ingreso)}</td></tr>
+    <div className="boleta">
+      <header>
+        <div><b>{e.razon_social}</b>{e.nit && <div>NIT {e.nit}</div>}{!b2 && e.nro_empleador_mintrab && <div>N° empleador {e.nro_empleador_mintrab}</div>}</div>
+        <div style={{ textAlign: 'right' }}><h1>{b2 ? 'Liquidación de cuenta corriente' : 'Boleta de pago'}</h1><div>{ctx.mes}</div></div>
+      </header>
+      <table className="datos"><tbody>
+        <tr><th>Trabajador</th><td>{f.nombre}</td><th>Código</th><td>{f.codigo}</td></tr>
+        <tr><th>Documento</th><td>{f.ci} {f.ci_expedido ?? ''}</td><th>Ingreso</th><td>{f.fecha_ingreso}</td></tr>
+        <tr><th>Cargo</th><td>{f.ocupacion}</td><th>Días pagados</th><td>{Number(f.dias)}</td></tr>
+        <tr><th>Centro de costo</th><td>{f.cc} {f.cc_desc}</td><th>{b2 ? 'Pago' : 'NUA/CUA'}</th><td>{b2 ? 'Efectivo' : f.nua_cua}</td></tr>
       </tbody></table>
-      <table className="bol-conc">
-        <thead><tr><th>Concepto</th><th className="n">Cantidad</th><th className="n">Valor</th><th>Concepto</th><th className="n">Cantidad</th><th className="n">Valor</th></tr></thead>
+      <table className="conceptos">
+        <thead><tr><th colSpan={3}>Ingresos</th><th colSpan={3}>Descuentos</th></tr></thead>
         <tbody>
           {Array.from({ length: filas }, (_, i) => (
-            <tr key={i}><td>{ing[i]?.nombre}</td><td className="n">{ing[i] ? cant(ing[i]) : ''}</td><td className="n">{ing[i] ? n2(ing[i].monto) : ''}</td>
-              <td>{des[i]?.nombre}</td><td className="n">{des[i] ? cant(des[i]) : ''}</td><td className="n">{des[i] ? n2(des[i].monto) : ''}</td></tr>
+            <tr key={i}>
+              <td>{ing[i]?.nombre}</td><td className="n">{ing[i]?.cantidad ?? ''}</td><td className="n">{ing[i] ? bs(ing[i].monto) : ''}</td>
+              <td>{des[i]?.nombre}</td><td className="n">{des[i]?.cantidad ?? ''}</td><td className="n">{des[i] ? bs(des[i].monto) : ''}</td>
+            </tr>
           ))}
-          <tr className="tot"><td colSpan={2} className="n">Total Ingresos</td><td className="n">{n2(f.total_ganado)}</td><td colSpan={2} className="n">Total Descuentos</td><td className="n">{n2(f.total_descuentos)}</td></tr>
+          <tr className="tot"><td colSpan={2}>Total ganado</td><td className="n">{bs(f.total_ganado)}</td><td colSpan={2}>Total descuentos</td><td className="n">{bs(f.total_descuentos)}</td></tr>
         </tbody>
       </table>
-      <div className="bol-pie">
-        <div>
-          <div className="bol-liq">{b2 ? 'Saldo a pagar' : 'Líquido Pagable'}: <b>{n2(f.liquido)}</b></div>
-          <div>Son: {enLetras(Number(f.liquido))} Bolivianos</div>
-          {!b2 && <div className="sub">RC-IVA saldo mes siguiente: {n2(f.rciva_siguiente ?? 0)} · Saldo vacaciones: {n2(f.saldo_vacaciones ?? 0)}</div>}
-        </div>
-        <div className="bol-firma">____________________<br />RECIBÍ CONFORME</div>
-      </div>
+      <p className="liquido">{b2 ? 'Saldo a pagar' : 'Líquido pagable'}: <b>Bs {bs(f.liquido)}</b>
+        {!b2 && f.forma_pago && <span> · {f.forma_pago === 'EFECTIVO' ? 'Efectivo' : `${f.forma_pago.replace('_', ' ')} cta. ${f.nro_cuenta ?? ''}`}</span>}</p>
+      <div className="firmas"><div>Firma empleador</div><div>Recibí conforme<br />{f.nombre}</div></div>
     </div>
   );
 }
 function Boletas({ xs, emp, ctx }: { xs: FilaImp[]; emp: Map<number, EmpresaImp>; ctx: Ctx }) {
   return <>{xs.map((f) => (
-    <section key={f.pt_id} className="hoja a4p bol-hoja">
-      <UnaBoleta f={f} e={emp.get(f.empresa_id)!} ctx={ctx} />
-      <div className="bol-corte">copia</div>
-      <UnaBoleta f={f} e={emp.get(f.empresa_id)!} ctx={ctx} />
-    </section>
+    <section key={f.pt_id} className="hoja a4p bol-hoja"><UnaBoleta f={f} e={emp.get(f.empresa_id)!} ctx={ctx} /></section>
   ))}</>;
 }
 
