@@ -213,7 +213,10 @@ export async function calcularPlanilla(periodoId: number, planilla: Planilla) {
     const sumaCant = (cod: number) => n.filter((x) => x.codigo === cod).reduce((s, x) => s + Number(x.cantidad ?? 0), 0);
     const descuentos: Record<string, number> = {};
     const otrosIngresos: { codigo: number; monto: number; nombre: string }[] = [];
+    // B2: si el anticipo (511) se modificó a mano, reemplaza al que salió de los saldos de Albor
+    const anticipoManual = planilla === 'B2' && n.some((x) => x.codigo === 511 && x.origen === 'MANUAL');
     for (const x of n) {
+      if (anticipoManual && x.codigo === 511 && x.origen !== 'MANUAL') continue;
       if ((planilla === 'B1' ? DESC_B1 : DESC_B2).has(x.codigo)) descuentos[x.codigo] = r2((descuentos[x.codigo] ?? 0) + Number(x.monto ?? 0));
       else if (x.codigo < 500 && x.monto && !(planilla === 'B1' ? [2, 4, 8] : [2, 7]).includes(x.codigo))
         otrosIngresos.push({ codigo: x.codigo, monto: Number(x.monto), nombre: x.nombre });

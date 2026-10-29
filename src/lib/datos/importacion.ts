@@ -167,7 +167,7 @@ const r2 = (x: number) => Math.round(x * 100) / 100;
 
 export type FilaSaldo = {
   codigo: string; nombre: string; vinculo_id: number; vinculo_b1: number | null; saldo: number | null; neto: number;
-  anticipo: number; pagar: number; descuentoB1: number; nota?: string; corregido?: string;
+  anticipo: number; anticipoAlbor: number; pagar: number; descuentoB1: number; nota?: string; corregido?: string;
 };
 
 /**
@@ -187,6 +187,9 @@ export async function previsualizarSaldos(periodoId: number, saldos: SaldoAlbor[
   const b1 = await sql<{ trabajador_id: number; vinculo_id: number }[]>`
     select v.trabajador_id, v.id vinculo_id from vinculo v join periodo p on p.id = ${periodoId}
     where v.en_b1 and v.fecha_ingreso <= p.fecha_fin and (v.fecha_retiro is null or v.fecha_retiro >= p.fecha_inicio)`;
+  const manuales = new Map((await sql<{ vinculo_id: number; monto: number }[]>`
+    select n.vinculo_id, sum(n.monto) monto from novedad n join concepto c on c.id = n.concepto_id
+    where n.periodo_id = ${periodoId} and c.planilla = 'B2' and c.codigo = 511 and n.origen = 'MANUAL' group by n.vinculo_id`).map((m) => [m.vinculo_id, Number(m.monto)]));
   const porCod = new Map(saldos.map((x) => [x.codigo, x]));
   const porNom = new Map(saldos.map((x) => [norm(x.nombre), x]));
   const usados = new Set<string>();
@@ -197,13 +200,16 @@ export async function previsualizarSaldos(periodoId: number, saldos: SaldoAlbor[
     if (s) usados.add(s.codigo);
     const neto = Number(t.neto);
     const vb1 = b1.find((x) => x.trabajador_id === t.trabajador_id)?.vinculo_id ?? null;
-    if (!s) return { codigo: t.codigo, nombre: t.nombre, vinculo_id: t.vinculo_id, vinculo_b1: vb1, saldo: null, neto, anticipo: 0, pagar: neto, descuentoB1: 0,
+    if (!s) return { codigo: t.codigo, nombre: t.nombre, vinculo_id: t.vinculo_id, vinculo_b1: vb1, saldo: null, neto, anticipo: manuales.get(t.vinculo_id) ?? 0, anticipoAlbor: 0, pagar: r2(neto - (manuales.get(t.vinculo_id) ?? 0)), descuentoB1: 0,
       nota: 'No figura en el archivo de Albor: se le paga todo su neto B2' };
     const pagarAlbor = Math.max(0, -s.saldo), descuentoB1 = Math.max(0, s.saldo);
     let anticipo = r2(neto - pagarAlbor), nota: string | undefined;
     if (anticipo < 0) { nota = `El saldo de Albor (${pagarAlbor}) es mayor a su neto del mes: arrastra saldo de meses anteriores`; anticipo = 0; }
     if (descuentoB1 && !vb1) nota = 'Gastó más que su cuenta corriente pero no está en B1: el descuento queda pendiente';
-    return { codigo: t.codigo, nombre: t.nombre, vinculo_id: t.vinculo_id, vinculo_b1: vb1, saldo: s.saldo, neto, anticipo, pagar: r2(neto - anticipo), descuentoB1, nota, corregido };
+    const anticipoAlbor = anticipo;
+    const manual = manuales.get(t.vinculo_id);
+    if (manual != null) { nota = [nota, `Anticipo modificado a mano: ${manual} (Albor daba ${anticipo})`].filter(Boolean).join(' · '); anticipo = manual; }
+    return { codigo: t.codigo, nombre: t.nombre, vinculo_id: t.vinculo_id, vinculo_b1: vb1, saldo: s.saldo, neto, anticipo, anticipoAlbor, pagar: r2(neto - anticipo), descuentoB1, nota, corregido };
   });
   const sobrantes = saldos.filter((x) => !usados.has(x.codigo) && x.saldo !== 0);
   return { filas, sobrantes };
@@ -214,7 +220,7 @@ export async function aplicarSaldos(periodoId: number, importacionId: number, sa
   const [c511b2] = await sql<{ id: number }[]>`select id from concepto where planilla = 'B2' and codigo = 511`;
   const [c511b1] = await sql<{ id: number }[]>`select id from concepto where planilla = 'B1' and codigo = 511`;
   const nuevas = [
-    ...filas.filter((f) => f.anticipo > 0).map((f) => ({ periodo_id: periodoId, vinculo_id: f.vinculo_id, concepto_id: c511b2.id, monto: f.anticipo, origen: 'ALBOR', importacion_id: importacionId, nota: NOTA_CTA })),
+    ...filas.filter((f) => f.anticipoAlbor > 0).map((f) => ({ periodo_id: periodoId, vinculo_id: f.vinculo_id, concepto_id: c511b2.id, monto: f.anticipoAlbor, origen: 'ALBOR', importacion_id: importacionId, nota: NOTA_CTA })),
     ...filas.filter((f) => f.descuentoB1 > 0 && f.vinculo_b1).map((f) => ({ periodo_id: periodoId, vinculo_id: f.vinculo_b1!, concepto_id: c511b1.id, monto: f.descuentoB1, origen: 'ALBOR', importacion_id: importacionId, nota: NOTA_CTA })),
   ];
   await sql.begin(async (tx) => {
@@ -223,7 +229,7 @@ export async function aplicarSaldos(periodoId: number, importacionId: number, sa
     await tx`update importacion set filas_ok = ${nuevas.length}, filas_error = ${sobrantes.length},
              log = log || ${tx.json(JSON.parse(JSON.stringify({ aplicado: { tipo: 'SALDOS_CTA_CTE', sobrantes } })))} where id = ${importacionId}`;
   });
-  return { anticipos: filas.filter((f) => f.anticipo > 0).length, descuentosB1: filas.filter((f) => f.descuentoB1 > 0 && f.vinculo_b1).length, filas, sobrantes };
+  return { anticipos: filas.filter((f) => f.anticipoAlbor > 0).length, descuentosB1: filas.filter((f) => f.descuentoB1 > 0 && f.vinculo_b1).length, filas, sobrantes };
 }
 
 /**
