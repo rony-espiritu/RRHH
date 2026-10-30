@@ -5,15 +5,17 @@ import { hoyBo, listarSolicitudes, trabajadoresActivos, trabajadorVacaciones, ty
 import { EstadoChip, larga, num } from './formulario';
 import { NuevaSolicitud } from './nueva';
 import SelectorTrabajador from './selector';
+import { Saldos } from './saldos';
 
 export const dynamic = 'force-dynamic';
-const PESTANAS: [EstadoSol | 'TODAS', string][] = [['PENDIENTE', 'Pendientes'], ['APROBADA', 'Aprobadas'], ['TODAS', 'Todas']];
+const PESTANAS: [EstadoSol | 'TODAS' | 'SALDOS', string][] = [['PENDIENTE', 'Pendientes'], ['APROBADA', 'Aprobadas'], ['TODAS', 'Todas'], ['SALDOS', 'Saldos por trabajador']];
 
-export default async function Vacaciones({ searchParams }: { searchParams: Promise<{ e?: string; t?: string; msg?: string; err?: string }> }) {
+export default async function Vacaciones({ searchParams }: { searchParams: Promise<{ e?: string; t?: string; msg?: string; err?: string; empresa?: string; orden?: string }> }) {
   const u = await usuarioActual();
   if (!u) redirect('/login');
   const sp = await searchParams, gestor = puede(u, 'vacaciones'), hoy = hoyBo();
-  const e = (PESTANAS.find(([k]) => k === sp.e)?.[0] ?? 'PENDIENTE') as EstadoSol | 'TODAS';
+  const pest = PESTANAS.find(([k]) => k === sp.e)?.[0] ?? 'PENDIENTE';
+  const e = (pest === 'SALDOS' ? 'PENDIENTE' : pest) as EstadoSol | 'TODAS';
   const [lista, trabs, aprobadas] = await Promise.all([listarSolicitudes({ estado: e }), trabajadoresActivos(), listarSolicitudes({ estado: 'APROBADA', desdeFecha: hoy })]);
   const t = gestor && sp.t ? await trabajadorVacaciones(Number(sp.t)) : null;
   const en30 = new Date(Date.now() + 30 * 86400_000).toISOString().slice(0, 10);
@@ -37,7 +39,8 @@ export default async function Vacaciones({ searchParams }: { searchParams: Promi
         <NuevaSolicitud t={t} volver={`/vacaciones?t=${t.trabajador_id}`} hoy={hoy} />
       </>)}
       {gestor && sp.t && !t && <div className="error">Ese trabajador no tiene un vínculo activo.</div>}
-      <nav className="pestanas">{PESTANAS.map(([k, l]) => <Link key={k} href={`?e=${k}`} className={k === e ? 'activa' : ''}>{l}</Link>)}</nav>
+      <nav className="pestanas">{PESTANAS.map(([k, l]) => <Link key={k} href={`?e=${k}`} className={k === pest ? 'activa' : ''}>{l}</Link>)}</nav>
+      {pest === 'SALDOS' ? <Saldos empresa={sp.empresa} orden={sp.orden} /> : (
       <div className="panel">
         {lista.length === 0 ? <p className="sub">No hay solicitudes {e === 'PENDIENTE' ? 'pendientes' : e === 'APROBADA' ? 'aprobadas' : ''}.</p> : (
           <table><thead><tr><th>N°</th><th>Trabajador</th><th>Empresa</th><th>Solicitada</th><th>Del</th><th>Al</th><th>Retorna</th><th className="num">Días</th><th className="num">Pendientes</th><th>Estado</th><th>Cargada por</th></tr></thead><tbody>
@@ -47,6 +50,7 @@ export default async function Vacaciones({ searchParams }: { searchParams: Promi
                 <td className="num"><b>{num(s.dias)}</b></td><td className="num">{num(s.saldo_antes)}</td><td><EstadoChip e={s.estado} /></td><td className="sub">{s.creado_por_nombre}</td></tr>))}
           </tbody></table>)}
       </div>
+      )}
     </>
   );
 }

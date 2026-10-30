@@ -122,3 +122,29 @@ export async function anularSolicitud(id: number, por: Usuario, gestor: boolean)
     if (s.vacacion_mov_id) await tx`delete from vacacion_mov where id = ${s.vacacion_mov_id}`;
   });
 }
+
+export type SaldoVac = { trabajador_id: number; codigo: string; nombre: string; empresa: string; cargo: string | null; fecha_ingreso: string; sexo: string | null;
+  anios: number; dias_gestion: number; derecho: number; tomados: number; ajustes: number; tramite: number; saldo: number; ultima: string | null;
+  proximo: string; proximo_dias: number };
+
+/** Saldo de vacaciones de todo el personal activo (vínculo vigente), al día de hoy. */
+export async function saldosVacaciones(corte = hoyBo()): Promise<SaldoVac[]> {
+  const xs = await sql<{ trabajador_id: number; codigo: string; nombre: string; empresa: string; cargo: string | null; fecha_ingreso: string; sexo: string | null;
+    tomados: string; ajustes: string; tramite: string; ultima: string | null }[]>`
+    select t.id trabajador_id, t.codigo, trim(concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres)) nombre, e.codigo empresa,
+           coalesce(cg.descripcion, v.ocupacion) cargo, v.fecha_ingreso::text, t.sexo,
+           coalesce((select -sum(dias) from vacacion_mov m where m.vinculo_id = v.id and m.tipo in ('GOZADO', 'PAGADO')), 0) tomados,
+           coalesce((select sum(dias) from vacacion_mov m where m.vinculo_id = v.id and m.tipo in ('AJUSTE', 'SALDO_INICIAL')), 0) ajustes,
+           coalesce((select sum(dias) from vacacion_solicitud s where s.vinculo_id = v.id and s.estado = 'PENDIENTE'), 0) tramite,
+           (select max(fecha_desde)::text from vacacion_mov m where m.vinculo_id = v.id and m.tipo = 'GOZADO' and m.fecha_desde <= ${corte}) ultima
+    from vinculo v join trabajador t on t.id = v.trabajador_id join empresa e on e.id = v.empresa_id left join cargo cg on cg.id = v.cargo_id
+    where v.fecha_retiro is null order by e.codigo, 3`;
+  return xs.map((x) => {
+    const d = derechoVacaciones(x.fecha_ingreso, corte);
+    const tomados = Number(x.tomados), ajustes = Number(x.ajustes);
+    const k = d.anios + 1, prox = new Date(x.fecha_ingreso + 'T12:00:00Z'); prox.setUTCFullYear(prox.getUTCFullYear() + k);
+    const diasGestion = (n: number) => (n < 5 ? 15 : n < 10 ? 20 : 30);
+    return { ...x, tomados, ajustes, tramite: Number(x.tramite), anios: d.anios, dias_gestion: d.anios ? diasGestion(d.anios) : 0, derecho: d.total,
+      saldo: d.total + ajustes - tomados, proximo: prox.toISOString().slice(0, 10), proximo_dias: diasGestion(k) };
+  });
+}
