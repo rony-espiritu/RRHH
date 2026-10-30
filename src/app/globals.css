@@ -242,3 +242,22 @@ tr.fila-pronto td { background: #fff8ef; }
   .app.portal .nav-usuario button { width: auto; }
   .fvac-firmas { gap: 8px; font-size: 11px; }
 }
+
+/* Inicio tipo dashboard */
+.dash-kpi { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.dash-kpi .tarjeta { padding: 10px 12px; } .dash-kpi .tarjeta b { font-size: 20px; }
+.tarjeta.kpi-alerta { border-color: var(--bad); } .tarjeta.kpi-alerta b { color: var(--bad); }
+.tarjeta.kpi-pronto { border-color: var(--dorado); } .tarjeta.kpi-pronto b { color: #9a5a12; }
+.dash-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .dash-grid { grid-template-columns: 1fr; } }
+.dash-card { margin-bottom: 0; padding: 12px 14px; }
+.dash-card header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.dash-card h3 { margin: 0; font-size: 15px; } .dash-nota { margin: 0 0 6px; font-size: 12px; }
+.dash-scroll { max-height: 340px; overflow-y: auto; }
+.dash-scroll thead th { position: sticky; top: 0; z-index: 1; }
+table.compacta { font-size: 12.5px; } table.compacta th, table.compacta td { padding: 4px 6px; } table.compacta td .sub { font-size: 11px; margin: 0; line-height: 1.25; } table.compacta td { line-height: 1.3; }
+.barras { display: grid; gap: 6px; }
+.barra { display: grid; grid-template-columns: 54px 1fr 30px; align-items: center; gap: 8px; font-size: 12.5px; }
+.barra > div { background: var(--accent-soft); border-radius: 4px; height: 16px; overflow: hidden; }
+.barra i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--dorado)); border-radius: 4px; }
+.barra b { text-align: right; font-variant-numeric: tabular-nums; }

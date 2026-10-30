@@ -7,7 +7,7 @@ export type Rotacion = {
   contrato_fecha: string | null; contrato_vence: string | null;
 };
 
-/** Personal (sin Baspel) que cumple 2 años en su empresa actual dentro de `meses` meses, o que ya los cumplió. */
+/** Personal de planilla B1 (sin Baspel) que cumple 2 años en su empresa actual dentro de `meses` meses, o que ya los cumplió. */
 export async function proximosRotar(meses = 6) {
   return [...await sql<Rotacion[]>`
     with base as (
@@ -16,7 +16,7 @@ export async function proximosRotar(meses = 6) {
                where a.vinculo_id = v.id and a.vigente_hasta is null order by a.porcentaje desc limit 1) cc,
              v.fecha_ingreso, (v.fecha_ingreso + interval '2 years')::date f2
       from vinculo v join trabajador t on t.id = v.trabajador_id join empresa e on e.id = v.empresa_id
-      where v.fecha_retiro is null and e.codigo <> 'BASP')
+      where v.fecha_retiro is null and v.en_b1 and e.codigo <> 'BASP')
     select b.codigo, b.nombre, b.empresa, b.en_b1, b.ocupacion, b.cc, b.fecha_ingreso::text, b.f2::text fecha_2anios, (b.f2 - current_date)::int dias,
            d.fecha::text contrato_fecha, d.vence::text contrato_vence
     from base b
