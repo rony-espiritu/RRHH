@@ -33,7 +33,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
           <form action={accionIngresar} className="login-form">
             <h2>Iniciar sesión</h2>
             <input type="hidden" name="volver" value={sp.volver ?? '/'} />
-            <label className="campo"><span>Correo</span><input type="email" name="email" required autoFocus defaultValue={sp.email ?? ''} autoComplete="username" /></label>
+            <label className="campo"><span>Correo o código de trabajador</span><input type="text" name="email" required autoFocus autoCapitalize="none" defaultValue={sp.email ?? ''} autoComplete="username" /></label>
             <label className="campo"><span>Contraseña</span><input type="password" name="clave" required autoComplete="current-password" /></label>
             <button>Ingresar</button>
             <p className="sub">¿Olvidaste tu contraseña? Pedile al administrador que la restablezca.</p>

@@ -12,8 +12,9 @@ async function correr(f: () => Promise<unknown>, ok: string) {
 
 export async function accionCrearUsuario(fd: FormData) {
   const yo = await exigir('usuarios');
-  await correr(() => crearUsuario({ email: String(fd.get('email')), nombre: String(fd.get('nombre')), rol: String(fd.get('rol')) as Rol, clave: String(fd.get('clave')) }, yo.id),
-    `Usuario ${fd.get('email')} creado. Pasale la contraseña temporal: al ingresar la primera vez se le pedirá cambiarla.`);
+  await correr(() => crearUsuario({ email: String(fd.get('email') ?? ''), nombre: String(fd.get('nombre') ?? ''), rol: String(fd.get('rol')) as Rol, clave: String(fd.get('clave')),
+    trabajadorId: fd.get('trabajador_id') ? Number(fd.get('trabajador_id')) : null }, yo.id),
+    `Usuario ${fd.get('email') || 'del trabajador'} creado. Pasale la contraseña temporal: al ingresar la primera vez se le pedirá cambiarla.`);
 }
 export async function accionEditarUsuario(fd: FormData) {
   const yo = await exigir('usuarios');

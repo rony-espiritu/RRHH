@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { sql } from '@/lib/db';
 import { listarPeriodos, nombreMes } from '@/lib/datos/planilla';
 import { proximosRotar } from '@/lib/datos/inicio';
+import { hoyBo, listarSolicitudes } from '@/lib/datos/vacaciones';
+import { EstadoChip } from './vacaciones/formulario';
 
 const fmt = (d: string | null) => (d ? d.slice(8, 10) + '/' + d.slice(5, 7) + '/' + d.slice(0, 4) : '');
 
@@ -14,7 +16,9 @@ export default async function Inicio() {
            (select count(*) from vinculo where fecha_retiro is null and en_b1)::int b1,
            (select count(*) from vinculo where fecha_retiro is null and not en_b1)::int b2solo`;
   const periodos = (await listarPeriodos()).slice(0, 4);
-  const rot = await proximosRotar(6);
+  const hoy = hoyBo(), en30 = new Date(Date.now() + 30 * 86400_000).toISOString().slice(0, 10);
+  const [rot, vacPend, vacApr] = await Promise.all([proximosRotar(6), listarSolicitudes({ estado: 'PENDIENTE' }), listarSolicitudes({ estado: 'APROBADA', desdeFecha: hoy })]);
+  const vac = [...vacPend, ...vacApr.filter((v) => v.desde <= en30)].sort((a, b) => a.desde.localeCompare(b.desde));
   const yaCumplieron = rot.filter((r) => r.dias <= 0).length, sinContrato = rot.filter((r) => !r.contrato_fecha && !r.contrato_vence).length;
   return (
     <>
@@ -42,6 +46,17 @@ export default async function Inicio() {
               <td>{r.contrato_fecha || r.contrato_vence ? <span className="chip CERRADO">Sí{r.contrato_vence ? ` · vence ${fmt(r.contrato_vence)}` : ''}</span> : <span className="chip sin">No</span>}</td>
             </tr>))}
         </tbody></table>)}
+      </div>
+      <div className="panel">
+        <h3 style={{ marginTop: 0 }}>Vacaciones — solicitudes pendientes y salidas de los próximos 30 días</h3>
+        {vac.length === 0 ? <p className="sub">No hay solicitudes pendientes ni vacaciones aprobadas en los próximos 30 días.</p> : (
+        <table><thead><tr><th>N°</th><th>Trabajador</th><th>Empresa</th><th>Del</th><th>Al</th><th>Retorna</th><th className="num">Días</th><th>Estado</th></tr></thead><tbody>
+          {vac.map((v) => (
+            <tr key={v.id}><td><Link href={`/vacaciones/${v.id}`}>{v.id}</Link></td><td>{v.nombre}</td><td>{v.empresa}</td>
+              <td>{fmt(v.desde)}</td><td>{fmt(v.hasta)}</td><td>{fmt(v.retorno)}</td><td className="num">{v.dias}</td>
+              <td>{v.estado === 'APROBADA' && v.desde <= hoy ? <span className="chip vac-APROBADA">De vacación</span> : <EstadoChip e={v.estado} />}</td></tr>))}
+        </tbody></table>)}
+        <p style={{ marginBottom: 0 }}><Link href="/vacaciones">Ir a Vacaciones →</Link></p>
       </div>
       <div className="panel">
         <h3 style={{ marginTop: 0 }}>Últimos periodos</h3>
