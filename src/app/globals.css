@@ -203,3 +203,10 @@ details.reabrir[open] .reabrir-form { position: absolute; z-index: 5; background
 .impresion .bol-hoja .boleta .liquido b { color: var(--imp-marron); font-size: 17px; }
 .impresion .bol-hoja .boleta .datos th { color: var(--imp-marron); }
 @media print { .impresion .imp-titulo { break-after: avoid; } }
+
+/* Inicio: avisos de rotación */
+.chip.alerta { background: #fbe3e2; color: var(--bad); font-weight: 600; }
+.chip.pronto { background: #fdf0e1; color: #9a5a12; font-weight: 600; }
+.chip.sin { background: #eee9e4; color: #6b5a4e; }
+tr.fila-alerta td { background: #fdf2f1; }
+tr.fila-pronto td { background: #fff8ef; }
