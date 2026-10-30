@@ -1,4 +1,5 @@
 'use server';
+import { exigir } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { aplicarImportacion, aplicarSaldos, leerExcel, obtenerImportacion, recalcularB2, registrarImportacion } from '@/lib/datos/importacion';
@@ -11,6 +12,7 @@ const num = (v: FormDataEntryValue | null) => {
 };
 
 export async function accionAbrir(fd: FormData) {
+  await exigir('editar');
   const id = await abrirPeriodo(Number(fd.get('anio')), Number(fd.get('mes')), num(fd.get('ufv_inicio')) ?? undefined, num(fd.get('ufv_fin')) ?? undefined);
   // Al abrir el periodo se cargan solos las cuotas e intereses de préstamos y los aportes de ahorro
   let msg = 'Periodo abierto';
@@ -22,6 +24,7 @@ export async function accionAbrir(fd: FormData) {
 }
 
 export async function accionCalcular(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('periodo')), pl = String(fd.get('planilla')) as Planilla;
   let msg = '';
   try {
@@ -44,18 +47,20 @@ const SIGUIENTE: Record<string, [string, string]> = {
 };
 
 export async function accionEstado(fd: FormData) {
+  const yo = await exigir(({ ENVIAR_REVISION: 'enviar', REABRIR: 'reabrir' } as Record<string, 'enviar' | 'reabrir'>)[String(fd.get('accion'))] ?? 'aprobar');
   const id = Number(fd.get('periodo')), pl = String(fd.get('planilla')) as Planilla, accion = String(fd.get('accion'));
   const [estado, texto] = SIGUIENTE[accion];
   if (accion === 'REABRIR' && !String(fd.get('comentario') ?? '').trim()) {
     redirect(`/periodos/${id}?msg=${encodeURIComponent('ERROR|Para reabrir indique el motivo')}`);
   }
-  await cambiarEstado(id, pl, estado, accion, String(fd.get('comentario') ?? '') || undefined);
+  await cambiarEstado(id, pl, estado, accion, String(fd.get('comentario') ?? '') || undefined, yo.id);
   revalidatePath(`/periodos/${id}`);
   redirect(`/periodos/${id}?msg=${encodeURIComponent(`${pl}: ${texto}`)}`);
 }
 
 /** Guarda la grilla de novedades: campos "n|<vinculo>|<planilla>|<codigo>|<cantidad|monto>". */
 export async function accionNovedades(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('periodo')), pl = String(fd.get('planilla'));
   for (const [k, v] of fd.entries()) {
     if (!k.startsWith('n|')) continue;
@@ -74,6 +79,7 @@ export async function accionNovedades(fd: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function accionSubirAlbor(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('periodo'));
   const f = fd.get('archivo') as File | null;
   if (!f || !f.size) redirect(`/periodos/${id}/importar?msg=${encodeURIComponent('Seleccione un archivo Excel')}`);
@@ -83,6 +89,7 @@ export async function accionSubirAlbor(fd: FormData) {
 }
 
 export async function accionAplicarAlbor(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('periodo')), imp = Number(fd.get('imp')), hoja = String(fd.get('hoja'));
   const mapeo: Record<number, string> = {};
   for (const [k, v] of fd.entries()) if (k.startsWith('col_')) mapeo[Number(k.slice(4))] = String(v);
@@ -95,6 +102,7 @@ export async function accionAplicarAlbor(fd: FormData) {
 
 /** Saldos de cuenta corriente de Albor → anticipos B2 + descuento en B1, y recalcula ambas planillas. */
 export async function accionAplicarSaldos(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('periodo')), impId = Number(fd.get('imp')), hoja = String(fd.get('hoja'));
   let msg: string;
   try {
@@ -115,6 +123,7 @@ export async function accionAplicarSaldos(fd: FormData) {
 }
 
 export async function accionCooperativa(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('periodo'));
   let msg: string;
   try {

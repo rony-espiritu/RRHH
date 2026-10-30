@@ -1,16 +1,22 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { COOKIE, verificar } from './lib/sesion-firma';
 
-// Protección provisional con usuario y contraseña (Basic Auth) hasta integrar el login de Supabase.
-// Se activa solo si APP_USUARIO y APP_CLAVE están definidas.
-export function middleware(req: NextRequest) {
-  const u = process.env.APP_USUARIO, c = process.env.APP_CLAVE;
-  if (!u || !c) return NextResponse.next();
-  const h = req.headers.get('authorization') ?? '';
-  if (h.startsWith('Basic ')) {
-    const [uu, cc] = atob(h.slice(6)).split(':');
-    if (uu === u && cc === c) return NextResponse.next();
+// Todo el sistema requiere sesión iniciada, salvo la página de ingreso.
+const PUBLICAS = ['/login'];
+
+export async function middleware(req: NextRequest) {
+  const ruta = req.nextUrl.pathname;
+  const headers = new Headers(req.headers);
+  headers.set('x-ruta', ruta);
+  if (PUBLICAS.some((p) => ruta === p || ruta.startsWith(p + '/'))) return NextResponse.next({ request: { headers } });
+  const s = await verificar(req.cookies.get(COOKIE)?.value);
+  if (!s) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/login';
+    url.search = ruta === '/' ? '' : `?volver=${encodeURIComponent(ruta + req.nextUrl.search)}`;
+    return NextResponse.redirect(url);
   }
-  return new NextResponse('Acceso restringido', { status: 401, headers: { 'WWW-Authenticate': 'Basic realm="RRHH Espiritu"' } });
+  return NextResponse.next({ request: { headers } });
 }
 
 export const config = { matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'] };

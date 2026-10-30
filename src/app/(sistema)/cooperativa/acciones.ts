@@ -1,4 +1,5 @@
 'use server';
+import { exigir } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -18,6 +19,7 @@ async function correr(destino: string, f: () => Promise<unknown>, ok: string) {
 }
 
 export async function accionNuevoPrestamo(fd: FormData) {
+  await exigir('editar');
   let id = 0, err = '';
   try {
     id = await crearPrestamo({ codigo: String(fd.get('codigo')), tipo: String(fd.get('tipo')), descripcion: s(fd, 'descripcion'), fecha: String(fd.get('fecha')),
@@ -29,28 +31,33 @@ export async function accionNuevoPrestamo(fd: FormData) {
 }
 
 export async function accionEditarPrestamo(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('id'));
   await correr(`/cooperativa/prestamo/${id}`, () => editarPrestamo(id, { cuota: n(fd, 'cuota') ?? 0, tasa_mensual: n(fd, 'tasa') ?? 0,
     tipo_interes: String(fd.get('tipo_interes')), estado: String(fd.get('estado')), descripcion: s(fd, 'descripcion'), nota: s(fd, 'nota') }), 'Préstamo actualizado');
 }
 
 export async function accionPagoExterno(fd: FormData) {
+  await exigir('editar');
   const id = Number(fd.get('id'));
   if (fd.get('eliminar')) return correr(`/cooperativa/prestamo/${id}`, () => eliminarPago(Number(fd.get('eliminar'))), 'Pago eliminado');
   await correr(`/cooperativa/prestamo/${id}`, () => pagoExterno(id, String(fd.get('fecha')), n(fd, 'capital') ?? 0, n(fd, 'interes') ?? 0, s(fd, 'nota')), 'Pago registrado');
 }
 
 export async function accionMovAhorro(fd: FormData) {
+  await exigir('editar');
   const destino = `/cooperativa?tab=ahorros&t=${encodeURIComponent(String(fd.get('codigo') ?? ''))}`;
   if (fd.get('eliminar')) return correr(destino, () => eliminarMovAhorro(Number(fd.get('eliminar'))), 'Movimiento eliminado');
   await correr(destino, () => movimientoAhorro(String(fd.get('codigo')), String(fd.get('fecha')), String(fd.get('tipo')), n(fd, 'monto') ?? 0, s(fd, 'nota')), 'Movimiento registrado');
 }
 
 export async function accionAporte(fd: FormData) {
+  await exigir('editar');
   await correr('/cooperativa?tab=ahorros', () => cambiarAporte(Number(fd.get('vinculo')), n(fd, 'usd'), String(fd.get('desde'))), `Aporte de ${fd.get('codigo')} actualizado`);
 }
 
 export async function accionSaldosAhorro(fd: FormData) {
+  await exigir('editar');
   const f = fd.get('archivo') as File | null;
   let msg = '', err = '';
   try {

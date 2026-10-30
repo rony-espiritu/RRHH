@@ -1,4 +1,5 @@
 'use server';
+import { exigir } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -20,6 +21,7 @@ async function conError(codigo: string, tab: string, f: () => Promise<unknown>, 
 }
 
 export async function accionDatosPersonales(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   const d: Record<string, string | null | boolean> = {};
   for (const k of ['ci', 'ci_expedido', 'ci_complemento', 'tipo_documento', 'ap_paterno', 'ap_materno', 'nombres', 'fecha_nacimiento', 'sexo', 'estado_civil',
@@ -29,12 +31,14 @@ export async function accionDatosPersonales(fd: FormData) {
 }
 
 export async function accionSeguridad(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'gestora', () => guardarSeguridadSocial(Number(fd.get('id')),
     { nua_cua: s(fd, 'nua_cua'), nro_asegurado: s(fd, 'nro_asegurado'), aporta_gestora: b(fd, 'aporta_gestora'), jubilado: b(fd, 'jubilado') }), 'Datos de Gestora y Caja guardados');
 }
 
 export async function accionTasa(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   const pct = n(fd, 'valor');
   await conError(codigo, 'gestora', () => cambiarTasa(Number(fd.get('id')), String(fd.get('clave')), pct == null ? null : pct / 100, String(fd.get('desde')), s(fd, 'motivo')),
@@ -42,6 +46,7 @@ export async function accionTasa(fd: FormData) {
 }
 
 export async function accionLaboral(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'laboral', () => guardarLaboral(Number(fd.get('vinculo')), {
     cargo_id: n(fd, 'cargo_id'), ocupacion: s(fd, 'ocupacion'), area_id: n(fd, 'area_id'), modalidad_contrato: n(fd, 'modalidad_contrato'),
@@ -51,22 +56,26 @@ export async function accionLaboral(fd: FormData) {
 }
 
 export async function accionCentroCosto(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'laboral', () => cambiarCentroCosto(Number(fd.get('vinculo')), Number(fd.get('centro_costo_id')), String(fd.get('desde'))), 'Centro de costo actualizado');
 }
 
 export async function accionCambiarEmpresa(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'laboral', () => cambiarEmpresa(Number(fd.get('vinculo')), Number(fd.get('empresa_id')), String(fd.get('fecha')), n(fd, 'motivo_retiro'), s(fd, 'tipo_finiquito')),
     'Cambio de empresa registrado: se cerró el vínculo anterior y se abrió uno nuevo');
 }
 
 export async function accionBaja(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'laboral', () => darDeBaja(Number(fd.get('vinculo')), String(fd.get('fecha')), n(fd, 'motivo_retiro'), s(fd, 'tipo_finiquito')), 'Baja registrada');
 }
 
 export async function accionFijo(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo')), tab = String(fd.get('tab'));
   const quitar = fd.get('quitar') === '1';
   await conError(codigo, tab, () => cambiarFijo(Number(fd.get('vinculo')), Number(fd.get('concepto_id')), String(fd.get('desde')),
@@ -74,11 +83,13 @@ export async function accionFijo(fd: FormData) {
 }
 
 export async function accionPago(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'banco', () => cambiarPago(Number(fd.get('id')), String(fd.get('forma')), s(fd, 'nro_cuenta'), String(fd.get('desde'))), 'Forma de pago actualizada');
 }
 
 export async function accionDependiente(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   if (fd.get('eliminar')) return conError(codigo, 'personal', () => eliminarDependiente(Number(fd.get('eliminar'))), 'Dependiente eliminado');
   await conError(codigo, 'personal', () => agregarDependiente(Number(fd.get('id')), { nombre: String(fd.get('nombre')), fecha_nacimiento: s(fd, 'fecha_nacimiento'),
@@ -86,6 +97,7 @@ export async function accionDependiente(fd: FormData) {
 }
 
 export async function accionVacacion(fd: FormData) {
+  await exigir('editar');
   const codigo = String(fd.get('codigo'));
   if (fd.get('eliminar')) return conError(codigo, 'vacaciones', () => eliminarVacacion(Number(fd.get('eliminar'))), 'Movimiento eliminado');
   await conError(codigo, 'vacaciones', () => registrarVacacion(Number(fd.get('vinculo')), s(fd, 'desde'), s(fd, 'hasta'), n(fd, 'dias') ?? 0, String(fd.get('tipo')), s(fd, 'referencia')),
@@ -93,6 +105,7 @@ export async function accionVacacion(fd: FormData) {
 }
 
 export async function accionNuevo(fd: FormData) {
+  await exigir('editar');
   let codigo = '';
   try {
     codigo = await crearTrabajador({

@@ -73,11 +73,11 @@ export async function abrirPeriodo(anio: number, mes: number, ufvInicio?: number
   return p.id;
 }
 
-export async function cambiarEstado(periodoId: number, planilla: Planilla, estado: string, accion: string, comentario?: string) {
+export async function cambiarEstado(periodoId: number, planilla: Planilla, estado: string, accion: string, comentario?: string, usuarioId?: string) {
   await sql.begin(async (tx) => {
     if (planilla === 'B1') await tx`update periodo set estado_b1 = ${estado}::estado_periodo where id = ${periodoId}`;
     else await tx`update periodo set estado_b2 = ${estado}::estado_periodo where id = ${periodoId}`;
-    await tx`insert into aprobacion (periodo_id, planilla, accion, comentario) values (${periodoId}, ${planilla}::tipo_planilla, ${accion}, ${comentario ?? null})`;
+    await tx`insert into aprobacion (periodo_id, planilla, accion, comentario, usuario_id) values (${periodoId}, ${planilla}::tipo_planilla, ${accion}, ${comentario ?? null}, ${usuarioId ?? null})`;
   });
 }
 

@@ -154,3 +154,13 @@ details.reabrir > summary { list-style: none; cursor: pointer; }
 details.reabrir > summary::-webkit-details-marker { display: none; }
 details.reabrir[open] .reabrir-form { position: absolute; z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; margin-top: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.12); max-width: 560px; right: 40px; }
 .impresion table.dist { width: 70%; } .impresion table.dist td:first-child { min-width: 200px; }
+/* Ingreso y usuario */
+.login { min-height: 100vh; display: grid; place-items: center; background: #1f2d26; padding: 16px; }
+.login-caja { background: var(--panel); border-radius: 12px; padding: 28px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+.login-marca { display: flex; flex-direction: column; margin-bottom: 16px; } .login-marca b { font-size: 20px; } .login-marca span { color: var(--muted); font-size: 13px; }
+.login-form { display: grid; gap: 12px; } .login-form h2 { margin: 0; font-size: 17px; } .login-form button { padding: 10px; font-size: 15px; }
+.nav { display: flex; flex-direction: column; }
+.nav-usuario { margin-top: auto; padding-top: 16px; border-top: 1px solid #34483d; display: grid; gap: 8px; font-size: 13px; }
+.nav-usuario a { color: #dfe7e2; display: flex; flex-direction: column; } .nav-usuario a span { color: #9fb2a8; font-size: 12px; }
+.nav-usuario button { width: 100%; }
+@media (max-width: 800px) { .nav-usuario { margin-top: 8px; } }

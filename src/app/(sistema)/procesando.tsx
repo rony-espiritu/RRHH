@@ -34,7 +34,12 @@ export default function Procesando() {
       }
     };
     document.addEventListener('submit', alEnviar, true);
-    return () => document.removeEventListener('submit', alEnviar, true);
+    return () => {
+      document.removeEventListener('submit', alEnviar, true);
+      // al salir del sistema (p. ej. a la página de ingreso) no debe quedar nada bloqueado
+      document.body.classList.remove('procesando');
+      document.querySelectorAll('.cargando').forEach((b) => { b.classList.remove('cargando'); b.removeAttribute('aria-busy'); });
+    };
   }, []);
 
   // Al cambiar de página (respuesta del servidor) se quita el indicador
