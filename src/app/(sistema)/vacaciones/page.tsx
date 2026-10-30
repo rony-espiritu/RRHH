@@ -4,6 +4,7 @@ import { puede, usuarioActual } from '@/lib/auth';
 import { hoyBo, listarSolicitudes, trabajadoresActivos, trabajadorVacaciones, type EstadoSol } from '@/lib/datos/vacaciones';
 import { EstadoChip, larga, num } from './formulario';
 import { NuevaSolicitud } from './nueva';
+import SelectorTrabajador from './selector';
 
 export const dynamic = 'force-dynamic';
 const PESTANAS: [EstadoSol | 'TODAS', string][] = [['PENDIENTE', 'Pendientes'], ['APROBADA', 'Aprobadas'], ['TODAS', 'Todas']];
@@ -28,16 +29,7 @@ export default async function Vacaciones({ searchParams }: { searchParams: Promi
         <div className="tarjeta"><span>De vacación hoy</span><b>{ahora.length}</b></div>
         <div className="tarjeta"><span>Salen en los próximos 30 días</span><b>{proximas.length}</b></div>
       </div>
-      {gestor && (
-        <form className="panel fila" method="get">
-          <b>Cargar una solicitud a nombre de:</b>
-          <select name="t" defaultValue={sp.t ?? ''} required style={{ minWidth: 280 }}>
-            <option value="" disabled>Elegir trabajador…</option>
-            {trabs.map((x) => <option key={x.id} value={x.id}>{x.nombre} ({x.codigo})</option>)}
-          </select>
-          <input type="hidden" name="e" value={e} /><button className="sec">Elegir</button>
-        </form>
-      )}
+      {gestor && <SelectorTrabajador trabs={trabs} actual={sp.t} e={e} />}
       {t && (<>
         <div className="panel fila"><span><b>{t.nombre}</b> · {t.codigo} · {t.empresa} · ingreso {larga(t.fecha_ingreso)}</span>
           <span className="chip">Derecho {num(t.derecho)}</span><span className="chip">Tomados {num(t.usados)}</span><span className="chip CERRADO">Saldo {num(t.saldo)}</span>

@@ -33,9 +33,13 @@ export default function Procesando() {
         setTimeout(() => obs.disconnect(), 120000);
       }
     };
+    // Al volver con el botón "Atrás" el navegador puede restaurar la página con el indicador puesto: se limpia
+    const alMostrar = (e: PageTransitionEvent) => { if (e.persisted) limpiar(); };
     document.addEventListener('submit', alEnviar, true);
+    window.addEventListener('pageshow', alMostrar);
     return () => {
       document.removeEventListener('submit', alEnviar, true);
+      window.removeEventListener('pageshow', alMostrar);
       // al salir del sistema (p. ej. a la página de ingreso) no debe quedar nada bloqueado
       document.body.classList.remove('procesando');
       document.querySelectorAll('.cargando').forEach((b) => { b.classList.remove('cargando'); b.removeAttribute('aria-busy'); });
