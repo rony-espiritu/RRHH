@@ -11,7 +11,11 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   return (
     <div className="login">
       <div className="login-caja">
-        <div className="login-marca"><b>RRHH Espíritu</b><span>Grupo Ganadero Estancias Espíritu</span></div>
+        <div className="login-marca">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Estancias Espíritu" />
+          <b>RRHH Espíritu</b><span>Grupo Ganadero Estancias Espíritu</span>
+        </div>
         {sp.err && <div className="error">{sp.err}</div>}
         {sp.msg && <div className="panel">{sp.msg}</div>}
         {primero ? (

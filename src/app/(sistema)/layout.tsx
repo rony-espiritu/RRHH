@@ -4,7 +4,13 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { puede, ROLES, usuarioActual } from '@/lib/auth';
 import { accionSalir } from '../login/acciones';
+import Menu from './menu';
 import Procesando from './procesando';
+
+const MENU: { href: string; texto: string; permiso?: 'usuarios' }[] = [
+  { href: '/', texto: 'Inicio' }, { href: '/periodos', texto: 'Periodos' }, { href: '/personal', texto: 'Personal' },
+  { href: '/cooperativa', texto: 'Cooperativa' }, { href: '/configuracion', texto: 'Configuración' }, { href: '/usuarios', texto: 'Usuarios', permiso: 'usuarios' },
+];
 
 /** Todo el sistema (menos la página de ingreso): exige sesión válida y usuario activo. */
 export default async function Sistema({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -16,16 +22,12 @@ export default async function Sistema({ children }: Readonly<{ children: React.R
   return (
     <div className="app">
       <nav className="nav">
-        <h1>RRHH Espíritu</h1>
-        <small>Planillas B1 · B2</small>
-        <ul>
-          <li><Link href="/">Inicio</Link></li>
-          <li><Link href="/periodos">Periodos</Link></li>
-          <li><Link href="/personal">Personal</Link></li>
-          <li><Link href="/cooperativa">Cooperativa</Link></li>
-          <li><Link href="/configuracion">Configuración</Link></li>
-          {puede(u, 'usuarios') && <li><Link href="/usuarios">Usuarios</Link></li>}
-        </ul>
+        <div className="nav-marca">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="" />
+          <div><h1>RRHH Espíritu</h1><small>Estancias Espíritu</small></div>
+        </div>
+        <Menu items={MENU.filter((m) => !m.permiso || puede(u, m.permiso)).map(({ href, texto }) => ({ href, texto }))} />
         <div className="nav-usuario">
           <Link href="/cuenta"><b>{u.nombre || u.email}</b><span>{ROLES.find((r) => r.rol === u.rol)?.nombre ?? u.rol}</span></Link>
           <form action={accionSalir}><button className="sec">Salir</button></form>
