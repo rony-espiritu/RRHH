@@ -25,6 +25,9 @@ const suma = (xs: FilaImp[], f: (x: FilaImp) => number) => xs.reduce((s, x) => s
 
 type Ctx = { p: Awaited<ReturnType<typeof datosImpresion>>['p']; prm: Awaited<ReturnType<typeof datosImpresion>>['prm']; fin: string; mes: string; pl: Planilla };
 
+// eslint-disable-next-line @next/next/no-img-element
+const Marca = () => <div className="imp-marca"><img src="/logo.png" alt="" /><span>Grupo Ganadero<br />Estancias Espíritu</span></div>;
+
 function CabeceraEmpresa({ e }: { e: EmpresaImp }) {
   return (
     <div className="imp-cab">
@@ -48,7 +51,7 @@ function Firma({ e, fechaTxt }: { e: EmpresaImp; fechaTxt: string }) {
   );
 }
 const Titulo = ({ t, sub, ctx }: { t: string; sub?: string; ctx: Ctx }) => (
-  <div className="imp-titulo"><h1>{t}</h1>{sub && <div>{sub}</div>}<div>(En Bolivianos)</div><div className="imp-mes">Correspondiente al mes de {ctx.mes}</div></div>
+  <div className="imp-titulo"><Marca /><h1>{t}</h1>{sub && <div>{sub}</div>}<div>(En Bolivianos)</div><div className="imp-mes">Correspondiente al mes de {ctx.mes}</div></div>
 );
 const DatosPersona = ({ f, i }: { f: FilaImp; i: number }) => (<>
   <td className="c">{i + 1}</td><td>{f.ci}{f.ci_expedido ? ` ${f.ci_expedido}` : ''}</td><td>{f.nombre_coma}</td><td>{f.nacionalidad}</td><td>{fecha(f.fecha_nacimiento)}</td>
@@ -205,7 +208,7 @@ function Detalle({ xs, agrupar, ctx, titulo }: { xs: FilaImp[]; agrupar: 'cc' | 
   const grupos = [...new Set(orden.map(clave))];
   return <>{hojas.map((hc, h) => (
     <section key={h} className="hoja ltl">
-      <div className="imp-titulo"><h1>{titulo}</h1><div>Correspondiente al mes de {ctx.mes} · {agrupar === 'cc' ? 'por centro de costo' : 'por propietario'}</div>
+      <div className="imp-titulo"><Marca /><h1>{titulo}</h1><div>Correspondiente al mes de {ctx.mes} · {agrupar === 'cc' ? 'por centro de costo' : 'por propietario'}</div>
         <div className="imp-hoja">Hoja {h + 1} de {hojas.length}</div></div>
       <table className="imp det">
         <thead><tr><th>N°</th><th>Código</th><th>Nombre</th><th>{agrupar === 'cc' ? 'Emp.' : 'CC'}</th><th>Días</th>{hc.map((c) => <th key={c.k} className="n">{c.t}</th>)}</tr></thead>
@@ -272,7 +275,7 @@ function Resumen({ xs, emp, ctx }: { xs: FilaImp[]; emp: Map<number, EmpresaImp>
   const bajas = xs.filter((f) => f.fecha_retiro && f.fecha_retiro <= ctx.fin);
   return (
     <section className="hoja a4p">
-      <div className="imp-titulo"><h1>RESUMEN {b1 ? 'PLANILLA DE SUELDOS Y SALARIOS (B1)' : 'CUENTA CORRIENTE (B2)'}</h1><div>Correspondiente al mes de {ctx.mes}</div></div>
+      <div className="imp-titulo"><Marca /><h1>RESUMEN {b1 ? 'PLANILLA DE SUELDOS Y SALARIOS (B1)' : 'CUENTA CORRIENTE (B2)'}</h1><div>Correspondiente al mes de {ctx.mes}</div></div>
       <Distribucion xs={xs} ctx={ctx} />
 
       <h2 className="imp-h2">Detalle por propietario</h2>
