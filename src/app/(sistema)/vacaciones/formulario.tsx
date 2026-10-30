@@ -27,8 +27,8 @@ export function FormularioVacacion({ s }: { s: Solicitud }) {
       <div className="fvac-cuerpo">
         <div className="fvac-fila"><label>Nombre:</label><span className="fvac-dato ancho">{s.nombre}</span><label>Fecha de Solicitud:</label><span className="fvac-dato">{corta(s.fecha_solicitud)}</span></div>
         <div className="fvac-fila"><label>Cargo:</label><span className="fvac-dato ancho">{s.cargo ?? ''}</span><label>Área:</label><span className="fvac-dato">{s.area ?? s.empresa}</span></div>
-        <div className="fvac-fila"><label>Del:</label><span className="fvac-dato">{corta(s.desde)}</span><label>Al:</label><span className="fvac-dato">{corta(s.hasta)}</span>
-          <label>Retorna:</label><span className="fvac-dato">{corta(s.retorno)}</span><label>Días Pendientes:</label><span className="fvac-dato num">{num(s.saldo_antes)}</span></div>
+        <div className="fvac-fila"><label>Del:</label><span className="fvac-dato">{corta(s.desde)}{s.medio_inicio ? ' (tarde)' : ''}</span><label>Al:</label><span className="fvac-dato">{corta(s.hasta)}{s.medio_fin ? ' (mañana)' : ''}</span>
+          <label>Retorna:</label><span className="fvac-dato">{corta(s.retorno)}{s.medio_fin && s.retorno === s.hasta ? ' (tarde)' : ''}</span><label>Días Pendientes:</label><span className="fvac-dato num">{num(s.saldo_antes)}</span></div>
         <div className="fvac-fila"><label>Total días por Tomar:</label><span className="fvac-dato num">{num(s.dias)}</span><span className="fvac-esp" />
           <label>Días Sobrantes:</label><span className={`fvac-dato num${sobrantes != null && sobrantes < 0 ? ' neg' : ''}`}>{num(sobrantes)}</span></div>
         <div className="fvac-obs"><label>Observaciones:</label><div>{s.observaciones}{sobrantes != null && sobrantes < 0 && <div><i>Vacación adelantada ({num(-sobrantes)} día(s) de la siguiente gestión).</i></div>}

@@ -24,8 +24,8 @@ export async function accionNuevaSolicitud(fd: FormData) {
   const def = gestor ? '/vacaciones' : '/mis-vacaciones';
   await correr(fd, def, async () => {
     if (!trabajadorId) throw new Error('Tu usuario no está vinculado a un trabajador');
-    const dias = String(fd.get('dias') ?? '').replace(',', '.').trim();
-    return crearSolicitud({ trabajadorId, desde: String(fd.get('desde')), hasta: String(fd.get('hasta')), dias: dias ? Number(dias) : null,
+    return crearSolicitud({ trabajadorId, desde: String(fd.get('desde')), hasta: String(fd.get('hasta')),
+      medioInicio: fd.get('medio_inicio') === '1', medioFin: fd.get('medio_fin') === '1',
       observaciones: String(fd.get('observaciones') ?? '') }, u);
   }, 'Solicitud enviada. Queda pendiente de aprobación.', (id) => `${gestor ? '/vacaciones' : '/mis-vacaciones'}/${id}`);
 }

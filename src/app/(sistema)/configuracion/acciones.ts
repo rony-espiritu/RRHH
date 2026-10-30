@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
   META, eliminarAntiguedad, eliminarParametro, eliminarTramo, guardarAntiguedad, guardarCentro, guardarConcepto, guardarLugar, guardarCuenta, guardarEmpresa,
-  guardarParametro, guardarTramo,
+  guardarParametro, guardarTramo, guardarFeriado, eliminarFeriado,
 } from '@/lib/datos/configuracion';
 
 const s = (fd: FormData, k: string) => { const v = String(fd.get(k) ?? '').trim(); return v === '' ? null : v; };
@@ -71,4 +71,10 @@ export async function accionEmpresa(fd: FormData) {
   for (const k of ['codigo', 'razon_social', 'propietario', 'estancia', 'tipo', 'nit', 'nro_empleador_mintrab', 'nro_empleador_caja', 'banco_pago']) d[k] = s(fd, k);
   d.calcula_rciva = b(fd, 'calcula_rciva'); d.activo = fd.get('id') ? b(fd, 'activo') : true;
   await correr('empresas', () => guardarEmpresa(n(fd, 'id'), d), 'Empresa guardada');
+}
+
+export async function accionFeriado(fd: FormData) {
+  await exigir('configurar');
+  if (fd.get('eliminar')) return correr('feriados', () => eliminarFeriado(String(fd.get('fecha')), String(fd.get('descripcion'))), 'Feriado eliminado');
+  await correr('feriados', () => guardarFeriado({ fecha: String(fd.get('fecha')), descripcion: String(fd.get('descripcion') ?? ''), lugares: s(fd, 'lugares') }), 'Feriado guardado');
 }

@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { centros, conceptos, cuentas, empresas, lugares, parametros, tablas } from '@/lib/datos/configuracion';
-import { accionAntiguedad, accionCentro, accionLugar, accionConcepto, accionCuenta, accionEmpresa, accionParametro, accionTramo } from './acciones';
+import { centros, conceptos, cuentas, empresas, feriados, lugares, parametros, tablas } from '@/lib/datos/configuracion';
+import { accionAntiguedad, accionCentro, accionLugar, accionConcepto, accionCuenta, accionEmpresa, accionFeriado, accionParametro, accionTramo } from './acciones';
 
 export const dynamic = 'force-dynamic';
 
 const PESTANAS = [['parametros', 'Parámetros'], ['tablas', 'Antigüedad y solidario'], ['conceptos-b1', 'Conceptos B1'], ['conceptos-b2', 'Conceptos B2'],
-  ['centros', 'Centros de costo'], ['cuentas', 'Cuentas Albor'], ['empresas', 'Empresas']] as const;
+  ['centros', 'Centros de costo'], ['cuentas', 'Cuentas Albor'], ['empresas', 'Empresas'], ['feriados', 'Feriados']] as const;
 const MESES = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const TIPOS = [['001', '001 Remuneraciones'], ['002', '002 Horas extra'], ['003', '003 Cargas sociales'], ['004', '004 Finiquitos'], ['006', '006 Premios y bonos'], ['007', '007 Otros']];
 const primeroDeMes = () => new Date().toISOString().slice(0, 8) + '01';
@@ -220,6 +220,31 @@ async function Cuentas() {
   );
 }
 
+async function Feriados() {
+  const [fs, ls] = await Promise.all([feriados(), lugares()]);
+  const dias = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  const fmt = (f: string) => `${dias[new Date(f + 'T12:00:00Z').getUTCDay()]} ${f.slice(8, 10)}/${f.slice(5, 7)}/${f.slice(0, 4)}`;
+  return (
+    <>
+      <div className="panel">
+        <p className="sub" style={{ marginTop: 0 }}>Los feriados no se cuentan como día de vacación. <b>Lugares</b> vacío = todo el país; si es departamental, poné los códigos de lugar físico
+          separados por coma ({ls.map((l) => `${l.codigo} = ${l.nombre}`).join(', ')}). Cuando el Gobierno traslada un feriado, agregá la fecha del traslado.</p>
+        <table><thead><tr><th>Fecha</th><th>Descripción</th><th>Lugares</th><th></th></tr></thead><tbody>
+          {fs.map((f) => (
+            <tr key={f.fecha + f.descripcion}><td>{fmt(f.fecha)}</td><td>{f.descripcion}</td><td>{f.lugares ?? <span className="sub">Todo el país</span>}</td>
+              <td><form action={accionFeriado}><input type="hidden" name="fecha" value={f.fecha} /><input type="hidden" name="descripcion" value={f.descripcion} />
+                <button className="sec" name="eliminar" value="1">Eliminar</button></form></td></tr>))}
+        </tbody></table>
+      </div>
+      <form action={accionFeriado} className="panel fila">
+        <b>Agregar feriado:</b>
+        <input type="date" name="fecha" required /><input name="descripcion" placeholder="Descripción" required style={{ minWidth: 220 }} />
+        <input name="lugares" placeholder="Lugares (vacío = todos)" style={{ width: 170 }} /><button>Agregar</button>
+      </form>
+    </>
+  );
+}
+
 async function Empresas() {
   const es = await empresas();
   const campos = (f: string, e?: (typeof es)[number]) => (
@@ -272,6 +297,7 @@ export default async function Configuracion({ searchParams }: { searchParams: Pr
       {tab === 'centros' && <Centros />}
       {tab === 'cuentas' && <Cuentas />}
       {tab === 'empresas' && <Empresas />}
+      {tab === 'feriados' && <Feriados />}
     </>
   );
 }

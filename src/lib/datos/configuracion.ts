@@ -162,3 +162,19 @@ export async function guardarEmpresa(id: number | null, d: Record<string, string
   }
   await auditar('empresa', String(id ?? d.codigo), id ? 'UPDATE' : 'INSERT', null, d);
 }
+
+// ---------------------------------------------------------------- feriados
+export async function feriados() {
+  return [...await sql<{ fecha: string; descripcion: string; lugares: string | null }[]>`
+    select fecha::text, descripcion, lugares from feriado where fecha >= date_trunc('year', current_date) - interval '1 year' order by fecha`];
+}
+export async function guardarFeriado(d: { fecha: string; descripcion: string; lugares: string | null }) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d.fecha)) throw new Error('Fecha inválida');
+  if (!d.descripcion.trim()) throw new Error('Falta la descripción');
+  const lugares = d.lugares ? d.lugares.toUpperCase().replace(/[^A-Z,]/g, '') || null : null;
+  await sql`insert into feriado (fecha, descripcion, lugares) values (${d.fecha}, ${d.descripcion.trim()}, ${lugares})
+            on conflict (fecha, descripcion) do update set lugares = excluded.lugares`;
+}
+export async function eliminarFeriado(fecha: string, descripcion: string) {
+  await sql`delete from feriado where fecha = ${fecha} and descripcion = ${descripcion}`;
+}
