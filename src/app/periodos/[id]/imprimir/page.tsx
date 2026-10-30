@@ -222,6 +222,41 @@ function Detalle({ xs, agrupar, ctx, titulo }: { xs: FilaImp[]; agrupar: 'cc' | 
   ))}</>;
 }
 
+// ---------------------------------------------------------------------------------------- Distribución de pagos por lugar físico
+/** Filas por rubro (centros de costo agrupados) dentro de cada lugar físico, con subtotal por lugar y total general. */
+function Distribucion({ xs, ctx }: { xs: FilaImp[]; ctx: Ctx }) {
+  const b1 = ctx.pl === 'B1';
+  const ef = (f: FilaImp) => (!b1 || f.forma_pago === 'EFECTIVO' ? Number(f.liquido) : 0);
+  const bco = (f: FilaImp) => (b1 && f.forma_pago !== 'EFECTIVO' ? Number(f.liquido) : 0);
+  const lugares = [...new Map(xs.map((f) => [f.lugar_codigo ?? 'Z', { cod: f.lugar_codigo ?? '?', nombre: f.lugar ?? 'Sin lugar asignado', orden: f.lugar_orden ?? 99 }])).values()]
+    .sort((a, b) => a.orden - b.orden || a.cod.localeCompare(b.cod));
+  const letras = lugares.map((l) => l.cod).join('+');
+  const Celdas = ({ g }: { g: FilaImp[] }) => b1
+    ? <><td className="n">{n2(suma(g, bco)) || '-'}</td><td className="n">{suma(g, ef) ? n2(suma(g, ef)) : '-'}</td><td className="n b">{n2(suma(g, (f) => Number(f.liquido)))}</td></>
+    : <td className="n b">{n2(suma(g, ef))}</td>;
+  return (
+    <>
+      <h2 className="imp-h2">Distribución de pagos por lugar físico</h2>
+      <table className="imp res dist">
+        <thead><tr><th>Centro de costos</th>{b1 ? <><th className="n">Banco</th><th className="n">Efectivo</th><th className="n">Total</th></> : <th className="n">Efectivo (saldo B2)</th>}</tr></thead>
+        <tbody>
+          {lugares.map((l) => {
+            const gl = xs.filter((f) => (f.lugar_codigo ?? '?') === l.cod);
+            // primero los rubros que llevan el nombre del lugar (Espíritu Administración…), después el resto, en orden alfabético
+            const propio = (r: string) => (r.toLowerCase().startsWith(l.nombre.toLowerCase()) ? 0 : 1);
+            const rubros = [...new Set(gl.map((f) => f.rubro ?? f.cc ?? 'Sin centro'))].sort((a, b) => propio(a) - propio(b) || a.localeCompare(b));
+            return [
+              ...rubros.map((r) => <tr key={`${l.cod}${r}`}><td>{r}</td><Celdas g={gl.filter((f) => (f.rubro ?? f.cc ?? 'Sin centro') === r)} /></tr>),
+              <tr key={`t${l.cod}`} className="sub-tot"><td className="c">TOTAL {l.nombre.toUpperCase()} ({l.cod})</td><Celdas g={gl} /></tr>,
+            ];
+          })}
+          <tr className="tot"><td className="c">TOTAL ({letras})</td><Celdas g={xs} /></tr>
+        </tbody>
+      </table>
+    </>
+  );
+}
+
 // ---------------------------------------------------------------------------------------- Resúmenes
 function Resumen({ xs, emp, ctx }: { xs: FilaImp[]; emp: Map<number, EmpresaImp>; ctx: Ctx }) {
   const b1 = ctx.pl === 'B1';
@@ -238,6 +273,8 @@ function Resumen({ xs, emp, ctx }: { xs: FilaImp[]; emp: Map<number, EmpresaImp>
   return (
     <section className="hoja a4p">
       <div className="imp-titulo"><h1>RESUMEN {b1 ? 'PLANILLA DE SUELDOS Y SALARIOS (B1)' : 'CUENTA CORRIENTE (B2)'}</h1><div>Correspondiente al mes de {ctx.mes}</div></div>
+      <Distribucion xs={xs} ctx={ctx} />
+
       <h2 className="imp-h2">Detalle por propietario</h2>
       <table className="imp res">
         <thead><tr><th>N°</th><th>Estancia / Empresa</th><th>Propietario</th><th className="n">Trab.</th><th className="n">{b1 ? 'Total Ganado' : 'Ingresos'}</th>

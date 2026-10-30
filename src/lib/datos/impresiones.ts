@@ -8,6 +8,7 @@ export type FilaImp = {
   pt_id: number; vinculo_id: number; codigo: string; nombre: string; nombre_coma: string; ci: string; ci_expedido: string | null; nacionalidad: string | null;
   fecha_nacimiento: string | null; sexo: string | null; ocupacion: string | null; fecha_ingreso: string; fecha_retiro: string | null; dias: number; horas_dia: number;
   nua_cua: string | null; nro_asegurado: string | null; empresa: string; empresa_id: number; cc: string | null; cc_desc: string | null;
+  lugar: string | null; lugar_codigo: string | null; lugar_orden: number | null; rubro: string | null;
   total_ganado: number; total_descuentos: number; liquido: number; forma_pago: string | null; nro_cuenta: string | null;
   lineas: LineaImp[]; rciva_siguiente: number | null; saldo_vacaciones: number | null;
 };
@@ -30,13 +31,13 @@ export async function datosImpresion(periodoId: number, planilla: Planilla) {
            concat_ws(', ', nullif(t.ap_paterno, ''), nullif(t.ap_materno, ''), t.nombres) nombre_coma,
            t.ci, t.ci_expedido, coalesce(t.nacionalidad, 'Boliviana') nacionalidad, t.fecha_nacimiento::text, t.sexo, coalesce(pt.cargo_texto, v.ocupacion) ocupacion,
            v.fecha_ingreso::text, v.fecha_retiro::text, pt.dias_pagados dias, coalesce(pt.horas_dia, v.horas_dia, 8) horas_dia, t.nua_cua, t.nro_asegurado,
-           e.codigo empresa, e.id empresa_id, cc.codigo cc, cc.descripcion cc_desc, pt.total_ganado, pt.total_descuentos, pt.liquido, pt.forma_pago::text, pt.nro_cuenta,
+           e.codigo empresa, e.id empresa_id, cc.codigo cc, cc.descripcion cc_desc, lg.nombre lugar, lg.codigo lugar_codigo, lg.orden lugar_orden, coalesce(cc.rubro, cc.descripcion) rubro, pt.total_ganado, pt.total_descuentos, pt.liquido, pt.forma_pago::text, pt.nro_cuenta,
            coalesce((select json_agg(json_build_object('codigo', l.codigo, 'nombre', c.nombre, 'naturaleza', c.naturaleza, 'cantidad', l.cantidad, 'base', l.base,
                                                        'tasa', l.tasa, 'monto', l.monto) order by c.orden, l.codigo)
                      from planilla_linea l join concepto c on c.id = l.concepto_id where l.planilla_trabajador_id = pt.id), '[]') lineas,
            (select s.saldo_siguiente from rciva_saldo s where s.trabajador_id = t.id and s.periodo_id = pt.periodo_id limit 1) rciva_siguiente
     from planilla_trabajador pt join vinculo v on v.id = pt.vinculo_id join trabajador t on t.id = v.trabajador_id
-    join empresa e on e.id = pt.empresa_id left join centro_costo cc on cc.id = pt.centro_costo_id
+    join empresa e on e.id = pt.empresa_id left join centro_costo cc on cc.id = pt.centro_costo_id left join lugar lg on lg.id = cc.lugar_id
     where pt.periodo_id = ${periodoId} and pt.planilla = ${planilla}::tipo_planilla
     order by e.codigo, t.ap_paterno, t.ap_materno, t.nombres`];
   // Saldo de vacaciones al cierre del mes (solo B1)

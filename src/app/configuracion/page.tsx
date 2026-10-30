@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { centros, conceptos, cuentas, empresas, parametros, tablas } from '@/lib/datos/configuracion';
-import { accionAntiguedad, accionCentro, accionConcepto, accionCuenta, accionEmpresa, accionParametro, accionTramo } from './acciones';
+import { centros, conceptos, cuentas, empresas, lugares, parametros, tablas } from '@/lib/datos/configuracion';
+import { accionAntiguedad, accionCentro, accionLugar, accionConcepto, accionCuenta, accionEmpresa, accionParametro, accionTramo } from './acciones';
 
 export const dynamic = 'force-dynamic';
 
@@ -151,26 +151,47 @@ async function Conceptos({ planilla, todos }: { planilla: 'B1' | 'B2'; todos: bo
 
 async function Centros() {
   const cs = await centros();
+  const ls = await lugares();
+  const SelLugar = ({ f, v }: { f: string; v: number | null }) => (
+    <select form={f} name="lugar_id" defaultValue={v ?? ''}><option value="">—</option>{ls.map((l) => <option key={l.id} value={l.id}>{l.codigo} · {l.nombre}</option>)}</select>);
   return (
-    <div className="panel">
-      <p className="sub" style={{ marginTop: 0 }}>Cada centro de costo define el CC y la unidad de negocio con que se sube a Albor. La unidad de negocio decide la cuenta de gasto (ver Cuentas Albor).</p>
-      <table><thead><tr><th>Código</th><th>Descripción</th><th>CC Albor</th><th>UN Albor</th><th className="n">Trabajadores</th><th>Activo</th><th></th></tr></thead><tbody>
-        {cs.map((c) => { const f = `cc${c.id}`; return (
-          <tr key={c.id}><td><input form={f} name="codigo" defaultValue={c.codigo} style={{ width: 110 }} /></td>
-            <td><input form={f} name="descripcion" defaultValue={c.descripcion} style={{ width: 240 }} /></td>
-            <td><input form={f} name="albor_cc" defaultValue={c.albor_cc} style={{ width: 60 }} /></td>
-            <td><input form={f} name="albor_unidad_negocio" defaultValue={c.albor_unidad_negocio} style={{ width: 60 }} /></td>
-            <td className="n">{c.trabajadores}</td>
-            <td><input form={f} type="checkbox" name="activo" defaultChecked={c.activo} /></td>
-            <td><form id={f} action={accionCentro}><input type="hidden" name="id" value={c.id} /><button>Guardar</button></form></td></tr>
-        ); })}
-        <tr><td><input form="ccnuevo" name="codigo" placeholder="Código" required style={{ width: 110 }} /></td>
-          <td><input form="ccnuevo" name="descripcion" placeholder="Descripción" required style={{ width: 240 }} /></td>
-          <td><input form="ccnuevo" name="albor_cc" placeholder="01" required style={{ width: 60 }} /></td>
-          <td><input form="ccnuevo" name="albor_unidad_negocio" placeholder="02" required style={{ width: 60 }} /></td><td></td><td></td>
-          <td><form id="ccnuevo" action={accionCentro}><button>Agregar</button></form></td></tr>
-      </tbody></table>
-    </div>
+    <>
+      <div className="panel">
+        <p className="sub" style={{ marginTop: 0 }}>Cada centro de costo define el CC y la unidad de negocio con que se sube a Albor (la unidad de negocio decide la cuenta de gasto).
+          El <b>lugar físico</b> y el <b>rubro</b> arman el resumen de distribución de pagos: los centros con el mismo rubro se suman en una fila, y cada lugar lleva su subtotal.</p>
+        <div className="tabla"><table><thead><tr><th>Código</th><th>Descripción</th><th>Lugar físico</th><th>Rubro (fila del resumen)</th><th>CC Albor</th><th>UN Albor</th>
+          <th className="n">Trab.</th><th>Activo</th><th></th></tr></thead><tbody>
+          {cs.map((c) => { const f = `cc${c.id}`; return (
+            <tr key={c.id}><td><input form={f} name="codigo" defaultValue={c.codigo} style={{ width: 100 }} /></td>
+              <td><input form={f} name="descripcion" defaultValue={c.descripcion} style={{ width: 230 }} /></td>
+              <td><SelLugar f={f} v={c.lugar_id} /></td>
+              <td><input form={f} name="rubro" defaultValue={c.rubro ?? ''} placeholder="p. ej. Espíritu Producción" style={{ width: 180 }} /></td>
+              <td><input form={f} name="albor_cc" defaultValue={c.albor_cc} style={{ width: 50 }} /></td>
+              <td><input form={f} name="albor_unidad_negocio" defaultValue={c.albor_unidad_negocio} style={{ width: 50 }} /></td>
+              <td className="n">{c.trabajadores}</td>
+              <td><input form={f} type="checkbox" name="activo" defaultChecked={c.activo} /></td>
+              <td><form id={f} action={accionCentro}><input type="hidden" name="id" value={c.id} /><button>Guardar</button></form></td></tr>
+          ); })}
+          <tr><td><input form="ccnuevo" name="codigo" placeholder="Código" required style={{ width: 100 }} /></td>
+            <td><input form="ccnuevo" name="descripcion" placeholder="Descripción" required style={{ width: 230 }} /></td>
+            <td><SelLugar f="ccnuevo" v={null} /></td><td><input form="ccnuevo" name="rubro" placeholder="Rubro" style={{ width: 180 }} /></td>
+            <td><input form="ccnuevo" name="albor_cc" placeholder="01" required style={{ width: 50 }} /></td>
+            <td><input form="ccnuevo" name="albor_unidad_negocio" placeholder="02" required style={{ width: 50 }} /></td><td></td><td></td>
+            <td><form id="ccnuevo" action={accionCentro}><button>Agregar</button></form></td></tr>
+        </tbody></table></div>
+      </div>
+      <div className="panel">
+        <h3 style={{ marginTop: 0 }}>Lugares físicos de trabajo</h3>
+        <p className="sub">La letra ordena el resumen (Santa Cruz (A), San Borja (B), Espíritu (C)…).</p>
+        <table><thead><tr><th>Letra</th><th>Nombre</th><th>Orden</th><th></th></tr></thead><tbody>
+          {ls.map((l) => <tr key={l.id}><td colSpan={4}><form action={accionLugar} className="fila"><input type="hidden" name="id" value={l.id} />
+            <input name="codigo" defaultValue={l.codigo} style={{ width: 50 }} /><input name="nombre" defaultValue={l.nombre} style={{ width: 200 }} />
+            <input name="orden" className="num" defaultValue={l.orden} style={{ width: 60 }} /><button>Guardar</button></form></td></tr>)}
+          <tr><td colSpan={4}><form action={accionLugar} className="fila"><b>Nuevo</b><input name="codigo" placeholder="D" required style={{ width: 50 }} />
+            <input name="nombre" placeholder="Nombre" required style={{ width: 200 }} /><input name="orden" className="num" placeholder="4" style={{ width: 60 }} /><button>Agregar</button></form></td></tr>
+        </tbody></table>
+      </div>
+    </>
   );
 }
 

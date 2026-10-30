@@ -16,8 +16,9 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
   const centros = [...new Set(filas.map((f) => f.centro_costo ?? 'Sin CC'))].sort();
   filas = filas.filter((f) => elegidas.includes(f.empresa));
   if (sp.cc) filas = filas.filter((f) => (f.centro_costo ?? 'Sin CC') === sp.cc);
-  const agrupar = sp.agrupar === 'cc' || sp.agrupar === 'empresa' ? sp.agrupar : '';
-  const clave = (f: (typeof filas)[number]) => (agrupar === 'cc' ? f.centro_costo ?? 'Sin CC' : agrupar === 'empresa' ? f.empresa : '');
+  const agrupar = sp.agrupar === 'cc' || sp.agrupar === 'empresa' || sp.agrupar === 'lugar' ? sp.agrupar : '';
+  const clave = (f: (typeof filas)[number]) => (agrupar === 'cc' ? f.centro_costo ?? 'Sin CC' : agrupar === 'empresa' ? f.empresa
+    : agrupar === 'lugar' ? f.lugar ?? 'Sin lugar' : '');
   if (agrupar) filas = [...filas].sort((a, b) => clave(a).localeCompare(clave(b)) || a.nombre.localeCompare(b.nombre));
   const grupos = agrupar ? [...new Set(filas.map(clave))] : [''];
   const url = (cambios: Record<string, string | undefined>) => {
@@ -54,7 +55,8 @@ export default async function VerPlanilla({ params, searchParams }: { params: Pr
         <div className="fila"><span className="etq">Subtotales por</span>
           <Link className={`btn ${agrupar ? 'sec' : ''}`} href={url({ agrupar: undefined })}>Sin subtotales</Link>
           <Link className={`btn ${agrupar === 'empresa' ? '' : 'sec'}`} href={url({ agrupar: 'empresa' })}>Propietario</Link>
-          <Link className={`btn ${agrupar === 'cc' ? '' : 'sec'}`} href={url({ agrupar: 'cc' })}>Centro de costo</Link></div>
+          <Link className={`btn ${agrupar === 'cc' ? '' : 'sec'}`} href={url({ agrupar: 'cc' })}>Centro de costo</Link>
+          <Link className={`btn ${agrupar === 'lugar' ? '' : 'sec'}`} href={url({ agrupar: 'lugar' })}>Lugar físico</Link></div>
       </div>
       <div className="tabla planilla-fija">
         <table>

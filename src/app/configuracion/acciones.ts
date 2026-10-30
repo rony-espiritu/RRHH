@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-  META, eliminarAntiguedad, eliminarParametro, eliminarTramo, guardarAntiguedad, guardarCentro, guardarConcepto, guardarCuenta, guardarEmpresa,
+  META, eliminarAntiguedad, eliminarParametro, eliminarTramo, guardarAntiguedad, guardarCentro, guardarConcepto, guardarLugar, guardarCuenta, guardarEmpresa,
   guardarParametro, guardarTramo,
 } from '@/lib/datos/configuracion';
 
@@ -44,7 +44,13 @@ export async function accionConcepto(fd: FormData) {
 
 export async function accionCentro(fd: FormData) {
   await correr('centros', () => guardarCentro(n(fd, 'id'), { codigo: String(fd.get('codigo')).toUpperCase(), descripcion: String(fd.get('descripcion')),
-    albor_cc: String(fd.get('albor_cc')), albor_unidad_negocio: String(fd.get('albor_unidad_negocio')), activo: fd.get('id') ? b(fd, 'activo') : true }), 'Centro de costo guardado');
+    albor_cc: String(fd.get('albor_cc')), albor_unidad_negocio: String(fd.get('albor_unidad_negocio')), activo: fd.get('id') ? b(fd, 'activo') : true,
+    lugar_id: n(fd, 'lugar_id'), rubro: s(fd, 'rubro') }), 'Centro de costo guardado');
+}
+
+export async function accionLugar(fd: FormData) {
+  await correr('centros', () => guardarLugar(n(fd, 'id'), { codigo: String(fd.get('codigo')).toUpperCase(), nombre: String(fd.get('nombre')), orden: n(fd, 'orden') ?? 1 }),
+    'Lugar guardado');
 }
 
 export async function accionCuenta(fd: FormData) {

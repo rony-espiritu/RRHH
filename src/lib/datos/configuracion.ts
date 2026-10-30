@@ -107,16 +107,29 @@ export async function guardarConcepto(id: number, d: { nombre: string; afecta_ag
 
 // ---------------------------------------------------------------------------
 export async function centros() {
-  return [...await sql<{ id: number; codigo: string; descripcion: string; albor_cc: string; albor_unidad_negocio: string; activo: boolean; trabajadores: number }[]>`
-    select c.id, c.codigo, c.descripcion, c.albor_cc, c.albor_unidad_negocio, c.activo,
+  return [...await sql<{ id: number; codigo: string; descripcion: string; albor_cc: string; albor_unidad_negocio: string; activo: boolean; trabajadores: number;
+    lugar_id: number | null; rubro: string | null }[]>`
+    select c.id, c.codigo, c.descripcion, c.albor_cc, c.albor_unidad_negocio, c.activo, c.lugar_id, c.rubro,
            (select count(distinct a.vinculo_id)::int from asignacion_cc a join vinculo v on v.id = a.vinculo_id
              where a.centro_costo_id = c.id and a.vigente_hasta is null and v.fecha_retiro is null) trabajadores
-    from centro_costo c order by c.codigo`];
+    from centro_costo c left join lugar l on l.id = c.lugar_id order by l.orden nulls last, c.rubro, c.codigo`];
 }
-export async function guardarCentro(id: number | null, d: { codigo: string; descripcion: string; albor_cc: string; albor_unidad_negocio: string; activo: boolean }) {
-  if (id) await sql`update centro_costo set codigo = ${d.codigo}, descripcion = ${d.descripcion}, albor_cc = ${d.albor_cc}, albor_unidad_negocio = ${d.albor_unidad_negocio}, activo = ${d.activo} where id = ${id}`;
-  else await sql`insert into centro_costo (codigo, descripcion, albor_cc, albor_unidad_negocio, activo) values (${d.codigo}, ${d.descripcion}, ${d.albor_cc}, ${d.albor_unidad_negocio}, true)`;
+export async function guardarCentro(id: number | null, d: { codigo: string; descripcion: string; albor_cc: string; albor_unidad_negocio: string; activo: boolean;
+  lugar_id: number | null; rubro: string | null }) {
+  if (id) await sql`update centro_costo set codigo = ${d.codigo}, descripcion = ${d.descripcion}, albor_cc = ${d.albor_cc}, albor_unidad_negocio = ${d.albor_unidad_negocio},
+                    activo = ${d.activo}, lugar_id = ${d.lugar_id}, rubro = ${d.rubro} where id = ${id}`;
+  else await sql`insert into centro_costo (codigo, descripcion, albor_cc, albor_unidad_negocio, activo, lugar_id, rubro)
+                 values (${d.codigo}, ${d.descripcion}, ${d.albor_cc}, ${d.albor_unidad_negocio}, true, ${d.lugar_id}, ${d.rubro})`;
   await auditar('centro_costo', String(id ?? d.codigo), id ? 'UPDATE' : 'INSERT', null, d);
+}
+
+export async function lugares() {
+  return [...await sql<{ id: number; codigo: string; nombre: string; orden: number }[]>`select id, codigo, nombre, orden from lugar order by orden, codigo`];
+}
+export async function guardarLugar(id: number | null, d: { codigo: string; nombre: string; orden: number }) {
+  if (id) await sql`update lugar set codigo = ${d.codigo}, nombre = ${d.nombre}, orden = ${d.orden} where id = ${id}`;
+  else await sql`insert into lugar (codigo, nombre, orden) values (${d.codigo}, ${d.nombre}, ${d.orden})`;
+  await auditar('lugar', String(id ?? d.codigo), id ? 'UPDATE' : 'INSERT', null, d);
 }
 
 export async function cuentas() {
