@@ -39,6 +39,7 @@ function Acciones({ id, pl, estado }: { id: number; pl: Planilla; estado: string
       )}
       <Link className="btn sec" href={`/periodos/${id}/novedades?pl=${pl}`}>Novedades {pl}</Link>
       <Link className="btn sec" href={`/periodos/${id}/planilla?pl=${pl}`}>Ver planilla {pl}</Link>
+      {['ABIERTO', 'NOVEDADES', 'CALCULADO'].includes(estado) && <Link className="btn sec" href={`/periodos/${id}/horas-extras`}>Horas extras (Excel)</Link>}
       {pl === 'B2' && ['ABIERTO', 'NOVEDADES', 'CALCULADO'].includes(estado) && <Link className="btn sec" href={`/periodos/${id}/importar`}>Importar Albor</Link>}
     </div>
   );
@@ -52,7 +53,7 @@ function PasosB2({ id, estado, calculada, anticipos, aplicados }: { id: number; 
   );
   return (
     <ol className="pasos">
-      {paso(1, calculada, 'Inicio de mes: novedades B2', <>Horas extra y faltas: <Link href={`/periodos/${id}/novedades?pl=B2`}>cargar novedades</Link>.
+      {paso(1, calculada, 'Inicio de mes: novedades B2', <>Horas extra: <Link href={`/periodos/${id}/horas-extras`}>subir el Excel aprobado</Link>; faltas y otras: <Link href={`/periodos/${id}/novedades?pl=B2`}>cargar novedades</Link>.
         Préstamos, intereses y ahorros salen solos de <Link href="/cooperativa">Cooperativa</Link>
         {abierto && <form action={accionCooperativa} style={{ display: 'inline', marginLeft: 8 }}><input type="hidden" name="periodo" value={id} /><button className="sec" style={{ padding: '2px 8px' }}>Volver a generar</button></form>}</>)}
       {paso(2, calculada, 'Calcular B2', 'Con los montos fijos de cada trabajador (Configuración y fichas).')}

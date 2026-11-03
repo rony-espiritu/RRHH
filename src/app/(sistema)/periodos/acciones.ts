@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { aplicarImportacion, aplicarSaldos, leerExcel, obtenerImportacion, recalcularB2, registrarImportacion } from '@/lib/datos/importacion';
 import { generarCooperativaPeriodo } from '@/lib/datos/cooperativa';
+import { aplicarHE, leerHorasExtras, registrarHE } from '@/lib/datos/horas-extras';
 import { obtenerPeriodo, abrirPeriodo, calcularPlanilla, cambiarEstado, guardarNovedad, type Planilla } from '@/lib/datos/planilla';
 
 const num = (v: FormDataEntryValue | null) => {
@@ -137,6 +138,37 @@ export async function accionCooperativa(fd: FormData) {
       } else msg += '|Calcule la B2 para que se descuenten.';
     } catch (e) { msg += '|No se recalculó la B2: ' + (e as Error).message; }
     if (r.avisos.length) msg += '|' + r.avisos.join('|');
+  } catch (e) { msg = 'ERROR|' + (e as Error).message; }
+  revalidatePath(`/periodos/${id}`);
+  redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
+}
+
+// ---------------------------------------------------------------- horas extras (Excel aprobado por el Gerente Técnico)
+export async function accionSubirHE(fd: FormData) {
+  await exigir('editar');
+  const id = Number(fd.get('periodo'));
+  const f = fd.get('archivo') as File | null;
+  if (!f || !f.size) redirect(`/periodos/${id}/horas-extras?err=${encodeURIComponent('Seleccioná el archivo Excel')}`);
+  let imp = 0, err = '';
+  try {
+    const hojas = await leerHorasExtras(await f!.arrayBuffer());
+    if (!hojas.length) throw new Error('No se encontró ninguna hoja con la columna CODIGO');
+    imp = await registrarHE(id, f!.name, hojas);
+  } catch (e) { err = (e as Error).message; }
+  redirect(`/periodos/${id}/horas-extras?${err ? 'err=' + encodeURIComponent(err) : 'imp=' + imp}`);
+}
+
+export async function accionAplicarHE(fd: FormData) {
+  const u = await exigir('editar');
+  const id = Number(fd.get('periodo')), impId = Number(fd.get('imp')), hoja = String(fd.get('hoja'));
+  let msg: string;
+  try {
+    const r = await aplicarHE(id, impId, hoja, u.id);
+    const avisos: string[] = [];
+    try { const c = await calcularPlanilla(id, 'B1'); avisos.push(`B1 recalculada (${c.calculados})`); } catch (e) { avisos.push(`B1 no se recalculó: ${(e as Error).message}`); }
+    try { const c = await recalcularB2(id, (x) => calcularPlanilla(id, x)); avisos.push(`B2 recalculada (${c.calculados})`); } catch (e) { avisos.push(`B2 no se recalculó: ${(e as Error).message}`); }
+    msg = `Horas extras cargadas de la hoja "${hoja}": ${r.trabajadores} trabajadores, ${r.horas.toLocaleString('es-BO')} horas|` + avisos.join('|')
+      + (r.noEncontrados.length ? `|No están en la planilla de este mes: ${r.noEncontrados.join(', ')}` : '');
   } catch (e) { msg = 'ERROR|' + (e as Error).message; }
   revalidatePath(`/periodos/${id}`);
   redirect(`/periodos/${id}?msg=${encodeURIComponent(msg)}`);
