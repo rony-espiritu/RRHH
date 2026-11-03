@@ -217,10 +217,13 @@ export async function calcularPlanilla(periodoId: number, planilla: Planilla) {
     const anticipoManual = planilla === 'B2' && n.some((x) => x.codigo === 511 && x.origen === 'MANUAL');
     for (const x of n) {
       if (anticipoManual && x.codigo === 511 && x.origen !== 'MANUAL') continue;
+      // Faltas en Bs (520 con monto): descuento aparte; los días y el sueldo quedan completos
+      if (x.codigo === 520) { if (Number(x.monto ?? 0)) descuentos[520] = r2((descuentos[520] ?? 0) + Number(x.monto)); continue; }
       if ((planilla === 'B1' ? DESC_B1 : DESC_B2).has(x.codigo)) descuentos[x.codigo] = r2((descuentos[x.codigo] ?? 0) + Number(x.monto ?? 0));
       else if (x.codigo < 500 && x.monto && !(planilla === 'B1' ? [2, 4, 8] : [2, 7]).includes(x.codigo))
         otrosIngresos.push({ codigo: x.codigo, monto: Number(x.monto), nombre: x.nombre });
     }
+    // Faltas cargadas en días (forma anterior, p.ej. septiembre 2026): siguen restando días pagados
     const dias = diasPagados(v, p, sumaCant(520));
     const extra = otrosIngresos.map((o) => ({ concepto: o.nombre, codigo: o.codigo, tipo: 'INGRESO' as const, monto: r2(o.monto) }));
 

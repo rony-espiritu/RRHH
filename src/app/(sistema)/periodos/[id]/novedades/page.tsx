@@ -8,13 +8,13 @@ export const dynamic = 'force-dynamic';
 const COLUMNAS: Record<Planilla, { codigo: number; titulo: string; campo: 'cantidad' | 'monto' }[]> = {
   B1: [
     { codigo: 4, titulo: 'Horas extra (h)', campo: 'cantidad' },
-    { codigo: 520, titulo: 'Faltas (días)', campo: 'cantidad' },
+    { codigo: 520, titulo: 'Descuento faltas (Bs)', campo: 'monto' },
     { codigo: 511, titulo: 'Anticipos (Bs)', campo: 'monto' },
     { codigo: 508, titulo: 'Préstamo interno (Bs)', campo: 'monto' },
   ],
   B2: [
     { codigo: 7, titulo: 'Horas extra B2 (h)', campo: 'cantidad' },
-    { codigo: 520, titulo: 'Faltas (días)', campo: 'cantidad' },
+    { codigo: 520, titulo: 'Descuento faltas (Bs)', campo: 'monto' },
     { codigo: 506, titulo: 'Amort. préstamo coop. (Bs)', campo: 'monto' },
     { codigo: 507, titulo: 'Interés préstamo coop. (Bs)', campo: 'monto' },
     { codigo: 508, titulo: 'Préstamo interno (Bs)', campo: 'monto' },
@@ -60,7 +60,7 @@ export default async function Novedades({ params, searchParams }: { params: Prom
     <>
       <p><Link href={`/periodos/${id}`}>← {nombreMes(p.mes)} {p.anio}</Link></p>
       <h2>Novedades {pl} · {nombreMes(p.mes)} {p.anio}</h2>
-      <p className="sub">Solo lo variable del mes. Sueldo, bono nivel, abono B2 y bonos fijos salen de la ficha del trabajador.
+      <p className="sub">Solo lo variable del mes. Sueldo, bono nivel, abono B2 y bonos fijos salen de la ficha del trabajador. Las faltas no restan días: se pagan los 30 días con el sueldo completo y la falta va como descuento en Bs.
         {bloqueado && ' La planilla está en revisión o cerrada: no se puede modificar.'}</p>
       {pl === 'B2' && <p className="sub"><b>Anticipos B2:</b> salen de los saldos de cuenta corriente de Albor. Si escribís un monto, reemplaza al de Albor para ese trabajador
         (no hace falta volver a subir el archivo); dejalo vacío para volver al de Albor. Préstamos e intereses salen de Cooperativa: lo que pongas acá se suma.</p>}
