@@ -180,9 +180,7 @@ details.reabrir[open] .reabrir-form { position: absolute; z-index: 5; background
 .impresion .imp-titulo { padding: 4px 0 8px; border-bottom: 2px solid var(--imp-dorado); margin-bottom: 10px; min-height: 40px; }
 .impresion .imp-titulo h1 { color: var(--imp-marron); font-size: 13.5px; letter-spacing: .6px; }
 .impresion .imp-titulo > div { color: #5a4234; }
-.impresion .imp-marca { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; font-size: 7.5px; line-height: 1.15; color: var(--imp-marron); font-weight: 700; text-align: left; }
-.impresion .imp-marca img { width: 30px; height: 30px; border-radius: 50%; }
-.impresion .imp-hoja { background: var(--imp-marron); color: #fff; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+.impresion .imp-titulo .imp-hoja, .impresion .imp-hoja { background: var(--imp-marron); color: #fff !important; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
 .impresion .imp-mes { color: var(--imp-marron); font-weight: 700; }
 .impresion .imp-cab { background: var(--imp-crema); border-left: 4px solid var(--imp-dorado); padding: 6px 10px; border-radius: 0 4px 4px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
 .impresion .imp-cab b { color: var(--imp-marron); }
