@@ -161,6 +161,8 @@ export async function guardarNovedad(periodoId: number, vinculoId: number, plani
 const DESC_B1 = new Set([506, 507, 508, 509, 511, 512, 516, 521, 570, 600, 601]);
 const DESC_B2 = new Set([506, 507, 508, 509, 511, 512, 516, 570, 600, 601]);
 const BONOS_FIJOS_B2 = [11, 12, 13, 14, 25];
+/** Desde este mes las faltas (días) se descuentan en Bs y no restan días pagados. */
+const FALTAS_EN_BS_DESDE = '2026-10-01';
 
 /** Días pagados: 30 menos faltas, prorrateado si ingresa o se retira dentro del mes. */
 function diasPagados(v: VinculoPeriodo, p: PeriodoFila, faltas: number) {
@@ -217,14 +219,18 @@ export async function calcularPlanilla(periodoId: number, planilla: Planilla) {
     const anticipoManual = planilla === 'B2' && n.some((x) => x.codigo === 511 && x.origen === 'MANUAL');
     for (const x of n) {
       if (anticipoManual && x.codigo === 511 && x.origen !== 'MANUAL') continue;
-      // Faltas en Bs (520 con monto): descuento aparte; los días y el sueldo quedan completos
       if (x.codigo === 520) { if (Number(x.monto ?? 0)) descuentos[520] = r2((descuentos[520] ?? 0) + Number(x.monto)); continue; }
       if ((planilla === 'B1' ? DESC_B1 : DESC_B2).has(x.codigo)) descuentos[x.codigo] = r2((descuentos[x.codigo] ?? 0) + Number(x.monto ?? 0));
       else if (x.codigo < 500 && x.monto && !(planilla === 'B1' ? [2, 4, 8] : [2, 7]).includes(x.codigo))
         otrosIngresos.push({ codigo: x.codigo, monto: Number(x.monto), nombre: x.nombre });
     }
-    // Faltas cargadas en días (forma anterior, p.ej. septiembre 2026): siguen restando días pagados
-    const dias = diasPagados(v, p, sumaCant(520));
+    // Faltas: se cargan en días. Desde octubre 2026 no restan días (se pagan los 30 con sueldo completo)
+    // y se descuentan en Bs: sueldo B1 (o abono B2) / 30 × días de falta. Antes restaban días pagados.
+    const faltas = sumaCant(520);
+    const faltasEnBs = iso(p.fecha_inicio)! >= FALTAS_EN_BS_DESDE;
+    if (faltas && faltasEnBs) descuentos[520] = r2((descuentos[520] ?? 0) + (Number(f.get(2)?.monto ?? 0) / 30) * faltas);
+    const dias = diasPagados(v, p, faltasEnBs ? 0 : faltas);
+    const conFaltas = <T extends Linea>(ls: T[]) => ls.map((l) => (l.codigo === 520 ? { ...l, concepto: 'Faltas y retrasos', cantidad: faltas || l.cantidad } : l));
     const extra = otrosIngresos.map((o) => ({ concepto: o.nombre, codigo: o.codigo, tipo: 'INGRESO' as const, monto: r2(o.monto) }));
 
     if (planilla === 'B1') {
@@ -236,7 +242,7 @@ export async function calcularPlanilla(periodoId: number, planilla: Planilla) {
         { dias, heHoras: sumaCant(4), otrosBonos: otrosIngresos.reduce((s, o) => s + o.monto, 0), descuentos,
           facturasF110: mF110.get(v.trabajador_id), saldoRcivaAnterior: mSaldo.get(v.trabajador_id) },
         prm, periodo);
-      const lineas: Linea[] = [...r.lineas.filter((l) => l.concepto !== 'Otros bonos'), ...extra,
+      const lineas: Linea[] = [...conFaltas(r.lineas.filter((l) => l.concepto !== 'Otros bonos')), ...extra,
         { concepto: 'Caja CORDES patronal', codigo: 910, tipo: 'APORTE_PATRONAL', base: r.totalGanado, tasa: prm.CAJA_PAT, monto: r.patronal.caja },
         { concepto: 'Pro Vivienda patronal', codigo: 911, tipo: 'APORTE_PATRONAL', base: r.totalGanado, tasa: prm.PROVIV_PAT, monto: r.patronal.proVivienda },
         { concepto: 'SIP patronal (riesgo + solidario)', codigo: 912, tipo: 'APORTE_PATRONAL', base: r.totalGanado, tasa: r.patronal.riesgo ? prm.RIESGO_PAT + prm.SOLIDARIO_PAT : prm.SOLIDARIO_PAT, monto: r2(r.patronal.riesgo + r.patronal.solidario) },
@@ -253,7 +259,7 @@ export async function calcularPlanilla(periodoId: number, planilla: Planilla) {
       if (r.saldo < 0) avisos.push(`${v.codigo} ${v.nombre}: saldo B2 negativo (${r.saldo}) — ajustar en Albor y descontar en B1`);
       const nombres = new Map(n.map((x) => [x.codigo, x.nombre]));
       resultados.push({ v, dias, tg: r.totalIngresos, cot: 0, desc: r.totalDescuentos, liq: r.saldo,
-        lineas: r.lineas.map((l) => (l.concepto.startsWith('Bono ') && l.codigo && nombres.get(l.codigo) ? { ...l, concepto: nombres.get(l.codigo)! } : l)) });
+        lineas: conFaltas(r.lineas).map((l) => (l.concepto.startsWith('Bono ') && l.codigo && nombres.get(l.codigo) ? { ...l, concepto: nombres.get(l.codigo)! } : l)) });
     }
   }
 
