@@ -12,7 +12,7 @@ export const sql: postgres.Sql =
   g.__sql ??
   (g.__sql = postgres(url || 'postgres://falta-DATABASE_URL@invalido/none', {
     prepare: false,
-    max: 3,
+    max: 5,
     connect_timeout: 10,
     ssl: local ? false : 'require',
     types: { numeric: { to: 1700, from: [1700], serialize: (x: unknown) => String(x), parse: (x: string) => Number(x) } },

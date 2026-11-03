@@ -1,6 +1,7 @@
 import 'server-only';
 import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import { sql } from '@/lib/db';
 import { COOKIE, DURACION_H, firmar, verificar } from './sesion-firma';
@@ -46,13 +47,14 @@ export function validarClave(clave: string) {
 }
 
 // ------------------------------------------------------------------ sesión
-export async function usuarioActual(): Promise<Usuario | null> {
+/** Usuario de la sesión (una sola consulta por pedido aunque lo llamen el layout y la página). */
+export const usuarioActual = cache(async (): Promise<Usuario | null> => {
   const s = await verificar((await cookies()).get(COOKIE)?.value);
   if (!s) return null;
   const [u] = await sql<Usuario[]>`select id, email, nombre, rol::text rol, coalesce(debe_cambiar_clave, false) debe_cambiar_clave, trabajador_id
                                    from usuario where id = ${s.u} and activo`;
   return u ?? null;
-}
+});
 
 /** Corta la acción si el usuario no tiene permiso (o no inició sesión). */
 export async function exigir(p: Permiso) {

@@ -12,17 +12,19 @@ const falta = (dias: number) => (dias <= 0 ? <span className="chip alerta">Ya cu
 export const dynamic = 'force-dynamic';
 
 export default async function Inicio() {
-  const [c] = await sql<{ trabajadores: number; empresas: number; b1: number; b2solo: number }[]>`
+  const hoy = hoyBo(), en30 = new Date(Date.now() + 30 * 86400_000).toISOString().slice(0, 10);
+  // Todo en paralelo: cada consulta viaja a la base, así la página espera una sola vez
+  const [[c], porEmpresa, periodosT, rot, vacPend, vacApr] = await Promise.all([
+    sql<{ trabajadores: number; empresas: number; b1: number; b2solo: number }[]>`
     select (select count(*) from vinculo where fecha_retiro is null)::int trabajadores,
            (select count(*) from empresa where activo)::int empresas,
            (select count(*) from vinculo where fecha_retiro is null and en_b1)::int b1,
-           (select count(*) from vinculo where fecha_retiro is null and not en_b1)::int b2solo`;
-  const porEmpresa = [...await sql<{ codigo: string; n: number }[]>`
+           (select count(*) from vinculo where fecha_retiro is null and not en_b1)::int b2solo`,
+    sql<{ codigo: string; n: number }[]>`
     select e.codigo, count(*)::int n from vinculo v join empresa e on e.id = v.empresa_id
-    where v.fecha_retiro is null and v.en_b1 group by e.codigo order by n desc, e.codigo`];
-  const periodos = (await listarPeriodos()).slice(0, 4);
-  const hoy = hoyBo(), en30 = new Date(Date.now() + 30 * 86400_000).toISOString().slice(0, 10);
-  const [rot, vacPend, vacApr] = await Promise.all([proximosRotar(6), listarSolicitudes({ estado: 'PENDIENTE' }), listarSolicitudes({ estado: 'APROBADA', desdeFecha: hoy })]);
+    where v.fecha_retiro is null and v.en_b1 group by e.codigo order by n desc, e.codigo`,
+    listarPeriodos(), proximosRotar(6), listarSolicitudes({ estado: 'PENDIENTE' }), listarSolicitudes({ estado: 'APROBADA', desdeFecha: hoy })]);
+  const periodos = periodosT.slice(0, 4);
   const vac = [...vacPend, ...vacApr.filter((v) => v.desde <= en30)].sort((a, b) => a.desde.localeCompare(b.desde));
   const deVacacion = vacApr.filter((v) => v.desde <= hoy).length;
   const rot30 = rot.filter((r) => r.dias <= 30).length, sinContrato = rot.filter((r) => !r.contrato_fecha && !r.contrato_vence).length;

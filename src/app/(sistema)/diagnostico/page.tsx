@@ -7,6 +7,12 @@ export default async function Diagnostico() {
   pruebas.push({ nombre: 'Variable DATABASE_URL', ok: !!process.env.DATABASE_URL, detalle: conexionSinClave() });
   try {
     const [r] = await sql<{ v: string }[]>`select version() v`;
+    // Velocidad: cuánto tarda ida y vuelta una consulta mínima entre el servidor de Vercel y Supabase
+    const ms: number[] = [];
+    for (let i = 0; i < 5; i++) { const t0 = performance.now(); await sql`select 1`; ms.push(performance.now() - t0); }
+    const prom = ms.reduce((a, b) => a + b, 0) / ms.length;
+    pruebas.push({ nombre: 'Región del servidor (Vercel)', ok: true, detalle: process.env.VERCEL_REGION ?? 'local' });
+    pruebas.push({ nombre: 'Demora por consulta', ok: prom < 40, detalle: `${prom.toFixed(0)} ms promedio (${ms.map((x) => x.toFixed(0)).join(', ')}) — ideal < 20 ms; más de 80 ms indica que el servidor y la base están en regiones distintas` });
     pruebas.push({ nombre: 'Conexión a la base', ok: true, detalle: r.v.split(',')[0] });
     const t = await sql<{ tabla: string; n: number }[]>`
       select 'trabajador' tabla, (select count(*) from trabajador)::int n union all
