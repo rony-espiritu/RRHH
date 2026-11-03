@@ -192,6 +192,45 @@ export async function registrarVacacion(vinculoId: number, desde: string | null,
   const signo = tipo === 'GOZADO' || tipo === 'PAGADO' ? -Math.abs(dias) : dias;
   await sql`insert into vacacion_mov (vinculo_id, fecha_desde, fecha_hasta, dias, tipo, referencia) values (${vinculoId}, ${nul(desde)}, ${nul(hasta)}, ${signo}, ${tipo}, ${nul(ref)})`;
 }
+/**
+ * Corrige la fecha de ingreso del vínculo (error de carga). Si el vínculo viene de un cambio de empresa,
+ * también corre la fecha de retiro del vínculo anterior y pasa las novedades de los meses afectados al vínculo que corresponde.
+ */
+export async function corregirIngreso(vinculoId: number, nueva: string, motivo: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(nueva)) throw new Error('Fecha inválida');
+  if (!motivo.trim()) throw new Error('Indicá el motivo de la corrección');
+  return sql.begin(async (tx) => {
+    const [v] = await tx<{ trabajador_id: number; fecha_ingreso: string; fecha_retiro: string | null }[]>`
+      select trabajador_id, fecha_ingreso::text, fecha_retiro::text from vinculo where id = ${vinculoId} for update`;
+    if (!v) throw new Error('Vínculo no encontrado');
+    const vieja = v.fecha_ingreso;
+    if (nueva === vieja) throw new Error('Es la misma fecha');
+    if (v.fecha_retiro && nueva > v.fecha_retiro) throw new Error('La fecha de ingreso no puede ser posterior al retiro');
+    const desde = nueva < vieja ? nueva : vieja, hasta = nueva < vieja ? vieja : nueva;
+    const [cer] = await tx<{ anio: number; mes: number }[]>`select anio, mes from periodo where fecha_fin >= ${desde} and fecha_inicio < ${hasta}
+      and (estado_b1 in ('APROBADO', 'CERRADO') or estado_b2 in ('APROBADO', 'CERRADO')) order by fecha_inicio limit 1`;
+    if (cer) throw new Error(`La planilla de ${cer.mes}/${cer.anio} ya está aprobada o cerrada: reabrila antes de corregir la fecha`);
+    // Vínculo anterior (si viene de un cambio de empresa)
+    const [ant] = await tx<{ id: number; fecha_ingreso: string }[]>`select id, fecha_ingreso::text from vinculo
+      where trabajador_id = ${v.trabajador_id} and id <> ${vinculoId} and fecha_retiro = ${diaAntes(vieja)} limit 1`;
+    if (ant && nueva <= ant.fecha_ingreso) throw new Error(`No puede ser anterior al ingreso del vínculo anterior (${ant.fecha_ingreso})`);
+    await tx`update vinculo set fecha_ingreso = ${nueva} where id = ${vinculoId}`;
+    await tx`update asignacion_cc set vigente_desde = ${nueva} where vinculo_id = ${vinculoId} and vigente_desde = ${vieja}`;
+    await tx`update concepto_fijo set vigente_desde = ${nueva} where vinculo_id = ${vinculoId} and vigente_desde = ${vieja}`;
+    const meses = (await tx<{ id: number }[]>`select id from periodo where fecha_inicio >= ${desde} and fecha_inicio < ${hasta}`).map((x) => x.id).concat(0);
+    if (ant) {
+      await tx`update vinculo set fecha_retiro = ${diaAntes(nueva)} where id = ${ant.id}`;
+      await tx`update asignacion_cc set vigente_hasta = ${diaAntes(nueva)} where vinculo_id = ${ant.id} and vigente_hasta = ${diaAntes(vieja)}`;
+      await tx`update concepto_fijo set vigente_hasta = ${diaAntes(nueva)} where vinculo_id = ${ant.id} and vigente_hasta = ${diaAntes(vieja)}`;
+      const [de, a] = nueva < vieja ? [ant.id, vinculoId] : [vinculoId, ant.id];
+      await tx`update novedad set vinculo_id = ${a} where vinculo_id = ${de} and periodo_id in ${tx(meses)}`;
+    }
+    await tx`delete from planilla_trabajador where vinculo_id in ${tx([vinculoId, ant?.id ?? 0])} and periodo_id in ${tx(meses)}`;
+    await tx`insert into auditoria (tabla, registro_id, accion, antes, despues) values ('vinculo', ${String(vinculoId)}, 'CORR_ING',
+      ${tx.json({ fecha_ingreso: vieja })}, ${tx.json({ fecha_ingreso: nueva, motivo, vinculo_anterior: ant?.id ?? null })})`;
+  });
+}
+
 export async function eliminarVacacion(id: number) { await sql`delete from vacacion_mov where id = ${id}`; }
 
 /**

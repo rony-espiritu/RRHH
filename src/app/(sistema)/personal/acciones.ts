@@ -3,7 +3,7 @@ import { exigir } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-  agregarDependiente, cambiarCentroCosto, cambiarEmpresa, cambiarFijo, cambiarPago, cambiarTasa, crearTrabajador, darDeBaja,
+  agregarDependiente, cambiarCentroCosto, cambiarEmpresa, corregirIngreso, cambiarFijo, cambiarPago, cambiarTasa, crearTrabajador, darDeBaja,
   eliminarDependiente, eliminarVacacion, guardarDatosPersonales, guardarLaboral, guardarSeguridadSocial, registrarVacacion,
 } from '@/lib/datos/personal';
 
@@ -120,4 +120,11 @@ export async function accionNuevo(fd: FormData) {
   }
   revalidatePath('/personal');
   redirect(`/personal/${codigo}?msg=${encodeURIComponent('Trabajador registrado')}`);
+}
+
+export async function accionCorregirIngreso(fd: FormData) {
+  await exigir('editar');
+  const codigo = String(fd.get('codigo'));
+  await conError(codigo, 'laboral', () => corregirIngreso(Number(fd.get('vinculo')), String(fd.get('fecha')), String(fd.get('motivo') ?? '')),
+    'Fecha de ingreso corregida. Si afecta un mes ya calculado, volvé a calcular esa planilla.');
 }

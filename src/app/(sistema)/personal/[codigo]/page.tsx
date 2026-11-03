@@ -4,7 +4,7 @@ import { catalogos, obtenerFicha, saldoVacaciones, type Ficha } from '@/lib/dato
 import { nombreMes } from '@/lib/datos/planilla';
 import { bs } from '@/lib/formato';
 import {
-  accionBaja, accionCambiarEmpresa, accionCentroCosto, accionDatosPersonales, accionDependiente, accionFijo, accionLaboral,
+  accionBaja, accionCambiarEmpresa, accionCorregirIngreso, accionCentroCosto, accionDatosPersonales, accionDependiente, accionFijo, accionLaboral,
   accionPago, accionSeguridad, accionTasa, accionVacacion,
 } from '../acciones';
 
@@ -118,6 +118,18 @@ async function Laboral({ f }: { f: Ficha }) {
           <button>Cambiar centro de costo</button>
         </form>}
       </div>
+
+      {activa && <details className="panel">
+        <summary><b>Corregir fecha de ingreso</b> <span className="sub">(si se cargó mal)</span></summary>
+        <p className="sub" style={{ marginTop: 8 }}>Cambia la fecha de ingreso de este vínculo ({v.fecha_ingreso}) y lo que empieza ese día (centro de costo, sueldo y bonos fijos).
+          Si viene de un cambio de empresa, también corre la fecha de retiro del vínculo anterior. Los meses afectados no deben estar aprobados ni cerrados.</p>
+        <form action={accionCorregirIngreso} className="fila">
+          <Ocultos codigo={f.t.codigo} extra={{ vinculo: v.id }} />
+          Fecha correcta <input type="date" name="fecha" required defaultValue={v.fecha_ingreso} />
+          <input name="motivo" placeholder="Motivo (p.ej. error de carga)" required style={{ minWidth: 240 }} />
+          <button className="sec">Corregir</button>
+        </form>
+      </details>}
 
       {activa && <div className="panel">
         <h3 style={{ marginTop: 0 }}>Cambio de empresa</h3>
