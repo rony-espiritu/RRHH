@@ -177,10 +177,12 @@ export type FilaSaldo = {
  * "Neto B2" = ingresos menos préstamos y cooperativa del mes, calculado por el sistema antes de anticipos.
  */
 export async function previsualizarSaldos(periodoId: number, saldos: SaldoAlbor[]) {
-  const trab = await sql<{ codigo: string; nombre: string; vinculo_id: number; trabajador_id: number; neto: number }[]>`
+  const trab = await sql<{ codigo: string; nombre: string; vinculo_id: number; trabajador_id: number; neto: number; faltas: number }[]>`
     select t.codigo, concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres) nombre, pt.vinculo_id, t.id trabajador_id,
            pt.liquido + coalesce((select sum(l.monto) from planilla_linea l join concepto c on c.id = l.concepto_id
-                                  where l.planilla_trabajador_id = pt.id and c.codigo = 511), 0) neto
+                                  where l.planilla_trabajador_id = pt.id and c.codigo = 511), 0) neto,
+           coalesce((select sum(l.monto) from planilla_linea l join concepto c on c.id = l.concepto_id
+                     where l.planilla_trabajador_id = pt.id and c.codigo = 520), 0) faltas
     from planilla_trabajador pt join vinculo v on v.id = pt.vinculo_id join trabajador t on t.id = v.trabajador_id
     where pt.periodo_id = ${periodoId} and pt.planilla = 'B2' order by nombre`;
   if (!trab.length) throw new Error('Primero calcule la B2 del periodo (paso 2).');
@@ -202,10 +204,19 @@ export async function previsualizarSaldos(periodoId: number, saldos: SaldoAlbor[
     const vb1 = b1.find((x) => x.trabajador_id === t.trabajador_id)?.vinculo_id ?? null;
     if (!s) return { codigo: t.codigo, nombre: t.nombre, vinculo_id: t.vinculo_id, vinculo_b1: vb1, saldo: null, neto, anticipo: manuales.get(t.vinculo_id) ?? 0, anticipoAlbor: 0, pagar: r2(neto - (manuales.get(t.vinculo_id) ?? 0)), descuentoB1: 0,
       nota: 'No figura en el archivo de Albor: se le paga todo su neto B2' };
-    const pagarAlbor = Math.max(0, -s.saldo), descuentoB1 = Math.max(0, s.saldo);
-    let anticipo = r2(neto - pagarAlbor), nota: string | undefined;
+    // Las faltas B2 no estaban en la carga inicial de Albor: no cambian los anticipos (ya gastados),
+    // se descuentan de lo que le queda por cobrar y, si no alcanza, el resto pasa a la B1.
+    const faltas = Number(t.faltas);
+    const pagarAlbor = Math.max(0, -s.saldo);
+    let descuentoB1 = Math.max(0, s.saldo);
+    let anticipo = r2(neto + faltas - pagarAlbor), nota: string | undefined;
     if (anticipo < 0) { nota = `El saldo de Albor (${pagarAlbor}) es mayor a su neto del mes: arrastra saldo de meses anteriores`; anticipo = 0; }
-    if (descuentoB1 && !vb1) nota = 'Gastó más que su cuenta corriente pero no está en B1: el descuento queda pendiente';
+    if (anticipo > neto) {
+      const exceso = r2(anticipo - neto);
+      anticipo = r2(neto); descuentoB1 = r2(descuentoB1 + exceso);
+      nota = [nota, `Faltas B2 ${faltas}: no alcanzó el saldo B2, pasan ${exceso} a la B1`].filter(Boolean).join(' · ');
+    } else if (faltas) nota = [nota, `Faltas B2 ${faltas} descontadas del saldo a cobrar`].filter(Boolean).join(' · ');
+    if (descuentoB1 && !vb1) nota = [nota, 'Gastó más que su cuenta corriente pero no está en B1: el descuento queda pendiente'].filter(Boolean).join(' · ');
     const anticipoAlbor = anticipo;
     const manual = manuales.get(t.vinculo_id);
     if (manual != null) { nota = [nota, `Anticipo modificado a mano: ${manual} (Albor daba ${anticipo})`].filter(Boolean).join(' · '); anticipo = manual; }
