@@ -8,9 +8,11 @@ import { useEffect, useState } from 'react';
  */
 export default function Procesando() {
   const [texto, setTexto] = useState<string | null>(null);
+  const [navegando, setNavegando] = useState(false);
   const ruta = usePathname(), params = useSearchParams();
   const limpiar = () => {
     setTexto(null);
+    setNavegando(false);
     document.body.classList.remove('procesando');
     document.querySelectorAll('.cargando').forEach((b) => { b.classList.remove('cargando'); b.removeAttribute('aria-busy'); });
   };
@@ -35,10 +37,21 @@ export default function Procesando() {
     };
     // Al volver con el botón "Atrás" el navegador puede restaurar la página con el indicador puesto: se limpia
     const alMostrar = (e: PageTransitionEvent) => { if (e.persisted) limpiar(); };
+    // Clic en un enlace interno: barra de carga arriba hasta que llega la página nueva
+    const alClic = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as HTMLElement).closest?.('a');
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+      const u = new URL(a.href, location.href);
+      if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search)) return;
+      setNavegando(true);
+    };
     document.addEventListener('submit', alEnviar, true);
+    document.addEventListener('click', alClic, true);
     window.addEventListener('pageshow', alMostrar);
     return () => {
       document.removeEventListener('submit', alEnviar, true);
+      document.removeEventListener('click', alClic, true);
       window.removeEventListener('pageshow', alMostrar);
       // al salir del sistema (p. ej. a la página de ingreso) no debe quedar nada bloqueado
       document.body.classList.remove('procesando');
@@ -56,10 +69,17 @@ export default function Procesando() {
     return () => clearTimeout(t);
   }, [texto]);
 
-  if (!texto) return null;
+  // Seguridad: la barra de navegación se quita sola a los 20 s
+  useEffect(() => {
+    if (!navegando) return;
+    const t = setTimeout(() => setNavegando(false), 20000);
+    return () => clearTimeout(t);
+  }, [navegando]);
+
+  if (!texto) return navegando ? <div className="cargando-barra" role="progressbar" aria-label="Cargando" /> : null;
   return (
-    <div className="procesando-aviso" role="status" aria-live="polite">
+    <>{navegando && <div className="cargando-barra" />}<div className="procesando-aviso" role="status" aria-live="polite">
       <span className="giro" /> {texto}… <small>un momento, por favor</small>
-    </div>
+    </div></>
   );
 }

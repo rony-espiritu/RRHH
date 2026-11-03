@@ -1,28 +1,47 @@
 import Link from 'next/link';
+import { Fragment } from 'react';
 import { nombreMes, novedadesDelPeriodo, obtenerPeriodo, personalDelPeriodo, type Planilla } from '@/lib/datos/planilla';
 import { accionNovedades } from '../../acciones';
 import { FiltroEmpresas, elegirEmpresas } from '../../../filtro-empresas';
 
 export const dynamic = 'force-dynamic';
 
-const COLUMNAS: Record<Planilla, { codigo: number; titulo: string; campo: 'cantidad' | 'monto' }[]> = {
+type Col = { codigo: number; titulo: string; campo: 'cantidad' | 'monto'; corto: string; grupo: 'Ingresos' | 'Descuentos'; ayuda?: string };
+/** Conceptos que se pueden cargar a mano en el mes (lo fijo sale de la ficha del trabajador). */
+const COLUMNAS: Record<Planilla, Col[]> = {
   B1: [
-    { codigo: 4, titulo: 'Horas extra (h)', campo: 'cantidad' },
-    { codigo: 520, titulo: 'Faltas (días)', campo: 'cantidad' },
-    { codigo: 511, titulo: 'Anticipos (Bs)', campo: 'monto' },
-    { codigo: 508, titulo: 'Préstamo interno (Bs)', campo: 'monto' },
+    { codigo: 4, titulo: 'Horas extra (h)', corto: 'HE', campo: 'cantidad', grupo: 'Ingresos' },
+    { codigo: 9, titulo: 'Bono natalidad / defunción (Bs)', corto: 'Natalidad', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 71, titulo: 'Retroactivo incremento (Bs)', corto: 'Retroactivo', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 520, titulo: 'Faltas (días)', corto: 'Faltas', campo: 'cantidad', grupo: 'Descuentos', ayuda: 'Sueldo ÷ 30 × días, en Bs' },
+    { codigo: 511, titulo: 'Anticipos (Bs)', corto: 'Anticipos', campo: 'monto', grupo: 'Descuentos' },
+    { codigo: 508, titulo: 'Préstamo interno (Bs)', corto: 'Préstamo int.', campo: 'monto', grupo: 'Descuentos' },
+    { codigo: 509, titulo: 'Interés préstamo interno (Bs)', corto: 'Interés int.', campo: 'monto', grupo: 'Descuentos' },
+    { codigo: 516, titulo: 'Pedido a comerciante (Bs)', corto: 'Comerciante', campo: 'monto', grupo: 'Descuentos' },
   ],
   B2: [
-    { codigo: 7, titulo: 'Horas extra B2 (h)', campo: 'cantidad' },
-    { codigo: 520, titulo: 'Faltas (días)', campo: 'cantidad' },
-    { codigo: 506, titulo: 'Amort. préstamo coop. (Bs)', campo: 'monto' },
-    { codigo: 507, titulo: 'Interés préstamo coop. (Bs)', campo: 'monto' },
-    { codigo: 508, titulo: 'Préstamo interno (Bs)', campo: 'monto' },
-    { codigo: 511, titulo: 'Anticipos (Bs)', campo: 'monto' },
+    { codigo: 7, titulo: 'Horas extra B2 (h)', corto: 'HE', campo: 'cantidad', grupo: 'Ingresos' },
+    { codigo: 25, titulo: 'Bono rendimiento (Bs)', corto: 'B. rendimiento', campo: 'monto', grupo: 'Ingresos', ayuda: 'Se suma al fijo de la ficha' },
+    { codigo: 12, titulo: 'Bono apoyo alimentación (Bs)', corto: 'B. alimentación', campo: 'monto', grupo: 'Ingresos', ayuda: 'Se suma al fijo de la ficha' },
+    { codigo: 13, titulo: 'Bono carne (Bs)', corto: 'B. carne', campo: 'monto', grupo: 'Ingresos', ayuda: 'Se suma al fijo de la ficha' },
+    { codigo: 11, titulo: 'Gratificación puestero (Bs)', corto: 'Puestero', campo: 'monto', grupo: 'Ingresos', ayuda: 'Se suma al fijo de la ficha' },
+    { codigo: 19, titulo: 'Bono combustible (Bs)', corto: 'B. combustible', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 23, titulo: 'Bono uso de motorizados (Bs)', corto: 'B. motorizados', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 75, titulo: 'Bono cumplimiento (Bs)', corto: 'B. cumplimiento', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 9, titulo: 'Bono natalidad / defunción (Bs)', corto: 'Natalidad', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 70, titulo: 'Abono por error en descuentos (Bs)', corto: 'Abono error', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 520, titulo: 'Faltas (días)', corto: 'Faltas', campo: 'cantidad', grupo: 'Descuentos', ayuda: 'Abono ÷ 30 × días, en Bs' },
+    { codigo: 511, titulo: 'Anticipos (Bs)', corto: 'Anticipos', campo: 'monto', grupo: 'Descuentos', ayuda: 'Reemplaza al de Albor' },
+    { codigo: 506, titulo: 'Amort. préstamo coop. (Bs)', corto: 'Préstamo coop.', campo: 'monto', grupo: 'Descuentos', ayuda: 'Se suma a Cooperativa' },
+    { codigo: 507, titulo: 'Interés préstamo coop. (Bs)', corto: 'Interés coop.', campo: 'monto', grupo: 'Descuentos', ayuda: 'Se suma a Cooperativa' },
+    { codigo: 508, titulo: 'Préstamo interno (Bs)', corto: 'Préstamo int.', campo: 'monto', grupo: 'Descuentos' },
+    { codigo: 509, titulo: 'Interés préstamo interno (Bs)', corto: 'Interés int.', campo: 'monto', grupo: 'Descuentos' },
+    { codigo: 512, titulo: 'Ventas pulpería y almacenes (Bs)', corto: 'Pulpería', campo: 'monto', grupo: 'Descuentos' },
+    { codigo: 516, titulo: 'Pedido a comerciante (Bs)', corto: 'Comerciante', campo: 'monto', grupo: 'Descuentos' },
   ],
 };
 
-export default async function Novedades({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ pl?: string; msg?: string; empresa?: string; cc?: string; q?: string; orden?: string; dir?: string }> }) {
+export default async function Novedades({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ pl?: string; msg?: string; empresa?: string; cc?: string; q?: string; orden?: string; dir?: string; editar?: string }> }) {
   const id = Number((await params).id);
   const sp = await searchParams;
   const pl = (sp.pl === 'B2' ? 'B2' : 'B1') as Planilla;
@@ -42,7 +61,7 @@ export default async function Novedades({ params, searchParams }: { params: Prom
   const orden = sp.orden && ORDEN[sp.orden] ? sp.orden : undefined, desc = sp.dir === 'desc';
   if (orden) personal.sort((a, b) => (ORDEN[orden](a).localeCompare(ORDEN[orden](b), 'es') || a.nombre.localeCompare(b.nombre, 'es')) * (desc ? -1 : 1));
   const url = (c: Record<string, string | undefined>) => {
-    const x = new URLSearchParams(); const v = { pl, empresa: sp.empresa, cc: sp.cc, q: sp.q, orden: sp.orden, dir: sp.dir, ...c };
+    const x = new URLSearchParams(); const v = { pl, empresa: sp.empresa, cc: sp.cc, q: sp.q, orden: sp.orden, dir: sp.dir, editar: sp.editar, ...c };
     for (const [k, y] of Object.entries(v)) if (y) x.set(k, y);
     return `?${x}`;
   };
@@ -54,6 +73,7 @@ export default async function Novedades({ params, searchParams }: { params: Prom
   };
   const importadas = (vinc: number, cod: number) => nov.filter((n) => n.vinculo_id === vinc && n.codigo === cod && n.origen !== 'MANUAL').reduce((a, n) => a + Number(n.monto ?? n.cantidad ?? 0), 0);
   const cols = COLUMNAS[pl];
+  const fmt = (x: number) => x.toLocaleString('es-BO', { maximumFractionDigits: 2 });
   const Th = ({ k, t }: { k: string; t: string }) => (
     <th><Link className="ordenar" href={url({ orden: k, dir: orden === k && !desc ? 'desc' : undefined })}>{t}{orden === k ? (desc ? ' ▼' : ' ▲') : ''}</Link></th>);
   return (
@@ -79,37 +99,59 @@ export default async function Novedades({ params, searchParams }: { params: Prom
           {sp.q && <Link href={url({ q: undefined })}>Quitar búsqueda</Link>}
           <span className="sub">{personal.length} de {todos.length} trabajadores</span></form>
       </div>
-      <form action={accionNovedades}>
-        <input type="hidden" name="periodo" value={id} /><input type="hidden" name="planilla" value={pl} />
-        <input type="hidden" name="volver" value={url({}).slice(1)} />
-        <div className="tabla">
-          <table>
-            <thead><tr><Th k="codigo" t="Código" /><Th k="nombre" t="Nombre" /><Th k="empresa" t="Empresa" /><Th k="cc" t="CC" />{cols.map((c) => <th key={c.codigo} className="n">{c.titulo}</th>)}</tr></thead>
-            <tbody>
-              {personal.map((v) => (
-                <tr key={v.vinculo_id}>
-                  <td>{v.codigo}</td><td>{v.nombre}</td><td>{emp(v)}</td><td>{v.centro_costo}</td>
-                  {cols.map((c) => {
-                    const k = `n|${v.vinculo_id}|${pl}|${c.codigo}|${c.campo}`;
-                    const val = valor(v.vinculo_id, c.codigo, c.campo);
-                    const imp = importadas(v.vinculo_id, c.codigo);
-                    return (
-                      <td key={c.codigo} className="n">
-                        <input type="hidden" name={'o' + k.slice(1)} value={val} />
-                        <input name={k} className="num" defaultValue={val} disabled={bloqueado} inputMode="decimal" />
-                        {pl === 'B2' && c.codigo === 511
-                          ? (imp ? <div style={{ fontSize: 11, color: val ? 'var(--warn)' : 'var(--muted)' }}>{val ? `reemplaza ${imp} de Albor` : `Albor: ${imp}`}</div> : null)
-                          : imp ? <div style={{ fontSize: 11, color: 'var(--muted)' }}>+{imp} {[506, 507, 508, 509].includes(c.codigo) ? 'Cooperativa' : 'ya cargado'}</div> : null}
-                      </td>
-                    );
-                  })}
+      <p className="sub">Hacé clic en el <b>nombre</b> para ver y editar todos sus conceptos del mes.</p>
+      <div className="tabla">
+        <table className="compacta">
+          <thead><tr><Th k="codigo" t="Código" /><Th k="nombre" t="Nombre" /><Th k="empresa" t="Empresa" /><Th k="cc" t="CC" /><th>Novedades del mes</th><th></th></tr></thead>
+          <tbody>
+            {personal.map((v) => {
+              const abierto = sp.editar === String(v.vinculo_id);
+              const resumen = cols.map((c) => {
+                const man = valor(v.vinculo_id, c.codigo, c.campo), imp = importadas(v.vinculo_id, c.codigo);
+                const tot = pl === 'B2' && c.codigo === 511 ? (man !== '' ? Number(man) : imp) : (man !== '' ? Number(man) : 0) + imp;
+                if (!tot) return null;
+                return <span key={c.codigo} className={`chip ${c.grupo === 'Descuentos' ? 'desc' : ''}`}>{c.corto} {fmt(tot)}{c.campo === 'cantidad' ? (c.codigo === 520 ? ' d' : ' h') : ''}</span>;
+              }).filter(Boolean);
+              return (<Fragment key={v.vinculo_id}>
+                <tr id={`v${v.vinculo_id}`} className={abierto ? 'fila-abierta' : ''}>
+                  <td>{v.codigo}</td>
+                  <td><Link href={`/periodos/${id}/novedades${url({ editar: abierto ? undefined : String(v.vinculo_id) })}`} scroll={false}><b>{v.nombre}</b></Link></td>
+                  <td>{emp(v)}</td><td>{v.centro_costo}</td>
+                  <td>{resumen.length ? <span className="nov-resumen">{resumen}</span> : <span className="sub">—</span>}</td>
+                  <td><Link className="sub" href={`/periodos/${id}/novedades${url({ editar: abierto ? undefined : String(v.vinculo_id) })}`} scroll={false}>{abierto ? 'Cerrar ▲' : 'Editar ▼'}</Link></td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {!bloqueado && <p><button>Guardar novedades</button></p>}
-      </form>
+                {abierto && (
+                  <tr className="fila-editor"><td colSpan={6}>
+                    <form action={accionNovedades} className="nov-editor">
+                      <input type="hidden" name="periodo" value={id} /><input type="hidden" name="planilla" value={pl} />
+                      <input type="hidden" name="volver" value={url({}).slice(1)} />
+                      {(['Ingresos', 'Descuentos'] as const).map((g) => (
+                        <fieldset key={g}><legend>{g}</legend>
+                          <div className="nov-campos">
+                            {cols.filter((c) => c.grupo === g).map((c) => {
+                              const k = `n|${v.vinculo_id}|${pl}|${c.codigo}|${c.campo}`;
+                              const val = valor(v.vinculo_id, c.codigo, c.campo);
+                              const imp = importadas(v.vinculo_id, c.codigo);
+                              return (
+                                <label key={c.codigo} className="campo"><span>{c.titulo}</span>
+                                  <input type="hidden" name={'o' + k.slice(1)} value={val} />
+                                  <input name={k} className="num" defaultValue={val} disabled={bloqueado} inputMode="decimal" />
+                                  <small>{pl === 'B2' && c.codigo === 511
+                                    ? (imp ? (val ? `reemplaza ${fmt(imp)} de Albor` : `Albor: ${fmt(imp)}`) : c.ayuda)
+                                    : imp ? `+${fmt(imp)} ${[506, 507, 508, 509].includes(c.codigo) ? 'de Cooperativa' : 'ya cargado (importado)'}` : c.ayuda}</small>
+                                </label>);
+                            })}
+                          </div>
+                        </fieldset>))}
+                      {!bloqueado && <div className="fila"><button>Guardar novedades de {v.nombre.split(' ').slice(-1)[0]}</button>
+                        <Link href={`/periodos/${id}/novedades${url({ editar: undefined })}`} scroll={false}>Cerrar</Link></div>}
+                    </form>
+                  </td></tr>)}
+              </Fragment>);
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
