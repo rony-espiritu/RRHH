@@ -65,7 +65,7 @@ export async function accionCambiarEmpresa(fd: FormData) {
   await exigir('editar');
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'laboral', () => cambiarEmpresa(Number(fd.get('vinculo')), Number(fd.get('empresa_id')), String(fd.get('fecha')), n(fd, 'motivo_retiro'), s(fd, 'tipo_finiquito')),
-    'Cambio de empresa registrado: se cerró el vínculo anterior y se abrió uno nuevo');
+    'Cambio de empresa registrado: se cerró el vínculo anterior y se abrió uno nuevo. Si el cambio es de un mes ya calculado, volvé a calcular esa planilla.');
 }
 
 export async function accionBaja(fd: FormData) {

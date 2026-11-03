@@ -202,6 +202,10 @@ export async function cambiarEmpresa(vinculoId: number, empresaId: number, fecha
   return sql.begin(async (tx) => {
     const [v] = await tx<Vinculo[]>`select *, fecha_ingreso::text from vinculo where id = ${vinculoId}`;
     if (fecha <= v.fecha_ingreso) throw new Error('La fecha del cambio debe ser posterior al ingreso');
+    // Cambio con fecha pasada: los meses desde esa fecha no pueden estar aprobados ni cerrados
+    const [cer] = await tx<{ anio: number; mes: number }[]>`select anio, mes from periodo where fecha_fin >= ${fecha} and tipo = 'MENSUAL'
+      and (estado_b1 in ('APROBADO', 'CERRADO') or estado_b2 in ('APROBADO', 'CERRADO')) order by fecha_inicio limit 1`;
+    if (cer) throw new Error(`La planilla de ${cer.mes}/${cer.anio} ya está aprobada o cerrada: reabrila antes de cambiar la empresa desde esa fecha`);
     await tx`update vinculo set fecha_retiro = ${diaAntes(fecha)}, motivo_retiro = ${motivoRetiro}, tipo_finiquito = ${tipoFiniquito} where id = ${vinculoId}`;
     const [n] = await tx<{ id: number }[]>`
       insert into vinculo (trabajador_id, empresa_id, empresa_b2_id, en_b1, en_b2, fecha_ingreso, cargo_id, ocupacion, area_id, nivel_id, modalidad_contrato, tipo_contrato, horas_dia, observacion)
@@ -215,7 +219,10 @@ export async function cambiarEmpresa(vinculoId: number, empresaId: number, fecha
              select ${n.id}, centro_costo_id, planilla, porcentaje, albor_cc, albor_unidad_negocio, ${fecha} from asignacion_cc
              where vinculo_id = ${vinculoId} and (vigente_hasta is null or vigente_hasta >= ${fecha})`;
     await tx`update asignacion_cc set vigente_hasta = ${diaAntes(fecha)} where vinculo_id = ${vinculoId} and vigente_hasta is null`;
-    await tx`insert into auditoria (tabla, registro_id, accion, despues) values ('vinculo', ${String(vinculoId)}, 'CAMBIO_EMPRESA', ${tx.json({ nuevo: n.id, empresaId, fecha, motivoRetiro, tipoFiniquito })})`;
+    // Novedades de los meses desde el cambio pasan al vínculo nuevo; su planilla calculada se borra (hay que recalcular)
+    await tx`update novedad set vinculo_id = ${n.id} where vinculo_id = ${vinculoId} and periodo_id in (select id from periodo where fecha_inicio >= ${fecha})`;
+    await tx`delete from planilla_trabajador where vinculo_id = ${vinculoId} and periodo_id in (select id from periodo where fecha_inicio >= ${fecha})`;
+    await tx`insert into auditoria (tabla, registro_id, accion, despues) values ('vinculo', ${String(vinculoId)}, 'CAMBIO_EMP', ${tx.json({ nuevo: n.id, empresaId, fecha, motivoRetiro, tipoFiniquito })})`;
     return n.id;
   });
 }
