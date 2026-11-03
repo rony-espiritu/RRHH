@@ -22,7 +22,7 @@ const COLUMNAS: Record<Planilla, { codigo: number; titulo: string; campo: 'canti
   ],
 };
 
-export default async function Novedades({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ pl?: string; msg?: string; empresa?: string; cc?: string; q?: string }> }) {
+export default async function Novedades({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ pl?: string; msg?: string; empresa?: string; cc?: string; q?: string; orden?: string; dir?: string }> }) {
   const id = Number((await params).id);
   const sp = await searchParams;
   const pl = (sp.pl === 'B2' ? 'B2' : 'B1') as Planilla;
@@ -37,8 +37,12 @@ export default async function Novedades({ params, searchParams }: { params: Prom
   const q = (sp.q ?? '').trim().toLowerCase();
   const personal = todos.filter((v) => elegidas.includes(emp(v)) && (!sp.cc || (v.centro_costo ?? 'Sin CC') === sp.cc)
     && (!q || v.nombre.toLowerCase().includes(q) || v.codigo.toLowerCase().includes(q)));
+  // Orden por columna (clic en el título): código, nombre, empresa o centro de costo
+  const ORDEN: Record<string, (v: (typeof todos)[number]) => string> = { codigo: (v) => v.codigo, nombre: (v) => v.nombre, empresa: (v) => emp(v) ?? '', cc: (v) => v.centro_costo ?? '' };
+  const orden = sp.orden && ORDEN[sp.orden] ? sp.orden : undefined, desc = sp.dir === 'desc';
+  if (orden) personal.sort((a, b) => (ORDEN[orden](a).localeCompare(ORDEN[orden](b), 'es') || a.nombre.localeCompare(b.nombre, 'es')) * (desc ? -1 : 1));
   const url = (c: Record<string, string | undefined>) => {
-    const x = new URLSearchParams(); const v = { pl, empresa: sp.empresa, cc: sp.cc, q: sp.q, ...c };
+    const x = new URLSearchParams(); const v = { pl, empresa: sp.empresa, cc: sp.cc, q: sp.q, orden: sp.orden, dir: sp.dir, ...c };
     for (const [k, y] of Object.entries(v)) if (y) x.set(k, y);
     return `?${x}`;
   };
@@ -50,6 +54,8 @@ export default async function Novedades({ params, searchParams }: { params: Prom
   };
   const importadas = (vinc: number, cod: number) => nov.filter((n) => n.vinculo_id === vinc && n.codigo === cod && n.origen !== 'MANUAL').reduce((a, n) => a + Number(n.monto ?? n.cantidad ?? 0), 0);
   const cols = COLUMNAS[pl];
+  const Th = ({ k, t }: { k: string; t: string }) => (
+    <th><Link className="ordenar" href={url({ orden: k, dir: orden === k && !desc ? 'desc' : undefined })}>{t}{orden === k ? (desc ? ' ▼' : ' ▲') : ''}</Link></th>);
   return (
     <>
       <p><Link href={`/periodos/${id}`}>← {nombreMes(p.mes)} {p.anio}</Link></p>
@@ -68,7 +74,7 @@ export default async function Novedades({ params, searchParams }: { params: Prom
           <Link className={`btn ${sp.cc ? 'sec' : ''}`} href={url({ cc: undefined })}>Todos</Link>
           {centros.map((c) => <Link key={c} className={`btn ${sp.cc === c ? '' : 'sec'}`} href={url({ cc: c })}>{c}</Link>)}</div>
         <form className="fila"><span className="etq">Buscar</span>
-          <input type="hidden" name="pl" value={pl} />{sp.empresa && <input type="hidden" name="empresa" value={sp.empresa} />}{sp.cc && <input type="hidden" name="cc" value={sp.cc} />}
+          <input type="hidden" name="pl" value={pl} />{sp.empresa && <input type="hidden" name="empresa" value={sp.empresa} />}{sp.cc && <input type="hidden" name="cc" value={sp.cc} />}{sp.orden && <input type="hidden" name="orden" value={sp.orden} />}{sp.dir && <input type="hidden" name="dir" value={sp.dir} />}
           <input name="q" defaultValue={sp.q ?? ''} placeholder="Nombre o código" /><button className="sec">Buscar</button>
           {sp.q && <Link href={url({ q: undefined })}>Quitar búsqueda</Link>}
           <span className="sub">{personal.length} de {todos.length} trabajadores</span></form>
@@ -78,7 +84,7 @@ export default async function Novedades({ params, searchParams }: { params: Prom
         <input type="hidden" name="volver" value={url({}).slice(1)} />
         <div className="tabla">
           <table>
-            <thead><tr><th>Código</th><th>Nombre</th><th>Empresa</th><th>CC</th>{cols.map((c) => <th key={c.codigo} className="n">{c.titulo}</th>)}</tr></thead>
+            <thead><tr><Th k="codigo" t="Código" /><Th k="nombre" t="Nombre" /><Th k="empresa" t="Empresa" /><Th k="cc" t="CC" />{cols.map((c) => <th key={c.codigo} className="n">{c.titulo}</th>)}</tr></thead>
             <tbody>
               {personal.map((v) => (
                 <tr key={v.vinculo_id}>
