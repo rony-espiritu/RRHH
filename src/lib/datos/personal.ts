@@ -14,7 +14,7 @@ export interface Trabajador {
 }
 export interface Vinculo {
   id: number; empresa_id: number; empresa: string; empresa_nombre: string; empresa_b2_id: number | null; empresa_b2: string | null;
-  en_b1: boolean; en_b2: boolean; fecha_ingreso: string; fecha_retiro: string | null; motivo_retiro: number | null; tipo_finiquito: string | null;
+  en_b1: boolean; en_b2: boolean; fecha_ingreso: string; fecha_base_vacaciones: string | null; fecha_retiro: string | null; motivo_retiro: number | null; tipo_finiquito: string | null;
   cargo_id: number | null; cargo: string | null; ocupacion: string | null; area_id: number | null; area: string | null;
   modalidad_contrato: number | null; tipo_contrato: number | null; horas_dia: number | null; observacion: string | null;
 }
@@ -41,7 +41,7 @@ export async function obtenerFicha(codigo: string) {
   const [t] = await sql<Trabajador[]>`select *, fecha_nacimiento::text, fecha_ingreso_grupo::text from trabajador where codigo = ${codigo}`;
   if (!t) return null;
   const vinculos = [...await sql<Vinculo[]>`
-    select v.*, v.fecha_ingreso::text, v.fecha_retiro::text, e.codigo empresa, e.razon_social empresa_nombre, e2.codigo empresa_b2,
+    select v.*, v.fecha_ingreso::text, v.fecha_base_vacaciones::text, v.fecha_retiro::text, e.codigo empresa, e.razon_social empresa_nombre, e2.codigo empresa_b2,
            c.descripcion cargo, a.descripcion area
     from vinculo v join empresa e on e.id = v.empresa_id left join empresa e2 on e2.id = v.empresa_b2_id
     left join cargo c on c.id = v.cargo_id left join area a on a.id = v.area_id
@@ -103,7 +103,7 @@ export function derechoVacaciones(fechaIngreso: string, corte = hoy()) {
 
 export function saldoVacaciones(f: Ficha) {
   if (!f.vigente) return { derecho: 0, tomados: 0, ajustes: 0, saldo: 0, anios: 0, gestiones: [] as ReturnType<typeof derechoVacaciones>['gestiones'] };
-  const d = derechoVacaciones(f.vigente.fecha_ingreso);
+  const d = derechoVacaciones(f.vigente.fecha_base_vacaciones ?? f.vigente.fecha_ingreso);
   const movs = f.vacaciones.filter((m) => m.vinculo_id === f.vigente!.id);
   const tomados = -movs.filter((m) => m.tipo === 'GOZADO' || m.tipo === 'PAGADO').reduce((s, m) => s + Number(m.dias), 0);
   const ajustes = movs.filter((m) => m.tipo === 'AJUSTE' || m.tipo === 'SALDO_INICIAL').reduce((s, m) => s + Number(m.dias), 0);
@@ -231,6 +231,15 @@ export async function corregirIngreso(vinculoId: number, nueva: string, motivo: 
   });
 }
 
+/** Fecha exclusiva para el cálculo de vacaciones (vacío = fecha de ingreso del vínculo). */
+export async function guardarBaseVacaciones(vinculoId: number, fecha: string | null) {
+  if (fecha && !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) throw new Error('Fecha inválida');
+  const [antes] = await sql<{ f: string | null }[]>`select fecha_base_vacaciones::text f from vinculo where id = ${vinculoId}`;
+  await sql`update vinculo set fecha_base_vacaciones = ${fecha} where id = ${vinculoId}`;
+  await sql`insert into auditoria (tabla, registro_id, accion, antes, despues) values ('vinculo', ${String(vinculoId)}, 'BASE_VAC',
+    ${sql.json({ fecha_base_vacaciones: antes?.f ?? null })}, ${sql.json({ fecha_base_vacaciones: fecha })})`;
+}
+
 export async function eliminarVacacion(id: number) { await sql`delete from vacacion_mov where id = ${id}`; }
 
 /**
@@ -247,8 +256,8 @@ export async function cambiarEmpresa(vinculoId: number, empresaId: number, fecha
     if (cer) throw new Error(`La planilla de ${cer.mes}/${cer.anio} ya está aprobada o cerrada: reabrila antes de cambiar la empresa desde esa fecha`);
     await tx`update vinculo set fecha_retiro = ${diaAntes(fecha)}, motivo_retiro = ${motivoRetiro}, tipo_finiquito = ${tipoFiniquito} where id = ${vinculoId}`;
     const [n] = await tx<{ id: number }[]>`
-      insert into vinculo (trabajador_id, empresa_id, empresa_b2_id, en_b1, en_b2, fecha_ingreso, cargo_id, ocupacion, area_id, nivel_id, modalidad_contrato, tipo_contrato, horas_dia, observacion)
-      select trabajador_id, ${empresaId}, empresa_b2_id, en_b1, en_b2, ${fecha}, cargo_id, ocupacion, area_id, nivel_id, modalidad_contrato, tipo_contrato, horas_dia,
+      insert into vinculo (trabajador_id, empresa_id, empresa_b2_id, en_b1, en_b2, fecha_ingreso, fecha_base_vacaciones, cargo_id, ocupacion, area_id, nivel_id, modalidad_contrato, tipo_contrato, horas_dia, observacion)
+      select trabajador_id, ${empresaId}, empresa_b2_id, en_b1, en_b2, ${fecha}, fecha_base_vacaciones, cargo_id, ocupacion, area_id, nivel_id, modalidad_contrato, tipo_contrato, horas_dia,
              ${'Viene del vínculo ' + vinculoId} from vinculo where id = ${vinculoId} returning id`;
     await tx`insert into concepto_fijo (vinculo_id, concepto_id, cantidad, monto, vigente_desde, motivo)
              select ${n.id}, concepto_id, cantidad, monto, ${fecha}, 'Copiado al cambiar de empresa' from concepto_fijo

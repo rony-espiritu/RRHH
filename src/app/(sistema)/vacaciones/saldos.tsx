@@ -29,7 +29,7 @@ export async function Saldos({ empresa, orden }: { empresa?: string; orden?: str
       <div className="panel">
         <h3 style={{ marginTop: 0 }}>Saldo de vacaciones por trabajador <span className="sub">al {larga(new Date(Date.now() - 4 * 3600_000).toISOString().slice(0, 10))} · {elegidas.join(', ')}</span></h3>
         <table className="compacta"><thead><tr>
-          <th>Código</th><th>Trabajador</th><th>Emp.</th><th>Cargo</th><th>Ingreso</th><th className="num">Años</th><th className="num">Días/año</th>
+          <th>Código</th><th>Trabajador</th><th>Emp.</th><th>Cargo</th><th>Base vacaciones</th><th className="num">Años</th><th className="num">Días/año</th>
           <th className="num">Derecho</th><th className="num">Tomados</th><th className="num">Ajustes</th><th className="num">Saldo</th><th className="num">En trámite</th>
           <th>Última vacación</th><th>Próxima gestión</th></tr></thead><tbody>
           {xs.map((x) => (
@@ -44,7 +44,7 @@ export async function Saldos({ empresa, orden }: { empresa?: string; orden?: str
           <tr className="total"><td colSpan={7}>TOTAL ({xs.length} trabajadores)</td><td className="num">{num(tot.derecho)}</td><td className="num">{num(tot.tomados)}</td>
             <td className="num">{num(tot.ajustes)}</td><td className="num">{num(tot.saldo)}</td><td className="num">{num(tot.tramite)}</td><td colSpan={2} /></tr>
         </tbody></table>
-        <p className="sub" style={{ marginBottom: 0 }}>Derecho = 15 días por año cumplido (1 a 4 años), 20 (5 a 9) y 30 (10 o más), desde el ingreso a la empresa actual. Saldo = derecho + ajustes − tomados.
+        <p className="sub" style={{ marginBottom: 0 }}>Derecho = 15 días por año cumplido (1 a 4 años), 20 (5 a 9) y 30 (10 o más), desde la fecha base de vacaciones (si no se cargó en la ficha, la fecha de ingreso a la empresa actual). Saldo = derecho + ajustes − tomados.
           Lo que está en trámite todavía no se descuenta.</p>
       </div>
     </>

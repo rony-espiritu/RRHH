@@ -31,7 +31,7 @@ export async function reglasDias(sexo: string | null, lugar: string | null): Pro
 export async function trabajadorVacaciones(trabajadorId: number, corte = hoyBo()): Promise<TrabVac | null> {
   const [t] = await sql<Omit<TrabVac, 'derecho' | 'usados' | 'saldo' | 'pendientes' | 'reglas'>[]>`
     select t.id trabajador_id, v.id vinculo_id, t.sexo, cc.lugar, t.codigo, trim(concat_ws(' ', t.nombres, t.ap_paterno, t.ap_materno)) nombre,
-           coalesce(cg.descripcion, v.ocupacion) cargo, coalesce(a.descripcion, cc.descripcion) area, e.codigo empresa, v.fecha_ingreso::text
+           coalesce(cg.descripcion, v.ocupacion) cargo, coalesce(a.descripcion, cc.descripcion) area, e.codigo empresa, coalesce(v.fecha_base_vacaciones, v.fecha_ingreso)::text fecha_ingreso
     from trabajador t join vinculo v on v.trabajador_id = t.id and v.fecha_retiro is null join empresa e on e.id = v.empresa_id
     left join cargo cg on cg.id = v.cargo_id left join area a on a.id = v.area_id
     left join lateral (select c.descripcion, lg.codigo lugar from asignacion_cc x join centro_costo c on c.id = x.centro_costo_id left join lugar lg on lg.id = c.lugar_id
@@ -132,7 +132,7 @@ export async function saldosVacaciones(corte = hoyBo()): Promise<SaldoVac[]> {
   const xs = await sql<{ trabajador_id: number; codigo: string; nombre: string; empresa: string; cargo: string | null; fecha_ingreso: string; sexo: string | null;
     tomados: string; ajustes: string; tramite: string; ultima: string | null }[]>`
     select t.id trabajador_id, t.codigo, trim(concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres)) nombre, e.codigo empresa,
-           coalesce(cg.descripcion, v.ocupacion) cargo, v.fecha_ingreso::text, t.sexo,
+           coalesce(cg.descripcion, v.ocupacion) cargo, coalesce(v.fecha_base_vacaciones, v.fecha_ingreso)::text fecha_ingreso, t.sexo,
            coalesce((select -sum(dias) from vacacion_mov m where m.vinculo_id = v.id and m.tipo in ('GOZADO', 'PAGADO')), 0) tomados,
            coalesce((select sum(dias) from vacacion_mov m where m.vinculo_id = v.id and m.tipo in ('AJUSTE', 'SALDO_INICIAL')), 0) ajustes,
            coalesce((select sum(dias) from vacacion_solicitud s where s.vinculo_id = v.id and s.estado = 'PENDIENTE'), 0) tramite,

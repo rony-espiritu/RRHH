@@ -30,7 +30,7 @@ export async function datosImpresion(periodoId: number, planilla: Planilla) {
     select pt.id pt_id, pt.vinculo_id, t.codigo, trim(concat_ws(' ', t.ap_paterno, t.ap_materno, t.nombres)) nombre,
            concat_ws(', ', nullif(t.ap_paterno, ''), nullif(t.ap_materno, ''), t.nombres) nombre_coma,
            t.ci, t.ci_expedido, coalesce(t.nacionalidad, 'Boliviana') nacionalidad, t.fecha_nacimiento::text, t.sexo, coalesce(pt.cargo_texto, v.ocupacion) ocupacion,
-           v.fecha_ingreso::text, v.fecha_retiro::text, pt.dias_pagados dias, coalesce(pt.horas_dia, v.horas_dia, 8) horas_dia, t.nua_cua, t.nro_asegurado,
+           v.fecha_ingreso::text, coalesce(v.fecha_base_vacaciones, v.fecha_ingreso)::text fecha_base_vac, v.fecha_retiro::text, pt.dias_pagados dias, coalesce(pt.horas_dia, v.horas_dia, 8) horas_dia, t.nua_cua, t.nro_asegurado,
            e.codigo empresa, e.id empresa_id, cc.codigo cc, cc.descripcion cc_desc, lg.nombre lugar, lg.codigo lugar_codigo, lg.orden lugar_orden, coalesce(cc.rubro, cc.descripcion) rubro, pt.total_ganado, pt.total_descuentos, pt.liquido, pt.forma_pago::text, pt.nro_cuenta,
            coalesce((select json_agg(json_build_object('codigo', l.codigo, 'nombre', c.nombre, 'naturaleza', c.naturaleza, 'cantidad', l.cantidad, 'base', l.base,
                                                        'tasa', l.tasa, 'monto', l.monto) order by c.orden, l.codigo)
@@ -47,7 +47,7 @@ export async function datosImpresion(periodoId: number, planilla: Planilla) {
   const out: FilaImp[] = filas.map((f) => ({
     ...f,
     lineas: f.lineas.map((l) => ({ ...l, monto: Number(l.monto), cantidad: l.cantidad == null ? null : Number(l.cantidad), base: l.base == null ? null : Number(l.base), tasa: l.tasa == null ? null : Number(l.tasa) })),
-    saldo_vacaciones: planilla === 'B1' ? derechoVacaciones(f.fecha_ingreso, fin).total + (vac.get(f.vinculo_id) ?? 0) : null,
+    saldo_vacaciones: planilla === 'B1' ? derechoVacaciones((f as unknown as { fecha_base_vac: string }).fecha_base_vac ?? f.fecha_ingreso, fin).total + (vac.get(f.vinculo_id) ?? 0) : null,
   }));
   return { p, prm, fin, empresas, filas: out };
 }

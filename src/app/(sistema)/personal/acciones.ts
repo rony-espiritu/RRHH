@@ -3,7 +3,7 @@ import { exigir } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-  agregarDependiente, cambiarCentroCosto, cambiarEmpresa, corregirIngreso, cambiarFijo, cambiarPago, cambiarTasa, crearTrabajador, darDeBaja,
+  agregarDependiente, cambiarCentroCosto, cambiarEmpresa, corregirIngreso, guardarBaseVacaciones, cambiarFijo, cambiarPago, cambiarTasa, crearTrabajador, darDeBaja,
   eliminarDependiente, eliminarVacacion, guardarDatosPersonales, guardarLaboral, guardarSeguridadSocial, registrarVacacion,
 } from '@/lib/datos/personal';
 
@@ -127,4 +127,12 @@ export async function accionCorregirIngreso(fd: FormData) {
   const codigo = String(fd.get('codigo'));
   await conError(codigo, 'laboral', () => corregirIngreso(Number(fd.get('vinculo')), String(fd.get('fecha')), String(fd.get('motivo') ?? '')),
     'Fecha de ingreso corregida. Si afecta un mes ya calculado, volvé a calcular esa planilla.');
+}
+
+export async function accionBaseVacaciones(fd: FormData) {
+  await exigir('editar');
+  const codigo = String(fd.get('codigo'));
+  const quitar = fd.get('quitar') === '1';
+  await conError(codigo, 'vacaciones', () => guardarBaseVacaciones(Number(fd.get('vinculo')), quitar ? null : s(fd, 'fecha')),
+    quitar ? 'Las vacaciones vuelven a calcularse desde la fecha de ingreso' : 'Fecha base de vacaciones guardada');
 }

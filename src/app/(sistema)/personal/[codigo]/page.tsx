@@ -4,7 +4,7 @@ import { catalogos, obtenerFicha, saldoVacaciones, type Ficha } from '@/lib/dato
 import { nombreMes } from '@/lib/datos/planilla';
 import { bs } from '@/lib/formato';
 import {
-  accionBaja, accionCambiarEmpresa, accionCorregirIngreso, accionCentroCosto, accionDatosPersonales, accionDependiente, accionFijo, accionLaboral,
+  accionBaja, accionBaseVacaciones, accionCambiarEmpresa, accionCorregirIngreso, accionCentroCosto, accionDatosPersonales, accionDependiente, accionFijo, accionLaboral,
   accionPago, accionSeguridad, accionTasa, accionVacacion,
 } from '../acciones';
 
@@ -287,12 +287,20 @@ function Vacaciones({ f }: { f: Ficha }) {
   return (
     <>
       <div className="tarjetas">
-        <div className="tarjeta"><span>Años en el vínculo</span><b>{s.anios}</b></div>
+        <div className="tarjeta"><span>Años para vacaciones</span><b>{s.anios}</b></div>
         <div className="tarjeta"><span>Días ganados</span><b>{s.derecho + s.ajustes}</b></div>
         <div className="tarjeta"><span>Días tomados</span><b>{s.tomados}</b></div>
         <div className="tarjeta"><span>Saldo</span><b>{s.saldo}</b></div>
       </div>
-      <p className="sub">Por cada año cumplido desde el {v?.fecha_ingreso}: 15 días (1 a 4 años), 20 días (5 a 9) y 30 días (10 o más).</p>
+      <p className="sub">Por cada año cumplido desde el <b>{v?.fecha_base_vacaciones ?? v?.fecha_ingreso}</b>{v?.fecha_base_vacaciones ? ' (fecha base de vacaciones)' : ' (fecha de ingreso)'}: 15 días (1 a 4 años), 20 días (5 a 9) y 30 días (10 o más).</p>
+      {v && !v.fecha_retiro && <form action={accionBaseVacaciones} className="panel fila">
+        <Ocultos codigo={f.t.codigo} extra={{ vinculo: v.id }} />
+        <span className="etq">Fecha base para vacaciones</span>
+        <input type="date" name="fecha" defaultValue={v.fecha_base_vacaciones ?? ''} required />
+        <button className="sec">Guardar</button>
+        {v.fecha_base_vacaciones && <button className="sec" name="quitar" value="1" formNoValidate>Quitar (usar ingreso {v.fecha_ingreso})</button>}
+        <span className="sub" style={{ margin: 0 }}>Solo para el cálculo de vacaciones, cuando la antigüedad real para vacaciones no coincide con la fecha de ingreso de la ficha (por ejemplo, por venir de B2 o de otra empresa del grupo). No cambia la antigüedad ni la planilla.</span>
+      </form>}
       {v && !v.fecha_retiro && <form action={accionVacacion} className="panel fila">
         <Ocultos codigo={f.t.codigo} extra={{ vinculo: v.id }} />
         <select name="tipo"><option value="GOZADO">Vacación tomada</option><option value="PAGADO">Vacación pagada</option><option value="AJUSTE">Ajuste (+/−)</option><option value="SALDO_INICIAL">Saldo inicial</option></select>
