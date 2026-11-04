@@ -11,7 +11,8 @@ export async function enviarCorreo(d: { para: string; asunto: string; html: stri
   if (!correoConfigurado()) throw new Error('El envío de correos no está configurado (faltan las variables SMTP en Vercel)');
   const puerto = Number(process.env.SMTP_PORT ?? 465);
   const t = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: puerto, secure: puerto === 465,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
+    // La contraseña de aplicación de Google se muestra con espacios (abcd efgh …): se quitan
+    auth: { user: process.env.SMTP_USER?.trim(), pass: process.env.SMTP_PASS?.replace(/\s+/g, '') } });
   await t.sendMail({ from: process.env.SMTP_FROM || `RRHH Estancias Espíritu <${process.env.SMTP_USER}>`, to: d.para, subject: d.asunto, html: d.html, text: d.texto });
 }
 
