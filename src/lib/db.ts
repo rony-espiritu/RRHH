@@ -14,6 +14,8 @@ export const sql: postgres.Sql =
     prepare: false,
     max: 5,
     connect_timeout: 10,
+    idle_timeout: 20,          // serverless: cerrar conexiones ociosas para no acumularlas en el pooler
+    max_lifetime: 60 * 15,
     ssl: local ? false : 'require',
     types: { numeric: { to: 1700, from: [1700], serialize: (x: unknown) => String(x), parse: (x: string) => Number(x) } },
   }));
