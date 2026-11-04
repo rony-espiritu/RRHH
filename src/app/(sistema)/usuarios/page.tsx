@@ -1,4 +1,6 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { correoConfigurado } from '@/lib/correo';
 import { listarUsuarios, puede, ROLES, usuarioActual } from '@/lib/auth';
 import { trabajadoresActivos } from '@/lib/datos/vacaciones';
 import { accionCrearUsuario, accionEditarUsuario, accionRestablecer } from './acciones';
@@ -11,6 +13,9 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
   const sp = await searchParams;
   const [us, trabs] = await Promise.all([listarUsuarios(), trabajadoresActivos()]);
   const conAcceso = new Set(us.map((u) => u.trabajador_id).filter(Boolean));
+  let flash: { usuario: string; clave: string; motivo: string } | null = null;
+  try { const c = (await cookies()).get('flash_clave')?.value; flash = c ? JSON.parse(c) : null; } catch { flash = null; }
+  const conCorreo = correoConfigurado();
   const SelRol = ({ f, v }: { f?: string; v: string }) => <select form={f} name="rol" defaultValue={v}>{ROLES.filter((r) => r.rol !== 'TRABAJADOR').map((r) => <option key={r.rol} value={r.rol}>{r.nombre}</option>)}</select>;
   return (
     <>
@@ -18,6 +23,11 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
       <p className="sub">Quién puede entrar al sistema y qué puede hacer. Las contraseñas se guardan cifradas: nadie, ni el administrador, puede verlas.</p>
       {sp.msg && <div className="panel" style={{ borderColor: 'var(--ok)' }}>{sp.msg}</div>}
       {sp.err && <div className="error">{sp.err}</div>}
+      {flash && sp.msg && <div className="panel" style={{ borderColor: 'var(--dorado)', background: '#fffaf4' }}>
+        <b>Contraseña temporal</b> — {flash.motivo}<br />
+        Usuario: <b>{flash.usuario}</b> · Contraseña: <b style={{ fontFamily: 'monospace', fontSize: 18, letterSpacing: 1 }}>{flash.clave}</b>
+        <div className="sub" style={{ margin: '4px 0 0' }}>Anotala ahora: no se vuelve a mostrar (desaparece en 2 minutos). Al ingresar se le pedirá cambiarla.</div></div>}
+      {!conCorreo && <div className="aviso">El envío de la contraseña por correo todavía no está configurado: mientras tanto el sistema la genera y la muestra acá para que se la pases.</div>}
       <div className="panel">
         <table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Activo</th><th>Último ingreso</th><th></th><th>Restablecer contraseña</th></tr></thead><tbody>
           {us.map((u) => { const f = `u${u.id}`; return (
@@ -30,7 +40,7 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
               <td className="sub">{u.ultimo_ingreso ?? 'nunca'}</td>
               <td><form id={f} action={accionEditarUsuario}><input type="hidden" name="id" value={u.id} /><button>Guardar</button></form></td>
               <td><form action={accionRestablecer} className="fila"><input type="hidden" name="id" value={u.id} />
-                <input type="text" name="clave" placeholder="Contraseña temporal" minLength={8} required style={{ width: 150 }} autoComplete="off" /><button className="sec">Restablecer</button></form></td>
+                <input type="text" name="clave" placeholder="Vacío = automática" minLength={8} style={{ width: 150 }} autoComplete="off" /><button className="sec">Restablecer</button></form></td>
             </tr>
           ); })}
         </tbody></table>
@@ -41,9 +51,9 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
           <label className="campo"><span>Nombre *</span><input name="nombre" required /></label>
           <label className="campo"><span>Correo *</span><input type="email" name="email" required autoComplete="off" /></label>
           <label className="campo"><span>Rol *</span><SelRol v="RRHH" /></label>
-          <label className="campo"><span>Contraseña temporal * (8+, letras y números)</span><input type="text" name="clave" required minLength={8} autoComplete="off" /></label>
+          <label className="campo"><span>Contraseña temporal (opcional)</span><input type="text" name="clave" minLength={8} autoComplete="off" placeholder="vacío = se genera sola" /></label>
         </div>
-        <p className="sub">Al ingresar por primera vez se le pedirá cambiar la contraseña.</p>
+        <p className="sub">Si dejás la contraseña vacía, el sistema genera una y {conCorreo ? <b>se la envía a su correo</b> : 'te la muestra para que se la pases'}. Al ingresar por primera vez se le pedirá cambiarla.</p>
         <p><button>Crear usuario</button></p>
       </form>
       <form action={accionCrearUsuario} className="panel">
@@ -55,7 +65,7 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
             <option value="" disabled>Elegir…</option>
             {trabs.filter((t) => !conAcceso.has(t.id)).map((t) => <option key={t.id} value={t.id}>{t.nombre} ({t.codigo})</option>)}</select></label>
           <label className="campo"><span>Correo (opcional)</span><input type="email" name="email" autoComplete="off" placeholder="si no tiene, entra con su código" /></label>
-          <label className="campo"><span>Contraseña temporal * (8+, letras y números)</span><input type="text" name="clave" required minLength={8} autoComplete="off" /></label>
+          <label className="campo"><span>Contraseña temporal (opcional)</span><input type="text" name="clave" minLength={8} autoComplete="off" placeholder="vacío = se genera sola" /></label>
         </div>
         <p><button>Crear acceso</button></p>
       </form>

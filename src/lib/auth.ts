@@ -41,6 +41,14 @@ export function claveCorrecta(clave: string, hash: string | null) {
   const a = Buffer.from(h, 'hex'), b = scryptSync(clave, sal, 64);
   return a.length === b.length && timingSafeEqual(a, b);
 }
+/** Contraseña temporal al azar: 10 caracteres con letras y números (sin 0/O, 1/l/I para que no se confundan). */
+export function generarClave() {
+  const L = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ', N = '23456789', T = L + N;
+  const b = randomBytes(10);
+  const c = Array.from(b, (x, i) => (i === 0 ? L : i === 1 ? N : T)[x % (i === 0 ? L.length : i === 1 ? N.length : T.length)]);
+  return c.sort(() => (randomBytes(1)[0] > 127 ? 1 : -1)).join('');
+}
+
 export function validarClave(clave: string) {
   if (clave.length < 8) throw new Error('La contraseña debe tener al menos 8 caracteres');
   if (!/[A-Za-z]/.test(clave) || !/[0-9]/.test(clave)) throw new Error('La contraseña debe tener letras y números');
@@ -117,6 +125,7 @@ export async function crearUsuario(d: { email: string; nombre: string; rol: Rol;
   await sql`insert into usuario (email, nombre, rol, clave_hash, debe_cambiar_clave, activo, trabajador_id)
             values (${email.toLowerCase()}, ${nombre}, ${d.rol}::rol_usuario, ${hashClave(d.clave)}, ${!!por}, true, ${d.rol === 'TRABAJADOR' ? d.trabajadorId! : null})`;
   await sql`insert into auditoria (tabla, registro_id, accion, despues, usuario_id) values ('usuario', ${email}, 'INSERT', ${sql.json({ rol: d.rol, nombre })}, ${por ?? null})`;
+  return { email: email.toLowerCase(), nombre };
 }
 export async function editarUsuario(id: string, d: { nombre: string; rol: Rol; activo: boolean }, por: string) {
   if (id === por && (d.rol !== 'ADMIN' || !d.activo)) throw new Error('No podés quitarte el rol de administrador ni desactivarte a vos mismo');
