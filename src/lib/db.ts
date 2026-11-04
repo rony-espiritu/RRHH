@@ -16,6 +16,7 @@ export const sql: postgres.Sql =
     connect_timeout: 10,
     idle_timeout: 20,          // serverless: cerrar conexiones ociosas para no acumularlas en el pooler
     max_lifetime: 60 * 15,
+    connection: { application_name: 'rrhh-vercel' },   // para identificar las conexiones del sistema en Supabase
     ssl: local ? false : 'require',
     types: { numeric: { to: 1700, from: [1700], serialize: (x: unknown) => String(x), parse: (x: string) => Number(x) } },
   }));
