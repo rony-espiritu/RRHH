@@ -88,7 +88,8 @@ export async function generarAsientos(periodoId: number, grupo: GrupoAsiento, so
   };
 
   for (const t of trab) {
-    const ingresos = t.lineas.filter((l) => l.codigo < 500);
+    // Conceptos con tipo contable 000 (p.ej. Abono comidas) ya vienen registrados en Albor: no generan asiento
+    const ingresos = t.lineas.filter((l) => l.codigo < 500 && l.tipo !== '000');
     if (grupo === 'P1') {
       for (const l of ingresos) debeGasto(l.nombre, l.tipo ?? '001', Number(l.monto), t.vinculo_id);
       for (const l of t.lineas.filter((x) => x.codigo >= 500 && x.codigo < 900)) pasivo(String(l.codigo), Number(l.monto), t.codigo);

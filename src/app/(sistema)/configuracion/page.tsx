@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 const PESTANAS = [['parametros', 'Parámetros'], ['tablas', 'Antigüedad y solidario'], ['conceptos-b1', 'Conceptos B1'], ['conceptos-b2', 'Conceptos B2'],
   ['centros', 'Centros de costo'], ['cuentas', 'Cuentas Albor'], ['empresas', 'Empresas'], ['feriados', 'Feriados']] as const;
 const MESES = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-const TIPOS = [['001', '001 Remuneraciones'], ['002', '002 Horas extra'], ['003', '003 Cargas sociales'], ['004', '004 Finiquitos'], ['006', '006 Premios y bonos'], ['007', '007 Otros']];
+const TIPOS = [['001', '001 Remuneraciones'], ['002', '002 Horas extra'], ['003', '003 Cargas sociales'], ['004', '004 Finiquitos'], ['006', '006 Premios y bonos'], ['007', '007 Otros'], ['000', '000 No contabiliza (ya está en Albor)']];
 const primeroDeMes = () => new Date().toISOString().slice(0, 8) + '01';
 
 function mostrar(valor: number | undefined, tipo: string) {

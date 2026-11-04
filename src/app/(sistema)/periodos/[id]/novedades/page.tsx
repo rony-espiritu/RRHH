@@ -29,6 +29,7 @@ const COLUMNAS: Record<Planilla, Col[]> = {
     { codigo: 23, titulo: 'Bono uso de motorizados (Bs)', corto: 'B. motorizados', campo: 'monto', grupo: 'Ingresos' },
     { codigo: 75, titulo: 'Bono cumplimiento (Bs)', corto: 'B. cumplimiento', campo: 'monto', grupo: 'Ingresos' },
     { codigo: 9, titulo: 'Bono natalidad / defunción (Bs)', corto: 'Natalidad', campo: 'monto', grupo: 'Ingresos' },
+    { codigo: 26, titulo: 'Abono comidas (Bs)', corto: 'Abono comidas', campo: 'monto', grupo: 'Ingresos', ayuda: 'Viene de Albor: no genera asiento' },
     { codigo: 70, titulo: 'Abono por error en descuentos (Bs)', corto: 'Abono error', campo: 'monto', grupo: 'Ingresos' },
     { codigo: 520, titulo: 'Faltas (días)', corto: 'Faltas', campo: 'cantidad', grupo: 'Descuentos', ayuda: 'Abono ÷ 30 × días, en Bs' },
     { codigo: 511, titulo: 'Anticipos (Bs)', corto: 'Anticipos', campo: 'monto', grupo: 'Descuentos', ayuda: 'Reemplaza al de Albor' },
