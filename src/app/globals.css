@@ -284,3 +284,11 @@ tr.fila-editor > td { background: #fffaf4; padding: 12px 14px 14px; border-botto
 .nov-editor legend { font-weight: 700; color: var(--accent); padding: 0 6px; }
 .nov-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 14px; }
 .nov-campos small { color: var(--muted); font-size: 11px; min-height: 13px; }
+
+/* Ordenar tablas con clic en el título */
+@media screen {
+  .app main table:not(.no-ordenar) thead th { cursor: pointer; user-select: none; }
+  .app main table:not(.no-ordenar) thead th:hover { color: var(--accent); }
+  th[data-orden='asc']::after { content: ' ▲'; font-size: 9px; color: var(--accent); }
+  th[data-orden='desc']::after { content: ' ▼'; font-size: 9px; color: var(--accent); }
+}

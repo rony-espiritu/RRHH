@@ -6,6 +6,7 @@ import { puede, ROLES, usuarioActual } from '@/lib/auth';
 import { accionSalir } from '../login/acciones';
 import Menu from './menu';
 import Procesando from './procesando';
+import OrdenarTablas from './ordenar-tablas';
 
 const MENU: { href: string; texto: string; permiso?: 'usuarios' }[] = [
   { href: '/', texto: 'Inicio' }, { href: '/periodos', texto: 'Periodos' }, { href: '/personal', texto: 'Personal' }, { href: '/vacaciones', texto: 'Vacaciones' },
@@ -40,6 +41,7 @@ export default async function Sistema({ children }: Readonly<{ children: React.R
       </nav>
       <main>{children}</main>
       <Suspense fallback={null}><Procesando /></Suspense>
+      <OrdenarTablas />
     </div>
   );
 }
