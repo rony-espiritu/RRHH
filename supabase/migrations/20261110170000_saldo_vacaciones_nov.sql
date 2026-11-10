@@ -56,7 +56,8 @@ with objetivo(codigo, saldo) as (values
   ('TD0110', 12),
   ('RR1512', 6.5),
   ('FR2906', 14.5),
-  ('MS1111', 57.5)
+  ('MS1111', 57.5),
+  ('BY0912', 20.5)
 ), base as (
   select v.id vinculo_id, o.saldo, coalesce(v.fecha_base_vacaciones, v.fecha_ingreso) fb
   from objetivo o join trabajador t on t.codigo = o.codigo
